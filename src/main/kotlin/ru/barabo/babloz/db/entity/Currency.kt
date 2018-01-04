@@ -12,9 +12,11 @@ data class Currency (
 
         @ColumnName("NAME")
         @ColumnType(java.sql.Types.VARCHAR)
-        var name :String? = null,
+        var name :String = "",
 
         @ColumnName("EXT")
         @ColumnType(java.sql.Types.VARCHAR)
         var ext :String? = null
-)
+) {
+        override fun toString(): String = name
+}

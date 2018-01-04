@@ -3,9 +3,10 @@ package ru.barabo.babloz.main
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import org.slf4j.LoggerFactory
+import java.io.InputStreamReader
 
 object ResourcesManager {
-    val logger = LoggerFactory.getLogger(ResourcesManager::class.java)!!
+    private val logger = LoggerFactory.getLogger(ResourcesManager::class.java)!!
 
     private val icoHash :HashMap<String, ImageView> = HashMap()
 
@@ -13,17 +14,17 @@ object ResourcesManager {
 
     fun icon(icoName :String) :ImageView {
 
-        val ico = icoHash[icoName]
-
-        if(ico != null) {
-            return ico
-        }
+//        val ico = icoHash[icoName]
+//
+//        if(ico != null) {
+//            return ico
+//        }
 
         val newIco =  loadIcon(icoName)
 
-        logger.info("ResourcesManager newIco=$newIco")
-
-        icoHash[icoName] = newIco
+//        logger.info("ResourcesManager newIco=$newIco")
+//
+//        icoHash[icoName] = newIco
 
         return newIco
     }
@@ -37,4 +38,16 @@ object ResourcesManager {
         logger.info("ResourcesManager pathResource=$path")
         return path
     }
+
+    private val DB_STRUCTURE = "/db/db.sql"
+
+    private val DB_DATA = "/db/init.sql"
+
+    private fun textFileInJar(fullPath :String) =
+            InputStreamReader(javaClass.getResourceAsStream(fullPath)).buffered().readText()
+
+    fun dbStructureText() :String = textFileInJar(DB_STRUCTURE)
+
+    fun dbDataText() :String = textFileInJar(DB_DATA)
+
 }

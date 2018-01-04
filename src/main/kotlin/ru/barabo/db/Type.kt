@@ -2,6 +2,10 @@ package ru.barabo.db
 
 import org.slf4j.LoggerFactory
 import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.*
 
 enum class Type(val clazz: Class<*>, val sqlType: Int, val converter :(x :Any)->Any?) {
 
@@ -15,7 +19,7 @@ enum class Type(val clazz: Class<*>, val sqlType: Int, val converter :(x :Any)->
             { x -> (x as java.util.Date).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime()} ),
     DATE(java.time.LocalDate::class.javaObjectType, java.sql.Types.DATE,
             { x -> (x as java.util.Date).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()} ),
-    BIGDECIMAL(BigDecimal::class.javaObjectType, java.sql.Types.NUMERIC,
+    BIG_DECIMAL(BigDecimal::class.javaObjectType, java.sql.Types.NUMERIC,
             {x -> if(x is BigDecimal) x else java.math.BigDecimal(x.toString()) });
 
     companion object {
@@ -75,6 +79,13 @@ enum class Type(val clazz: Class<*>, val sqlType: Int, val converter :(x :Any)->
                 else -> false
             }
         }
+
+        fun localDateToSqlDate(local : LocalDate) : java.sql.Date =
+                java.sql.Date(Date.from(local.atStartOfDay(ZoneId.systemDefault()).toInstant()).time)
+
+        fun localDateToSqlDate(local : LocalDateTime) : java.sql.Date =
+                java.sql.Date(Date.from(local.atZone(ZoneId.systemDefault()).toInstant()).time)
+
     }
 }
 

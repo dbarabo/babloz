@@ -12,7 +12,7 @@ import java.time.LocalDate
         "where a.CURRENCY = c.ID and (CLOSED IS NULL OR CLOSED > CURRENT_DATE) order by a.TYPE")
 data class Account (
     @ColumnName("ID")
-    @SequenceName("SELECT COALESCE(MIN(*), 0) - 1  from CURRENCY")
+    @SequenceName("SELECT COALESCE(MIN(ID), 0) - 1  from ACCOUNT")
     @ColumnType(java.sql.Types.INTEGER)
     var id :Int? = null,
 

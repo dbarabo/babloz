@@ -6,9 +6,9 @@ import ru.barabo.babloz.db.BablozQuery
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.db.SessionSetting
 
-class dbTest {
+class DbTest {
 
-    val logger = LoggerFactory.getLogger(dbTest::class.java)!!
+    val logger = LoggerFactory.getLogger(DbTest::class.java)!!
 
     //@Test
     fun initDb() {

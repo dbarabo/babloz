@@ -21,7 +21,7 @@ open class Query (private val dbConnection :DbConnection) {
 
     @Throws(SessionException::class)
     fun selectValue(query :String, params :Array<Any?>? = null,
-                    sessionSetting : SessionSetting = SessionSetting(true)) :Any? {
+                    sessionSetting : SessionSetting = SessionSetting(false)) :Any? {
 
        val list = select(query, params, sessionSetting)
 
@@ -30,7 +30,7 @@ open class Query (private val dbConnection :DbConnection) {
 
     @Throws(SessionException::class)
     fun select(query :String, params :Array<Any?>? = null,
-                       sessionSetting : SessionSetting = SessionSetting(true) ) :List<Array<Any?>> {
+                       sessionSetting : SessionSetting = SessionSetting(false) ) :List<Array<Any?>> {
 
         logger.info("select=" + query)
 

@@ -3,42 +3,21 @@ package ru.barabo.babloz.db.service
 import ru.barabo.babloz.db.BablozOrm
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.GroupAccount
+import ru.barabo.db.service.StoreService
 
-object AccountService {
+object AccountService :StoreService<Account, GroupAccount>(BablozOrm){
 
-    private val listenerList = ArrayList<StoreListener<GroupAccount>>()
+    override fun elemRoot(): GroupAccount = GroupAccount.root
 
-    private val accountList = ArrayList<Account>()
+    override fun clazz(): Class<Account> = Account::class.java
 
-    init {
-        readAccount()
-    }
-
-    fun addListener(listener :StoreListener<GroupAccount>) {
-        listenerList.add(listener)
-
-        listener.refreshAll(GroupAccount.root)
-    }
-
-    private fun sentRefreshAllListener() {
-        listenerList.forEach {it.refreshAll(GroupAccount.root)}
-    }
-
-    private fun readAccount() {
-
-        synchronized(accountList) { accountList.clear() }
-
+    override fun beforeRead() {
         GroupAccount.rootClear()
-
-        BablozOrm.select(Account::class.java, ::callBackSelectAccount)
-
-        sentRefreshAllListener()
     }
 
-    private fun callBackSelectAccount(account :Account) {
+    override fun processInsert(item: Account) {
 
-        synchronized(accountList) { accountList.add(account) }
-
-        GroupAccount.addAccount(account)
+        GroupAccount.addAccount(item)
     }
 }
+

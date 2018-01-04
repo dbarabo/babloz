@@ -2,8 +2,11 @@ package ru.barabo.db
 
 import org.slf4j.LoggerFactory
 import ru.barabo.db.annotation.*
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 import kotlin.collections.HashMap
+import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.declaredMembers
@@ -24,7 +27,7 @@ open class TemplateQuery (private val query :Query) {
 
         private fun errorNotFoundAnnotationSequenceName(className :String?) = "Annotation @SequenceName not found for class $className"
 
-        private fun errorValueType(typeSql :Int, value :Any) = "value $value is not type $typeSql"
+        //private fun errorValueType(typeSql :Int, value :Any) = "value $value is not type $typeSql"
 
         private val ERROR_NULL_VALUE_TYPE = "Value and Type value is null"
 
@@ -94,8 +97,8 @@ open class TemplateQuery (private val query :Query) {
             val subMemberType :Class<*> = member.returnType.javaType as Class<*>
 
             subMemberType.kotlin.declaredMemberProperties.filterIsInstance<KMutableProperty<*>>()
-                    .filter { it.findAnnotation<ColumnName>()?.name != null}.forEach {
-                val subColumnName =it.findAnnotation<ColumnName>()?.name?.toUpperCase()?:return@forEach
+                    .filter { it.findAnnotation<ColumnName>()?.name != null}.forEach intern@ {
+                val subColumnName =it.findAnnotation<ColumnName>()?.name?.toUpperCase()?:return@intern
 
                 propertyByColumn.put("$prefix$subColumnName", member)
             }
@@ -105,18 +108,22 @@ open class TemplateQuery (private val query :Query) {
     }
 
     @Throws(SessionException::class)
-    fun save(item :Any) {
+    fun save(item :Any) :EditType {
 
         val idField = getFieldData(item, ID_COLUMN)
 
-        if(idField.second is Class<*>) {
+        return if(idField.second is Class<*>) {
 
             setSequenceValue(item)
 
             insert(item)
 
+            EditType.INSERT
+
         } else {
             updateById(item)
+
+            EditType.EDIT
         }
     }
 
@@ -140,7 +147,7 @@ open class TemplateQuery (private val query :Query) {
 
         val tableName = getTableName(item)
 
-        val fieldsData = getFieldsData(item)
+        val fieldsData = getFieldsDataUpdate(item)
 
         insert(tableName, fieldsData)
     }
@@ -149,7 +156,7 @@ open class TemplateQuery (private val query :Query) {
     private fun updateById(item :Any) {
         val tableName = getTableName(item)
 
-        val fieldsData = getFieldsData(item)
+        val fieldsData = getFieldsDataUpdate(item)
 
         val idField = fieldsData.firstOrNull { it.first.equals(ID_COLUMN, true) }
                 ?: throw SessionException(errorNotFoundAnnotationColumnName(item::class.simpleName))
@@ -221,11 +228,14 @@ open class TemplateQuery (private val query :Query) {
         for (member in item::class.declaredMemberProperties) {
             val annotationName = member.findAnnotation<ColumnName>()
 
-            val annotationType = member.findAnnotation<ColumnType>()
-
             if(annotationName?.name != null && (findColumn.equals(annotationName.name, true))) {
 
-                return FieldData(annotationName.name, valueToSql(item, member.call(item), annotationType?.type) )
+                val annotationType = member.findAnnotation<ColumnType>()
+
+                val converter = member.findAnnotation<Converter>()?.converterClazz
+
+                return FieldData(annotationName.name,
+                        valueToSql(member.call(item), annotationType?.type, converter) )
             }
         }
         throw SessionException(errorNotFoundAnnotationColumnName(item::class.simpleName))
@@ -235,18 +245,23 @@ open class TemplateQuery (private val query :Query) {
      * из аннотаций вытаскиваем данные для sql
      */
     @Throws(SessionException::class)
-    private fun getFieldsData(item :Any) :ArrayList<FieldData> {
+    private fun getFieldsDataUpdate(item :Any) :ArrayList<FieldData> {
 
         val fieldsData = ArrayList<FieldData>()
 
         for (member in item::class.declaredMemberProperties) {
-            val annotationName =member.findAnnotation<ColumnName>()
+            if(member.findAnnotation<ReadOnly>() != null) continue
 
-            val annotationType =member.findAnnotation<ColumnType>()
+            val annotationName = member.findAnnotation<ColumnName>()
 
             if(annotationName?.name != null) {
 
-                fieldsData.add(FieldData(annotationName.name, valueToSql(item, member.call(item), annotationType?.type) ))
+                val annotationType =member.findAnnotation<ColumnType>()
+
+                val converterClass = member.findAnnotation<Converter>()?.converterClazz
+
+                fieldsData.add(FieldData(annotationName.name,
+                        valueToSql(member.call(item), annotationType?.type, converterClass) ))
             }
         }
 
@@ -320,7 +335,7 @@ open class TemplateQuery (private val query :Query) {
      * Если value == null => return Class.Type
      */
     @Throws(SessionException::class)
-    private fun valueToSql(item :Any, value :Any?, type :Int?) :Any {
+    private fun valueToSql(value :Any?, type :Int?, converterClazz : KClass<*>?) :Any {
 
         if(value != null && type == null) {
             return value
@@ -338,19 +353,33 @@ open class TemplateQuery (private val query :Query) {
             return value
         }
 
-        if((value is Date) && Type.isDateType(type)) {
-            return value
+        if(Type.isDateType(type)) {
+            if(value is Date) {
+                return java.sql.Date(value.time)
+            }
+
+            if(value is LocalDate) {
+                return Type.localDateToSqlDate(value)
+            }
+
+            if(value is LocalDateTime) {
+                return Type.localDateToSqlDate(value)
+            }
         }
 
         if(value is String && Type.isStringType(type) ) {
             return value
         }
 
-        if(item is ConverterValue) {
-            return item.convertToBase(value)
+        if(converterClazz != null) {
+            val instance = converterClazz.objectInstance ?: converterClazz.java.newInstance()
+
+            return (instance as ConverterValue).convertToBase(value)
         }
 
-        throw SessionException(errorValueType(type, value) )
+        val (_,  newValue) = getFieldData(value, ID_COLUMN)
+
+        return newValue
     }
 
 }
