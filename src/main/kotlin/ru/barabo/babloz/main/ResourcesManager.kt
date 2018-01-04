@@ -44,7 +44,7 @@ object ResourcesManager {
     private val DB_DATA = "/db/init.sql"
 
     private fun textFileInJar(fullPath :String) =
-            InputStreamReader(javaClass.getResourceAsStream(fullPath)).buffered().readText()
+            InputStreamReader(javaClass.getResourceAsStream(fullPath), "UTF-8").buffered().readText()
 
     fun dbStructureText() :String = textFileInJar(DB_STRUCTURE)
 

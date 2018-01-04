@@ -29,6 +29,10 @@ object AccountList : Tab("Счета", VBox()), StoreListener<GroupAccount> {
                 button ("Новый счет", ResourcesManager.icon("new.png")).setOnAction { showNewAccount() }
 
                 button ("Правка счета", ResourcesManager.icon("edit.png")).setOnAction { showEditAccount() }
+
+                separator {  }
+
+                button ("Категории", ResourcesManager.icon("tree.png")).setOnAction { showCategoryList() }
             }
         }
         AccountService.addListener(this)
@@ -38,6 +42,15 @@ object AccountList : Tab("Счета", VBox()), StoreListener<GroupAccount> {
         if(!tabPane.tabs.contains(AccountEdit)) {
             tabPane.tabs.add(AccountEdit)
         }
+    }
+
+    private fun showCategoryList() {
+
+        if(!tabPane.tabs.contains(CategoryList)) {
+            tabPane.tabs.add(CategoryList)
+        }
+
+        tabPane.selectionModel.select(CategoryList)
     }
 
     private val ALERT_ACCOUNT_NOT_SELECT = "Встаньте на изменеямый счет в таблице счетов"
