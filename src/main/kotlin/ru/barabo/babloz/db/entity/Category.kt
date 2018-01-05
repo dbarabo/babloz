@@ -23,4 +23,6 @@ data class Category (
     @ColumnType(java.sql.Types.INTEGER)
     @Converter(EnumConverter::class)
     var type :CategoryType = CategoryType.COST
-)
+) {
+    override fun toString() = name?:""
+}
