@@ -1,6 +1,7 @@
 package ru.barabo.babloz.gui
 
 import javafx.application.Platform
+import javafx.scene.control.Alert
 import javafx.scene.control.Tab
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeTableView
@@ -24,20 +25,34 @@ object CategoryList : Tab("Категории", VBox()), StoreListener<GroupCate
 
         forma = form {
             toolbar {
-                button ("Сохранить", ResourcesManager.icon("save.png")).setOnAction { save() }
+                button ("Новая категория", ResourcesManager.icon("new.png")).setOnAction { showNewCategory() }
 
-                button ("Отменить", ResourcesManager.icon("cancel.png")).setOnAction { cancel() }
+                button ("Правка категории", ResourcesManager.icon("edit.png")).setOnAction { showEditCategory() }
             }
         }
         CategoryService.addListener(this)
     }
 
-    private fun save() {
-        tabPane.tabs.remove(CategoryList)
+    private fun showCategory() {
+        if(!tabPane.tabs.contains(CategoryEdit)) {
+            tabPane.tabs.add(CategoryEdit)
+        }
     }
 
-    private fun cancel() {
-        tabPane.tabs.remove(CategoryList)
+    private fun showNewCategory() {
+        showCategory()
+
+        CategoryEdit.editCategory(selectGroupCategory!!.category.copy(id = null, name = ""))
+    }
+
+    private val ALERT_CATEGORY_NOT_SELECT = "Встаньте на изменеямую категорию в таблице категорий"
+
+    private fun showEditCategory() {
+        selectGroupCategory?.category?.id
+                ?. let { showCategory()
+                    CategoryEdit.editCategory(selectGroupCategory!!.category) }
+
+                ?: alert(Alert.AlertType.ERROR, ALERT_CATEGORY_NOT_SELECT)
     }
 
     override fun refreshAll(elemRoot: GroupCategory) {
