@@ -86,7 +86,7 @@ object CategoryEdit : Tab("Правка категории", VBox()) {
 
         tabPane.selectionModel.select(CategoryEdit)
 
-        this.text = category.id ?. let { "Правка категории" } ?: "Новая категория"
+        this.text = category.id ?. let { "Правка категории" } ?: "Новая категория "
 
         nameProperty.value = category.name ?. let { category.name } ?: ""
 
