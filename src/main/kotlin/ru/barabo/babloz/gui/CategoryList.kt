@@ -65,7 +65,7 @@ object CategoryList : Tab("Категории", VBox()), StoreListener<GroupCate
                     treeTable = treeTable(elemRoot)
                 }
 
-                treeTable?.root?.children?.forEach { it.expandedProperty().set(true) }
+                //treeTable?.root?.children?.forEach { it.expandedProperty().set(true) }
 
                 treeTable?.selectionModel?.selectedItemProperty()?.addListener(
                         { _, _, newSelection ->
