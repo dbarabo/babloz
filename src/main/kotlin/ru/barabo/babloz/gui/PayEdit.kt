@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.AccountType
 import ru.barabo.babloz.db.entity.Currency
+import ru.barabo.babloz.db.entity.Pay
 import ru.barabo.babloz.db.service.AccountService
 import ru.barabo.babloz.db.service.CurrencyService
 import ru.barabo.babloz.main.ResourcesManager
@@ -24,7 +25,7 @@ object PayEdit: Tab("Правка платежа", VBox()) {
 
     private val accountTypeProperty = SimpleObjectProperty<AccountType>()
 
-    private lateinit var editAccount : Account
+    private lateinit var editPay : Pay
 
     init {
         this.graphic = ResourcesManager.icon("edit.png")
@@ -64,10 +65,10 @@ object PayEdit: Tab("Правка платежа", VBox()) {
 
     private fun save() {
 
-        editAccount = setAccountFromProperty(editAccount)
+        //editAccount = setAccountFromProperty(editAccount)
 
         try {
-            editAccount = AccountService.save(editAccount)
+            //editAccount = AccountService.save(editAccount)
 
             tabPane.tabs.remove(AccountEdit)
         } catch (e :Exception) {
@@ -88,18 +89,18 @@ object PayEdit: Tab("Правка платежа", VBox()) {
         return account
     }
 
-    fun editAccount(account : Account) {
+    fun editAccount(pay : Pay) {
 
-        editAccount = account
+        editPay = pay
 
         tabPane.selectionModel.select(AccountEdit)
 
-        this.text = account.id ?. let { "Правка счета" } ?: "Новый счет"
+        this.text = pay.id ?. let { "Правка платежа" } ?: "Новый платеж"
 
-        nameProperty.value = account.name ?. let { account.name } ?: ""
+        //nameProperty.value = pay.name ?. let { account.name } ?: ""
 
-        currencyProperty.value = account.currency ?. let { account.currency } ?: CurrencyService.defaultCurrency()
+        //currencyProperty.value = pay.currency ?. let { account.currency } ?: CurrencyService.defaultCurrency()
 
-        accountTypeProperty.value = account.type ?. let { account.type } ?: AccountType.CURRENT
+        //accountTypeProperty.value = pay.type ?. let { account.type } ?: AccountType.CURRENT
     }
 }
