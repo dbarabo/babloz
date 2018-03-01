@@ -1,5 +1,6 @@
 package ru.barabo.babloz.gui
 
+import com.sun.javafx.tk.Toolkit
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.scene.control.*
@@ -9,6 +10,7 @@ import ru.barabo.babloz.db.entity.*
 import ru.barabo.babloz.db.service.AccountService
 import ru.barabo.babloz.db.service.CategoryService
 import ru.barabo.babloz.db.service.PayService
+import ru.barabo.babloz.gui.PayEdit.findTreeItem
 import ru.barabo.babloz.main.ResourcesManager
 import tornadofx.*
 import java.math.BigDecimal
@@ -31,7 +33,9 @@ object PayEdit: Tab("Правка платежа", VBox()) {
 
     private var selectCategory: GroupCategory? = null
 
-    init {
+    private var treeViewCategory: TreeView<GroupCategory>? = null
+
+     init {
 
         this.graphic = ResourcesManager.icon("edit.png")
 
@@ -42,33 +46,40 @@ object PayEdit: Tab("Правка платежа", VBox()) {
                 button ("Отменить", ResourcesManager.icon("cancel.png")).setOnAction { cancel() }
             }
 
+            var heightText = 0.0
+
             fieldset {
+
+                var defCombo :ComboBox<*>? = null
+
                 field("Счет") {
-                    combobox<Account>(property = accountProperty, values = AccountService.accountList())
+                    combobox<Account>(property = accountProperty, values = AccountService.accountList()).apply {
+                        defCombo = this
+                    }
                 }
                 field("Дата") {
                     datepicker(property = dateProperty)
                 }
+
                 field("Категория") {
 
                     treeview(TreeItem(CategoryService.categoryRoot())).apply {
+
+                        heightText = Toolkit.getToolkit().fontLoader.getFontMetrics(this.label("").font).lineHeight.toDouble()
+
+                        treeViewCategory = this
+
                         populate { it.value.child }
 
                         root.isExpanded = true
 
                         this.isShowRoot = false
 
-                        val selectedItem = selectCategory?.let { root.findTreeItem(selectCategory) }
-
-                        selectedItem?.apply {
-                            selectionModel?.select(this)
-                        }
-
                         selectionModel?.selectedItemProperty()?.addListener(
                                 { _, _, newSelection ->
                                     selectCategory = newSelection?.value
                                 })
-                    }.prefHeight = 100.0
+                    }.prefHeight = heightText * 12.0
                 }
                 field("Сумма") {
                     textfield().apply {
@@ -132,6 +143,14 @@ object PayEdit: Tab("Правка платежа", VBox()) {
         return pay
     }
 
+    private fun setSelectItem() {
+
+       treeViewCategory?.root?.findTreeItem(selectCategory)?.apply {
+
+           treeViewCategory?.selectionModel?.select(this)
+       }
+    }
+
     fun editPay(pay : Pay) {
 
         editPay = pay
@@ -145,6 +164,8 @@ object PayEdit: Tab("Правка платежа", VBox()) {
         dateProperty.value = pay.created?.toLocalDate()?:LocalDate.now()
 
         selectCategory = pay.category?.let { GroupCategory.findByCategory(it) }
+
+        setSelectItem()
 
         logger.error("editPay selectCategory=$selectCategory")
 
