@@ -60,7 +60,7 @@ object AccountEdit : Tab("Правка счета", VBox()) {
         tabPane.tabs.remove(AccountEdit)
     }
 
-    private val ALERT_ERROR_SAVE = "Ошибка при сохранении"
+    private const val ALERT_ERROR_SAVE = "Ошибка при сохранении"
 
     private fun save() {
 

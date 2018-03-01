@@ -1,6 +1,7 @@
 package ru.barabo.babloz.gui
 
 import javafx.application.Platform
+import javafx.scene.control.Alert
 import javafx.scene.control.Tab
 import javafx.scene.control.TableView
 import javafx.scene.layout.Priority
@@ -32,25 +33,25 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
     }
 
     private fun showPay() {
-//        if(!tabPane.tabs.contains(CategoryEdit)) {
-//            tabPane.tabs.add(CategoryEdit)
-//        }
+        if(!tabPane.tabs.contains(PayEdit)) {
+            tabPane.tabs.add(PayEdit)
+        }
     }
 
     private fun showNewPay() {
         showPay()
 
-        //CategoryEdit.editCategory(selectPay!!..copy(id = null, name = ""))
+        PayEdit.editPay(selectPay!!.copy(id = null))
     }
 
-    private val ALERT_CATEGORY_NOT_SELECT = "Встаньте на изменеямую категорию в таблице категорий"
+    private const val ALERT_PAY_NOT_SELECT = "Встаньте на изменеямый платеж в таблице платежей"
 
     private fun showEditPay() {
-//        selectGroupCategory?.category?.id
-//                ?. let { showCategory()
-//                    CategoryEdit.editCategory(selectGroupCategory!!.category) }
-//
-//                ?: alert(Alert.AlertType.ERROR, ALERT_CATEGORY_NOT_SELECT)
+        selectPay?.id?. let {
+            showPay()
+            PayEdit.editPay(selectPay!!) }
+
+            ?: alert(Alert.AlertType.ERROR, ALERT_PAY_NOT_SELECT)
     }
 
     override fun refreshAll(elemRoot: List<Pay>) {
@@ -62,8 +63,6 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
                 synchronized(elemRoot) {
                     table = table(elemRoot)
                 }
-
-                //treeTable?.root?.children?.forEach { it.expandedProperty().set(true) }
 
                 table?.selectionModel?.selectedItemProperty()?.addListener(
                         { _, _, newSelection ->

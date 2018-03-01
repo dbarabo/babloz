@@ -39,9 +39,9 @@ object ResourcesManager {
         return path
     }
 
-    private val DB_STRUCTURE = "/db/db.sql"
+    private const val DB_STRUCTURE = "/db/db.sql"
 
-    private val DB_DATA = "/db/init.sql"
+    private const val DB_DATA = "/db/init.sql"
 
     private fun textFileInJar(fullPath :String) =
             InputStreamReader(javaClass.getResourceAsStream(fullPath), "UTF-8").buffered().readText()

@@ -42,7 +42,10 @@ data class Account (
     @ColumnType(java.sql.Types.NUMERIC)
     @ReadOnly
     var rest :BigDecimal? = null
-    )
+    ) {
+
+    override fun toString(): String = name?:""
+}
 
 
 

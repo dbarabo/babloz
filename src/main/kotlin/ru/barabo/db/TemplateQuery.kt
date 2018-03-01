@@ -27,15 +27,13 @@ open class TemplateQuery (private val query :Query) {
 
         private fun errorNotFoundAnnotationSequenceName(className :String?) = "Annotation @SequenceName not found for class $className"
 
-        //private fun errorValueType(typeSql :Int, value :Any) = "value $value is not type $typeSql"
-
-        private val ERROR_NULL_VALUE_TYPE = "Value and Type value is null"
+        private const val ERROR_NULL_VALUE_TYPE = "Value and Type value is null"
 
         private fun deleteTemplate(table :String) = "delete from $table where id = ?"
 
         private fun errorSequenceReturnNull(sequence :String) = "Sequence expression return NULL $sequence"
 
-        private val ID_COLUMN = "ID"
+        private const val ID_COLUMN = "ID"
     }
 
     @Throws(SessionException::class)
@@ -308,6 +306,14 @@ open class TemplateQuery (private val query :Query) {
 
         val javaType :Class<*> = member.returnType.javaType as Class<*>
 
+        val converterClass = member.findAnnotation<Converter>()?.converterClazz
+
+        if(converterClass != null) {
+            val instance = converterClass.objectInstance ?: converterClass.java.newInstance()
+
+            return (instance as ConverterValue).convertFromBase(value, javaType)
+        }
+
         if(Type.isConverterExists(javaType)) {
             return Type.convertValueToJavaTypeByClass(value, javaType)
         }
@@ -319,13 +325,6 @@ open class TemplateQuery (private val query :Query) {
             return manyToOneValue(item, member, columnName, value)
         }
 
-        val converterClass = member.findAnnotation<Converter>()?.converterClazz
-
-        if(converterClass != null) {
-            val instance = converterClass.objectInstance ?: converterClass.java.newInstance()
-
-            return (instance as ConverterValue).convertFromBase(value, javaType)
-        }
 
         return value
     }
@@ -349,6 +348,12 @@ open class TemplateQuery (private val query :Query) {
             throw SessionException(ERROR_NULL_VALUE_TYPE)
         }
 
+        if(converterClazz != null) {
+            val instance = converterClazz.objectInstance ?: converterClazz.java.newInstance()
+
+            return (instance as ConverterValue).convertToBase(value)
+        }
+
         if((value is Number) && Type.isNumberType(type)) {
             return value
         }
@@ -369,12 +374,6 @@ open class TemplateQuery (private val query :Query) {
 
         if(value is String && Type.isStringType(type) ) {
             return value
-        }
-
-        if(converterClazz != null) {
-            val instance = converterClazz.objectInstance ?: converterClazz.java.newInstance()
-
-            return (instance as ConverterValue).convertToBase(value)
         }
 
         val (_,  newValue) = getFieldData(value, ID_COLUMN)

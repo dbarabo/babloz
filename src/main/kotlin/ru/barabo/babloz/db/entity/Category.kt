@@ -24,5 +24,5 @@ data class Category (
     @Converter(EnumConverter::class)
     var type :CategoryType = CategoryType.COST
 ) {
-    override fun toString() = name?:""
+    //override fun toString() = name?:""
 }

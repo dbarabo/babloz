@@ -52,7 +52,7 @@ object CategoryEdit : Tab("Правка категории", VBox()) {
         tabPane.tabs.remove(CategoryEdit)
     }
 
-    private val ALERT_ERROR_SAVE = "Ошибка при сохранении"
+    private const val ALERT_ERROR_SAVE = "Ошибка при сохранении"
 
     private fun save() {
 

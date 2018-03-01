@@ -5,14 +5,14 @@ import java.sql.Connection
 import java.sql.Connection.TRANSACTION_READ_COMMITTED
 import java.sql.SQLException
 
-open class DbConnection(protected val dbSetting: DbSetting) {
+open class DbConnection(private val dbSetting: DbSetting) {
     private val logger = LoggerFactory.getLogger(DbConnection::class.java)
 
     companion object {
 
-        private val TRY_CONNECT_MAX = 3
+        private const val TRY_CONNECT_MAX = 3
 
-        private val ERROR_TRY_MAX_CONNECT = "Кол-во попыток подключений превысило $TRY_CONNECT_MAX"
+        private const val ERROR_TRY_MAX_CONNECT = "Кол-во попыток подключений превысило $TRY_CONNECT_MAX"
     }
 
     private val pool = ArrayList<Session>()
@@ -108,7 +108,7 @@ open class DbConnection(protected val dbSetting: DbSetting) {
             var sessionCheck = session
 
             if(sessionCheck == null) {
-                sessionCheck = addSession(true)
+                sessionCheck = addSession(false)
             }
 
             val result = sessionCheck.checkConnect(dbSetting.selectCheck)
@@ -168,13 +168,13 @@ open class DbConnection(protected val dbSetting: DbSetting) {
     }
 
     @Throws(SessionException::class)
-    private fun getSessionById(idSession: Long, isReadTransact :Boolean) :Session? {
+    private fun getSessionById(idSessionFind: Long, isReadTransact :Boolean) :Session? {
 
         synchronized(pool) {
-            val session = pool.firstOrNull {it.idSession == idSession}
+            val session = pool.firstOrNull {it.idSession == idSessionFind}
 
             return session?.let { it } ?:
-                    getFreeSession(isReadTransact)?.let { synchronized(it) {it.idSession = idSession}; it }
+                    getFreeSession(isReadTransact)?.apply { synchronized(this) {this.idSession = idSessionFind} }
         }
     }
 }

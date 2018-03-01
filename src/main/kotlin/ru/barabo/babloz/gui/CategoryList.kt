@@ -45,7 +45,7 @@ object CategoryList : Tab("Категории", VBox()), StoreListener<GroupCate
         CategoryEdit.editCategory(selectGroupCategory!!.category.copy(id = null, name = ""))
     }
 
-    private val ALERT_CATEGORY_NOT_SELECT = "Встаньте на изменеямую категорию в таблице категорий"
+    private const val ALERT_CATEGORY_NOT_SELECT = "Встаньте на изменеямую категорию в таблице категорий"
 
     private fun showEditCategory() {
         selectGroupCategory?.category?.id

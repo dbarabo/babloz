@@ -2,32 +2,37 @@ package ru.barabo.babloz.gui
 
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
-import javafx.scene.control.Alert
-import javafx.scene.control.Tab
+import javafx.scene.control.*
 import javafx.scene.layout.VBox
 import org.slf4j.LoggerFactory
-import ru.barabo.babloz.db.entity.Account
-import ru.barabo.babloz.db.entity.AccountType
-import ru.barabo.babloz.db.entity.Currency
-import ru.barabo.babloz.db.entity.Pay
+import ru.barabo.babloz.db.entity.*
 import ru.barabo.babloz.db.service.AccountService
-import ru.barabo.babloz.db.service.CurrencyService
+import ru.barabo.babloz.db.service.CategoryService
+import ru.barabo.babloz.db.service.PayService
 import ru.barabo.babloz.main.ResourcesManager
 import tornadofx.*
+import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 object PayEdit: Tab("Правка платежа", VBox()) {
 
     private val logger = LoggerFactory.getLogger(PayEdit::class.java)
 
-    private val nameProperty = SimpleStringProperty()
+    private val accountProperty = SimpleObjectProperty<Account>()
 
-    private val currencyProperty = SimpleObjectProperty<Currency>()
+    private val dateProperty = SimpleObjectProperty<LocalDate>()
 
-    private val accountTypeProperty = SimpleObjectProperty<AccountType>()
+    private val amountProperty =  SimpleObjectProperty<BigDecimal>()
+
+    private val descriptionProperty = SimpleStringProperty()
 
     private lateinit var editPay : Pay
 
+    private var selectCategory: GroupCategory? = null
+
     init {
+
         this.graphic = ResourcesManager.icon("edit.png")
 
         form {
@@ -38,37 +43,71 @@ object PayEdit: Tab("Правка платежа", VBox()) {
             }
 
             fieldset {
-                field("Наименование") {
-                    textfield(nameProperty)
+                field("Счет") {
+                    combobox<Account>(property = accountProperty, values = AccountService.accountList())
                 }
-                field("Тип счета") {
-                    combobox<AccountType>(property = accountTypeProperty, values = AccountType.values().toList())
+                field("Дата") {
+                    datepicker(property = dateProperty)
                 }
-                field("Валюта") {
-                    combobox<Currency>(property = currencyProperty, values = CurrencyService.currencyList())
+                field("Категория") {
+
+                    treeview(TreeItem(CategoryService.categoryRoot())).apply {
+                        populate { it.value.child }
+
+                        root.isExpanded = true
+
+                        this.isShowRoot = false
+
+                        val selectedItem = selectCategory?.let { root.findTreeItem(selectCategory) }
+
+                        selectedItem?.apply {
+                            selectionModel?.select(this)
+                        }
+
+                        selectionModel?.selectedItemProperty()?.addListener(
+                                { _, _, newSelection ->
+                                    selectCategory = newSelection?.value
+                                })
+                    }.prefHeight = 100.0
                 }
-                field("Начальный баланс") {
-                    textfield()
-                }
+                field("Сумма") {
+                    textfield().apply {
+                        bind(amountProperty)
+                    }
+                 }
                 field("Ремарка") {
-                    textarea().prefRowCount = 2
+                    textarea(descriptionProperty).prefRowCount = 3
                 }
             }
         }
     }
 
-    private fun cancel() {
-        tabPane.tabs.remove(AccountEdit)
+    private fun <T> TreeItem<T>.findTreeItem(childItem: T): TreeItem<T>? {
+
+        if(this.value === childItem) return this
+
+        for (child in children) {
+            val find = child.findTreeItem(childItem)
+
+            if(find != null) {
+                return find
+            }
+        }
+        return null
     }
 
-    private val ALERT_ERROR_SAVE = "Ошибка при сохранении"
+    private fun cancel() {
+        tabPane.tabs.remove(PayEdit)
+    }
+
+    private const val ALERT_ERROR_SAVE = "Ошибка при сохранении"
 
     private fun save() {
 
-        //editAccount = setAccountFromProperty(editAccount)
+        editPay = setPayFromProperty(editPay)
 
         try {
-            //editAccount = AccountService.save(editAccount)
+            editPay = PayService.save(editPay)
 
             tabPane.tabs.remove(AccountEdit)
         } catch (e :Exception) {
@@ -78,29 +117,39 @@ object PayEdit: Tab("Правка платежа", VBox()) {
         }
     }
 
-    private fun setAccountFromProperty(account : Account) : Account {
+    private fun setPayFromProperty(pay: Pay): Pay {
 
-        account.name = nameProperty.value
+        pay.account = accountProperty.value
 
-        account.currency = currencyProperty.value
+        pay.created = if(dateProperty.value == LocalDate.now()) LocalDateTime.now() else dateProperty.value.atStartOfDay()
 
-        account.type = accountTypeProperty.value
+        pay.category = selectCategory?.category
 
-        return account
+        pay.amount = amountProperty.value
+
+        pay.description = descriptionProperty.value
+
+        return pay
     }
 
-    fun editAccount(pay : Pay) {
+    fun editPay(pay : Pay) {
 
         editPay = pay
 
-        tabPane.selectionModel.select(AccountEdit)
+        tabPane.selectionModel.select(PayEdit)
 
         this.text = pay.id ?. let { "Правка платежа" } ?: "Новый платеж"
 
-        //nameProperty.value = pay.name ?. let { account.name } ?: ""
+        accountProperty.value = pay.account
 
-        //currencyProperty.value = pay.currency ?. let { account.currency } ?: CurrencyService.defaultCurrency()
+        dateProperty.value = pay.created?.toLocalDate()?:LocalDate.now()
 
-        //accountTypeProperty.value = pay.type ?. let { account.type } ?: AccountType.CURRENT
+        selectCategory = pay.category?.let { GroupCategory.findByCategory(it) }
+
+        logger.error("editPay selectCategory=$selectCategory")
+
+        amountProperty.value =  pay.amount
+
+        descriptionProperty.value = pay.description
     }
 }

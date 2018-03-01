@@ -19,5 +19,7 @@ object AccountService :StoreService<Account, GroupAccount>(BablozOrm){
 
         GroupAccount.addAccount(item)
     }
+
+    fun accountList() = dataList
 }
 

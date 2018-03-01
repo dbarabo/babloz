@@ -25,6 +25,13 @@ PARENT INT,
 TYPE INT NOT NULL DEFAULT 0, /*тип 0-расход 1-приход 2-перевод*/
 CHECK (TYPE in (0, 1, 2)) );
 
+/* 4. */
+create table PERSON (
+ID INT NOT NULL PRIMARY KEY,
+NAME varchar(100) NOT NULL,
+DESCRIPTION varchar(1024));
+
+
 /* 5. Проекты */
 create table PROJECT (
 ID INT NOT NULL CONSTRAINT PROJECT_PK PRIMARY KEY,
@@ -49,7 +56,7 @@ ACCOUNT_TO INT REFERENCES ACCOUNT(ID), /* в случае перевода на 
 DESCRIPTION varchar(1024),
 PROJECT INT REFERENCES PROJECT(ID),
 NUMBER_OF INT, /* кол-во*/
-NUMBER_OF2 INT
+PERSON INT REFERENCES PERSON(ID)
 );
 
 /* 7. Планы */

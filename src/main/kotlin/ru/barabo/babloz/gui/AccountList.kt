@@ -66,7 +66,7 @@ object AccountList : Tab("Счета", VBox()), StoreListener<GroupAccount> {
         tabPane.selectionModel.select(PayList)
     }
 
-    private val ALERT_ACCOUNT_NOT_SELECT = "Встаньте на изменеямый счет в таблице счетов"
+    private const val ALERT_ACCOUNT_NOT_SELECT = "Встаньте на изменеямый счет в таблице счетов"
 
     private fun showEditAccount() {
 

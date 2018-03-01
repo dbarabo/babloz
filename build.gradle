@@ -56,6 +56,7 @@ jar {
 
     from configurations.compile.collect {
         it.isDirectory() ? it : zipTree(it).matching{exclude{
-            it.name.contains('.DSA') || it.name.contains('.SF') || it.name.contains('.RSA')}}
+            it.name.contains('.DSA') || it.name.contains('.SF') || it.name.contains('.RSA') ||
+                    it.name.contains('.jnilib') || it.name.contains('.so') }}
     }
 }

@@ -8,7 +8,10 @@ import ru.barabo.db.SessionSetting
 
 class DbTest {
 
-    val logger = LoggerFactory.getLogger(DbTest::class.java)!!
+    companion object {
+        private val logger = LoggerFactory.getLogger(DbTest::class.java)!!
+    }
+
 
     //@Test
     fun initDb() {
@@ -17,7 +20,7 @@ class DbTest {
         data.forEach { logger.error(it.joinToString(";")) }
     }
 
-    @Test
+    //@Test
     fun templateAccount() {
 
         BablozOrm.select(Account::class.java, ::callBackSelectAccount)

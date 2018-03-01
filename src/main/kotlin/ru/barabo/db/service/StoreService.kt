@@ -14,15 +14,15 @@ abstract class StoreService<T :Any, G>(private val orm :TemplateQuery) {
         readData()
     }
 
-    abstract protected fun elemRoot() :G
+    protected abstract fun elemRoot() :G
 
-    abstract protected fun clazz() :Class<T>
+    protected abstract fun clazz() :Class<T>
 
-    open protected fun processInsert(item :T) {}
+    protected open fun processInsert(item :T) {}
 
-    open protected fun processUpdate(item :T) {}
+    protected open fun processUpdate(item :T) {}
 
-    open protected fun beforeRead() {}
+    protected open fun beforeRead() {}
 
     private fun callBackSelectData(item :T) {
 
@@ -71,7 +71,5 @@ abstract class StoreService<T :Any, G>(private val orm :TemplateQuery) {
 
         return item
     }
-
-    //inline fun <reified T : Any>T.clazz() = T::class.java
 }
 
