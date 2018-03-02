@@ -24,5 +24,7 @@ data class Category (
     @Converter(EnumConverter::class)
     var type :CategoryType = CategoryType.COST
 ) {
-    //override fun toString() = name?:""
+    companion object {
+        val TRANSFER_CATEGORY =  Category(id = null, name = CategoryType.TRANSFER.label, type = CategoryType.TRANSFER)
+    }
 }

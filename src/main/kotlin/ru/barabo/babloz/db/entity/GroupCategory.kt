@@ -1,6 +1,7 @@
 package ru.barabo.babloz.db.entity
 
 import org.slf4j.LoggerFactory
+import ru.barabo.babloz.db.entity.Category.Companion.TRANSFER_CATEGORY
 import ru.barabo.babloz.gui.PayEdit
 import tornadofx.observable
 
@@ -15,8 +16,16 @@ data class GroupCategory(var category: Category = Category(),
 
         private var lastParent = root
 
+        lateinit var TRANSFER_CATEGORY: GroupCategory
+
         fun rootClear() {
-            synchronized(root.child) { root.child.clear() }
+            synchronized(root.child) {
+                root.child.clear()
+
+                TRANSFER_CATEGORY = GroupCategory(Category.TRANSFER_CATEGORY, root)
+
+                root.child.add(TRANSFER_CATEGORY)
+            }
         }
 
         fun addCategory(category: Category): GroupCategory {
@@ -41,13 +50,10 @@ data class GroupCategory(var category: Category = Category(),
     private fun findByCategory(findCategory: Category): GroupCategory? {
         if(findCategory.id == category.id) return this
 
-        //logger.error("category=$category")
-
         for (group in child) {
             val find = group.findByCategory(findCategory)
 
             if(find != null) {
-                //logger.error("find=$find")
                 return find
             }
         }

@@ -1,7 +1,9 @@
 package ru.barabo.babloz.gui
 
 import javafx.application.Platform
+import javafx.geometry.Orientation
 import javafx.scene.control.Alert
+import javafx.scene.control.SplitPane
 import javafx.scene.control.Tab
 import javafx.scene.control.TableView
 import javafx.scene.layout.Priority
@@ -13,7 +15,8 @@ import ru.barabo.db.service.StoreListener
 import tornadofx.*
 
 object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
-    private var forma: Form? = null
+
+    private var splitPane: SplitPane? = null
 
     private var table: TableView<Pay>? = null
 
@@ -22,20 +25,19 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
     init {
         this.graphic = ResourcesManager.icon("tree.png")
 
-        forma = form {
+        form {
             toolbar {
                 button ("Новый платеж", ResourcesManager.icon("new.png")).setOnAction { showNewPay() }
 
                 button ("Правка платежа", ResourcesManager.icon("edit.png")).setOnAction { showEditPay() }
             }
+
+            splitpane(Orientation.HORIZONTAL, PayEdit).apply { splitPane = this }
         }
         PayService.addListener(this)
     }
 
     private fun showPay() {
-        if(!tabPane.tabs.contains(PayEdit)) {
-            tabPane.tabs.add(PayEdit)
-        }
     }
 
     private fun showNewPay() {
@@ -67,11 +69,11 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
                 table?.selectionModel?.selectedItemProperty()?.addListener(
                         { _, _, newSelection ->
                             selectPay = newSelection
+
+                            selectPay?.let { PayEdit.editPay(it) }
                         })
 
-                forma?.addChildIfPossible(table!!)
-
-                VBox.setVgrow(table, Priority.ALWAYS)
+                splitPane?.addChildIfPossible(table!!)
             }
         })
     }

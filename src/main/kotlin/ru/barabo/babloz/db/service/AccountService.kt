@@ -21,5 +21,18 @@ object AccountService :StoreService<Account, GroupAccount>(BablozOrm){
     }
 
     fun accountList() = dataList
+
+    val NULL_ACCOUNT = Account()
+
+    fun accountNullList(): List<Account> {
+
+        val result = ArrayList<Account>()
+
+        result += NULL_ACCOUNT
+
+        result.addAll(dataList)
+
+        return result
+    }
 }
 

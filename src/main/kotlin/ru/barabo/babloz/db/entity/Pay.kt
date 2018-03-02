@@ -4,7 +4,6 @@ import ru.barabo.db.annotation.*
 import ru.barabo.db.converter.SqliteLocalDate
 import java.math.BigDecimal
 import java.text.DecimalFormat
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -60,9 +59,14 @@ data class Pay(
 
         val fromAccountPay: String get() = account?.name ?: ""
 
-        val namePay: String get() = category?.name ?: accountTo?.name ?: ""
+        val namePay: String get() = category?.id?.let { category?.name }
+                ?: "${Category.TRANSFER_CATEGORY.name} ${accountToExists()}"
 
         val sumPay: String get() = amount?.let { DecimalFormat("0.00").format(it) }?:""
 
         val descriptionPay: String get() = description?.let { it } ?:""
+
+        private fun fromToAmount() = if(amount?.toDouble()?:0.0 > 0.0) "на " else "с "
+
+        private fun accountToExists() :String = accountTo?.let { "${fromToAmount()}${it.name}" }?:""
 }
