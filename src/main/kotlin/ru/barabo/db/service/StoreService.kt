@@ -3,12 +3,13 @@ package ru.barabo.db.service
 import ru.barabo.db.EditType
 import ru.barabo.db.SessionException
 import ru.barabo.db.TemplateQuery
+import tornadofx.observable
 
 abstract class StoreService<T :Any, G>(private val orm :TemplateQuery) {
 
     private val listenerList = ArrayList<StoreListener<G>>()
 
-    protected val dataList = ArrayList<T>()
+    protected val dataList = ArrayList<T>().observable()
 
     init {
         readData()

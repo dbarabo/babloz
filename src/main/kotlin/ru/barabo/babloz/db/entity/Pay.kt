@@ -69,4 +69,25 @@ data class Pay(
         private fun fromToAmount() = if(amount?.toDouble()?:0.0 > 0.0) "на " else "с "
 
         private fun accountToExists() :String = accountTo?.let { "${fromToAmount()}${it.name}" }?:""
+
+        fun copyFrom(source: Pay): Pay {
+
+                id = source.id
+
+                account = source.account
+
+                created = source.created
+
+                category = source.category
+
+                amount = source.amount
+
+                accountTo = source.accountTo
+
+                person = source.person
+
+                description = source.description
+
+                return this
+        }
 }

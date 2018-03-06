@@ -41,7 +41,7 @@ data class GroupCategory(var category: Category = Category(),
 
         fun findByCategory(category: Category): GroupCategory? {
 
-            logger.error("findByCategory=$category")
+            //logger.error("findByCategory=$category")
 
             return root.findByCategory(category)
         }

@@ -23,7 +23,7 @@ fun currencyTextFormatter(): TextFormatter<*> {
     return TextFormatter(NumberStringConverter(CURRENCY_MASK), 0, CurrencyTextFilter)
 }
 
-fun toCurrencyFormat(currency: Number?) = DecimalFormat(CURRENCY_MASK).format(currency)
+fun toCurrencyFormat(currency: Number?) = currency?.let{ DecimalFormat(CURRENCY_MASK).format(it) }?:""
 
 fun fromFormatToCurrency(currency: String?) = currency?.parseToMoney()?.let { BigDecimal( it.toDouble() ) }
 

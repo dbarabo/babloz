@@ -2,7 +2,6 @@ package ru.barabo.babloz.gui
 
 import javafx.application.Platform
 import javafx.geometry.Orientation
-import javafx.scene.control.Alert
 import javafx.scene.control.SplitPane
 import javafx.scene.control.Tab
 import javafx.scene.control.TableView
@@ -10,6 +9,7 @@ import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import ru.barabo.babloz.db.entity.Pay
 import ru.barabo.babloz.db.service.PayService
+import ru.barabo.babloz.gui.custom.ChangeSelectEdit
 import ru.barabo.babloz.main.ResourcesManager
 import ru.barabo.db.service.StoreListener
 import tornadofx.*
@@ -27,40 +27,73 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
 
         form {
             toolbar {
-                button ("Новый платеж", ResourcesManager.icon("new.png")).setOnAction { showNewPay() }
+                button ("Новый", ResourcesManager.icon("new.png")).apply {
+                    setOnAction { showNewPay() }
 
-                button ("Правка платежа", ResourcesManager.icon("edit.png")).setOnAction { showEditPay() }
+                    disableProperty().bind(PayEdit.isDisableEdit().not())
+                }
+
+                button ("Дублировать", ResourcesManager.icon("new.png")).apply {
+                    setOnAction { twinPay() }
+
+                    disableProperty().bind(PayEdit.isDisableEdit().not())
+                }
+
+                button ("Сохранить", ResourcesManager.icon("save.png")).apply {
+                    setOnAction { savePay() }
+
+                    disableProperty().bind(PayEdit.isDisableEdit())
+                }
+
+                button ("Отменить", ResourcesManager.icon("cancel.png")).apply {
+                    setOnAction { cancelPay() }
+
+                    disableProperty().bind(PayEdit.isDisableEdit())
+                }
             }
 
             splitpane(Orientation.HORIZONTAL, PayEdit).apply { splitPane = this }
         }
         PayService.addListener(this)
+
+        VBox.setVgrow(splitPane, Priority.ALWAYS)
     }
 
-    private fun showPay() {
+    private fun cancelPay() {
+
+        PayEdit.saveOrCancelEditPay(ChangeSelectEdit.CANCEL)
+
+        table?.requestFocus()
+    }
+
+    private fun savePay() {
+
+        PayEdit.saveOrCancelEditPay(ChangeSelectEdit.SAVE)
+
+        table?.requestFocus()
+    }
+
+    private fun twinPay() {
+        PayEdit.changeSelectEditPay(selectPay!!.copy(id = null))
     }
 
     private fun showNewPay() {
-        showPay()
 
-        PayEdit.editPay(selectPay!!.copy(id = null))
-    }
-
-    private const val ALERT_PAY_NOT_SELECT = "Встаньте на изменеямый платеж в таблице платежей"
-
-    private fun showEditPay() {
-        selectPay?.id?. let {
-            showPay()
-            PayEdit.editPay(selectPay!!) }
-
-            ?: alert(Alert.AlertType.ERROR, ALERT_PAY_NOT_SELECT)
+        PayEdit.changeSelectEditPay(Pay())
     }
 
     override fun refreshAll(elemRoot: List<Pay>) {
 
+        if(table != null) {
+
+            table!!.refresh()
+            return
+        }
+
         Platform.runLater({
             run {
-                table?.removeFromParent()
+                table?.let { splitPane?.items?.remove(it) }
+                //table?.removeFromParent()
 
                 synchronized(elemRoot) {
                     table = table(elemRoot)
@@ -70,10 +103,14 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
                         { _, _, newSelection ->
                             selectPay = newSelection
 
-                            selectPay?.let { PayEdit.editPay(it) }
+                            selectPay?.let { PayEdit.changeSelectEditPay(it) }
+
+                            table?.requestFocus()
                         })
 
-                splitPane?.addChildIfPossible(table!!)
+                splitPane?.items?.add(table)
+
+                VBox.setVgrow(table, Priority.ALWAYS)
             }
         })
     }
