@@ -1,8 +1,5 @@
 package ru.barabo.babloz.db.entity
 
-import org.slf4j.LoggerFactory
-import ru.barabo.babloz.db.entity.Category.Companion.TRANSFER_CATEGORY
-import ru.barabo.babloz.gui.PayEdit
 import tornadofx.observable
 
 data class GroupCategory(var category: Category = Category(),
@@ -10,7 +7,7 @@ data class GroupCategory(var category: Category = Category(),
                      val child: MutableList<GroupCategory> = ArrayList<GroupCategory>().observable() ) {
 
     companion object {
-        private val logger = LoggerFactory.getLogger(GroupCategory::class.java)
+        //private val logger = LoggerFactory.getLogger(GroupCategory::class.java)
 
         val root = GroupCategory()
 

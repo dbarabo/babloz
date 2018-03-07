@@ -9,6 +9,7 @@ import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import ru.barabo.babloz.db.entity.GroupAccount
 import ru.barabo.babloz.db.service.AccountService
+import ru.barabo.babloz.gui.pay.PayList
 import ru.barabo.babloz.main.ResourcesManager
 import ru.barabo.db.service.StoreListener
 import tornadofx.*

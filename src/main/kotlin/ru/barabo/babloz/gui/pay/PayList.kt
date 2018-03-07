@@ -1,4 +1,4 @@
-package ru.barabo.babloz.gui
+package ru.barabo.babloz.gui.pay
 
 import javafx.application.Platform
 import javafx.geometry.Orientation
