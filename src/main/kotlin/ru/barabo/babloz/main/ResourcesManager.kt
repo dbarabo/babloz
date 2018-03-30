@@ -35,7 +35,7 @@ object ResourcesManager {
 
     private fun pathResource(fullPath :String) :String {
         val path = ResourcesManager::class.java.getResource(fullPath).toURI().toString()
-        logger.info("ResourcesManager pathResource=$path")
+        //logger.info("ResourcesManager pathResource=$path")
         return path
     }
 

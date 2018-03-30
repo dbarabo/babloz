@@ -23,7 +23,7 @@ object AccountList : Tab("Счета", VBox()), StoreListener<GroupAccount> {
     private var selectGroupAccount :GroupAccount? = null
 
     init {
-        this.graphic = ResourcesManager.icon("account.png")
+       // this.graphic = ResourcesManager.icon("account.png")
 
         forma = form {
             toolbar {

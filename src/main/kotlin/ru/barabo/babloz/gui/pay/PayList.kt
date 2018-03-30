@@ -5,6 +5,7 @@ import javafx.geometry.Orientation
 import javafx.scene.control.SplitPane
 import javafx.scene.control.Tab
 import javafx.scene.control.TableView
+import javafx.scene.control.TextField
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import ru.barabo.babloz.db.entity.Pay
@@ -22,8 +23,10 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
 
     private var selectPay: Pay? = null
 
+    private var findTextField: TextField? = null
+
     init {
-        this.graphic = ResourcesManager.icon("tree.png")
+        //this.graphic = ResourcesManager.icon("tree.png")
 
         form {
             toolbar {
@@ -50,13 +53,38 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
 
                     disableProperty().bind(PayEdit.isDisableEdit())
                 }
+
+                textfield().apply {
+                    findTextField = this
+
+
+//                    focusedProperty().addListener(
+//                            { _, _, isNewFocus ->
+//
+//                                if(!isNewFocus) {
+//                                    findPay()
+//                                }
+//                            })
+                }
+
+                button ("", ResourcesManager.icon("find.png")).apply {
+
+                    this.setOnAction { findPay() }
+
+                    disableProperty().bind(PayEdit.isDisableEdit().not())
+                }
             }
 
             splitpane(Orientation.HORIZONTAL, PayEdit).apply { splitPane = this }
         }
-        PayService.addListener(this)
-
         VBox.setVgrow(splitPane, Priority.ALWAYS)
+
+        PayService.addListener(this)
+    }
+
+    private fun findPay() {
+
+        findTextField?.text?.let {PayService.setCriteria(it) }
     }
 
     private fun cancelPay() {
@@ -84,16 +112,14 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
 
     override fun refreshAll(elemRoot: List<Pay>) {
 
-        if(table != null) {
-
-            table!!.refresh()
+        table?.let {
+            Platform.runLater({ run {it.refresh()} })
             return
         }
 
         Platform.runLater({
             run {
                 table?.let { splitPane?.items?.remove(it) }
-                //table?.removeFromParent()
 
                 synchronized(elemRoot) {
                     table = table(elemRoot)

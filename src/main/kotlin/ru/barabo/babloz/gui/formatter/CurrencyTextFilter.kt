@@ -28,7 +28,7 @@ fun toCurrencyFormat(currency: Number?) = currency?.let{ DecimalFormat(CURRENCY_
 fun fromFormatToCurrency(currency: String?) = currency?.parseToMoney()?.let { BigDecimal( it.toDouble() ) }
 
 
-private fun String.parseToMoney() :Number? {
+fun String.parseToMoney() :Number? {
 
     val format = DecimalFormat(CURRENCY_MASK)
     format.negativePrefix = "-"

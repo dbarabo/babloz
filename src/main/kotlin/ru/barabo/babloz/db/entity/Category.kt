@@ -27,4 +27,8 @@ data class Category (
     companion object {
         val TRANSFER_CATEGORY =  Category(id = null, name = CategoryType.TRANSFER.label, type = CategoryType.TRANSFER)
     }
+
+    override fun toString(): String {
+        return name?:""
+    }
 }

@@ -9,9 +9,9 @@ open class Query (private val dbConnection :DbConnection) {
     companion object {
         private val logger = LoggerFactory.getLogger(Query::class.java)
 
-        private val ERROR_STATEMENT_NULL = "statement is null"
+        private const val ERROR_STATEMENT_NULL = "statement is null"
 
-        private val ERROR_RESULTSET_NULL = "ResultSet is null"
+        private const val ERROR_RESULTSET_NULL = "ResultSet is null"
     }
 
     private var uniqueSession : AtomicLong = AtomicLong(1L)

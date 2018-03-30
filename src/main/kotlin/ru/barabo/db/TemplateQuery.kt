@@ -64,15 +64,15 @@ open class TemplateQuery (private val query :Query) {
 
             val member = propertyByColumn[column] ?: return@lambda
 
-            logger.info("javaType=${member.returnType.javaType}")
+           // logger.info("javaType=${member.returnType.javaType}")
 
-            logger.info("value=$value")
+           // logger.info("value=$value")
 
             val javaValue =  valueToJava(item as Any, value, member, column!!)
 
             javaValue ?: return@lambda
 
-            logger.info("javaValue=$javaValue")
+           // logger.info("javaValue=$javaValue")
 
             member.setter.call(item, javaValue)
           }

@@ -7,7 +7,7 @@
         </encoder>
     </appender>
 
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="FILE-ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${application.home:-.}/log/babloz.%d{yyyy-MM-dd}.log</fileNamePattern>
         </rollingPolicy>
@@ -19,19 +19,25 @@
 
     <logger name="com.memorynotfound" level="TRACE"/>
 
-    <root level="INFO">
+    <logger name="ru.barabo" level="debug"
+            additivity="false">
+        <appender-ref ref="FILE_SAVE" />
         <appender-ref ref="STDOUT" />
-        <appender-ref ref="FILE" />
-    </root>
+    </logger>
 
-    <root level="DEBUG">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="FILE" />
-    </root>
+    <!--<root level="INFO">-->
+        <!--<appender-ref ref="STDOUT" />-->
+        <!--<appender-ref ref="FILE_SAVE" />-->
+    <!--</root>-->
+
+    <!--<root level="DEBUG">-->
+        <!--<appender-ref ref="STDOUT" />-->
+        <!--<appender-ref ref="FILE-ERROR" />-->
+    <!--</root>-->
 
     <root level="ERROR">
         <appender-ref ref="STDOUT" />
-        <appender-ref ref="FILE" />
+        <appender-ref ref="FILE-ERROR" />
     </root>
 
 </configuration>

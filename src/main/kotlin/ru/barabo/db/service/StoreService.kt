@@ -5,7 +5,7 @@ import ru.barabo.db.SessionException
 import ru.barabo.db.TemplateQuery
 import tornadofx.observable
 
-abstract class StoreService<T :Any, G>(private val orm :TemplateQuery) {
+abstract class StoreService<T: Any, G>(private val orm :TemplateQuery) {
 
     private val listenerList = ArrayList<StoreListener<G>>()
 
@@ -38,7 +38,7 @@ abstract class StoreService<T :Any, G>(private val orm :TemplateQuery) {
         listener.refreshAll(elemRoot())
     }
 
-    private fun sentRefreshAllListener() {
+    protected fun sentRefreshAllListener() {
         listenerList.forEach {it.refreshAll(elemRoot())}
     }
 
