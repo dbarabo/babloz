@@ -6,15 +6,12 @@ import javafx.scene.control.ToggleGroup
 import javafx.scene.control.ToolBar
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
-import javafx.scene.layout.VBox
 import javafx.stage.Screen
 import javafx.stage.Stage
 import org.slf4j.LoggerFactory
 import ru.barabo.babloz.gui.pay.PayList
 import ru.barabo.babloz.main.ResourcesManager
 import tornadofx.*
-import tornadofx.Stylesheet.Companion.tabPane
-import tornadofx.WizardStyles.Companion.graphic
 
 fun startLaunch(args :Array<String>) = launch<MainApp>(args)
 
@@ -28,7 +25,7 @@ class MainApp: App(MainView::class) {
 
         val screen = Screen.getPrimary()
 
-        stage.icons.add(ResourcesManager.image("babloz.png"))
+        stage.icons.add(ResourcesManager.image("babloz64.png"))
 
         stage.x = screen.visualBounds.minX
         stage.y = screen.visualBounds.minY
