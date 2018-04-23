@@ -10,21 +10,11 @@ object ResourcesManager {
 
     private val icoHash :HashMap<String, ImageView> = HashMap()
 
-    private val ICO_PATH = "/ico/"
+    private const val ICO_PATH = "/ico/"
 
     fun icon(icoName :String) :ImageView {
 
-//        val ico = icoHash[icoName]
-//
-//        if(ico != null) {
-//            return ico
-//        }
-
         val newIco =  loadIcon(icoName)
-
-//        logger.info("ResourcesManager newIco=$newIco")
-//
-//        icoHash[icoName] = newIco
 
         return newIco
     }
@@ -35,7 +25,6 @@ object ResourcesManager {
 
     private fun pathResource(fullPath :String) :String {
         val path = ResourcesManager::class.java.getResource(fullPath).toURI().toString()
-        //logger.info("ResourcesManager pathResource=$path")
         return path
     }
 
