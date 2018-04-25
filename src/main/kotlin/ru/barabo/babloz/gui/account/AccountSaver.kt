@@ -5,7 +5,7 @@ import ru.barabo.babloz.db.service.AccountService
 import ru.barabo.babloz.gui.binding.Saver
 import ru.barabo.babloz.gui.custom.ChangeSelectEdit
 
-object AccountSaver :Saver<Account, AccountBind> {
+internal object AccountSaver :Saver<Account, AccountBind> {
 
     override val editBind: AccountBind = AccountBind(null)
 

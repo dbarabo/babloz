@@ -31,25 +31,25 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
                 button ("Новый", ResourcesManager.icon("new.png")).apply {
                     setOnAction { showNewPay() }
 
-                    disableProperty().bind(PayEdit.isDisableEdit().not())
+                    disableProperty().bind(PaySaver.isDisableEdit().not())
                 }
 
                 button ("Дублировать", ResourcesManager.icon("new.png")).apply {
                     setOnAction { twinPay() }
 
-                    disableProperty().bind(PayEdit.isDisableEdit().not())
+                    disableProperty().bind(PaySaver.isDisableEdit().not())
                 }
 
                 button ("Сохранить", ResourcesManager.icon("save.png")).apply {
                     setOnAction { savePay() }
 
-                    disableProperty().bind(PayEdit.isDisableEdit())
+                    disableProperty().bind(PaySaver.isDisableEdit())
                 }
 
                 button ("Отменить", ResourcesManager.icon("cancel.png")).apply {
                     setOnAction { cancelPay() }
 
-                    disableProperty().bind(PayEdit.isDisableEdit())
+                    disableProperty().bind(PaySaver.isDisableEdit())
                 }
 
                 textfield().apply {
@@ -61,7 +61,7 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
 
                     this.setOnAction { findPay() }
 
-                    disableProperty().bind(PayEdit.isDisableEdit().not())
+                    disableProperty().bind(PaySaver.isDisableEdit().not())
                 }
             }
 
@@ -79,25 +79,25 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
 
     private fun cancelPay() {
 
-        PayEdit.saveOrCancelEditPay(ChangeSelectEdit.CANCEL)
+        PaySaver.saveOrCancelEdit(ChangeSelectEdit.CANCEL)
 
         table?.requestFocus()
     }
 
     private fun savePay() {
 
-        PayEdit.saveOrCancelEditPay(ChangeSelectEdit.SAVE)
+        PaySaver.saveOrCancelEdit(ChangeSelectEdit.SAVE)
 
         table?.requestFocus()
     }
 
     private fun twinPay() {
-        PayEdit.changeSelectEditPay(selectPay!!.copy(id = null))
+        PaySaver.changeSelectEditValue(selectPay!!.copy(id = null))
     }
 
     private fun showNewPay() {
 
-        PayEdit.changeSelectEditPay(Pay())
+        PaySaver.changeSelectEditValue(Pay())
     }
 
     override fun refreshAll(elemRoot: List<Pay>) {
@@ -119,7 +119,7 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
                         { _, _, newSelection ->
                             selectPay = newSelection
 
-                            selectPay?.let { PayEdit.changeSelectEditPay(it) }
+                            selectPay?.let { PaySaver.changeSelectEditValue(it) }
 
                             table?.requestFocus()
                         })
