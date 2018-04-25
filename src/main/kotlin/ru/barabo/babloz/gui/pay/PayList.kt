@@ -10,7 +10,6 @@ import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import ru.barabo.babloz.db.entity.Pay
 import ru.barabo.babloz.db.service.PayService
-import ru.barabo.babloz.gui.custom.ChangeSelectEdit
 import ru.barabo.babloz.main.ResourcesManager
 import ru.barabo.db.service.StoreListener
 import tornadofx.*
@@ -79,14 +78,14 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
 
     private fun cancelPay() {
 
-        PaySaver.saveOrCancelEdit(ChangeSelectEdit.CANCEL)
+        PaySaver.cancel()
 
         table?.requestFocus()
     }
 
     private fun savePay() {
 
-        PaySaver.saveOrCancelEdit(ChangeSelectEdit.SAVE)
+        PaySaver.save()
 
         table?.requestFocus()
     }

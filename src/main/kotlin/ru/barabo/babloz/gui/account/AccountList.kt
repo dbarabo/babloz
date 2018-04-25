@@ -11,7 +11,6 @@ import javafx.scene.layout.VBox
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.GroupAccount
 import ru.barabo.babloz.db.service.AccountService
-import ru.barabo.babloz.gui.custom.ChangeSelectEdit
 import ru.barabo.babloz.main.ResourcesManager
 import ru.barabo.db.service.StoreListener
 import tornadofx.*
@@ -55,14 +54,14 @@ object AccountList : Tab("Счета", VBox()), StoreListener<GroupAccount> {
 
     private fun saveAccount() {
 
-        AccountSaver.saveOrCancelEdit(ChangeSelectEdit.SAVE)
+        AccountSaver.save()
 
         treeTable?.requestFocus()
     }
 
     private fun cancelAccount() {
 
-        AccountSaver.saveOrCancelEdit(ChangeSelectEdit.CANCEL)
+        AccountSaver.cancel()
 
         treeTable?.requestFocus()
     }

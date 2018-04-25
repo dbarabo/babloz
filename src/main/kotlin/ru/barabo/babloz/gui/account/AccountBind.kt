@@ -9,7 +9,9 @@ import ru.barabo.babloz.db.entity.AccountType
 import ru.barabo.babloz.db.entity.Currency
 import ru.barabo.babloz.gui.binding.BindProperties
 
-class AccountBind(override var editValue: Account?) : BindProperties<Account> {
+class AccountBind() : BindProperties<Account> {
+
+    override var editValue: Account? = null
 
     val nameProperty = SimpleStringProperty()
 

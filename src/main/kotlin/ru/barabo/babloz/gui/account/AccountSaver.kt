@@ -2,16 +2,9 @@ package ru.barabo.babloz.gui.account
 
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.service.AccountService
-import ru.barabo.babloz.gui.binding.Saver
-import ru.barabo.babloz.gui.custom.ChangeSelectEdit
+import ru.barabo.babloz.gui.binding.AbstractSaver
 
-internal object AccountSaver :Saver<Account, AccountBind> {
-
-    override val editBind: AccountBind = AccountBind(null)
-
-    override val oldBind: AccountBind = AccountBind(null)
-
-    override var changeSelectEdit: ChangeSelectEdit = ChangeSelectEdit.SAVE
+internal object AccountSaver : AbstractSaver<Account, AccountBind>(AccountBind::class.java) {
 
     override fun serviceSave(value: Account) {
         AccountService.save(value)

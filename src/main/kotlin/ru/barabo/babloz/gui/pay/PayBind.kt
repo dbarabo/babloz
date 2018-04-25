@@ -17,7 +17,9 @@ import ru.barabo.babloz.gui.formatter.toCurrencyFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-internal class PayBind(override var editValue: Pay?) : BindProperties<Pay> {
+internal class PayBind() : BindProperties<Pay> {
+
+    override var editValue: Pay? = null
 
     val accountProperty = SimpleObjectProperty<Account>()
 
