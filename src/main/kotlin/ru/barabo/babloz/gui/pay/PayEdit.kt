@@ -27,9 +27,9 @@ object PayEdit: VBox() { //Tab("Правка платежа", VBox()) {
 
     private val payEditBind = PayBind()
 
-    private val newPayOldBind = PayBind()
+    private val oldSavePayBind = PayBind()
 
-    fun isDisableEdit() = payEditBind.isDisableEdit(newPayOldBind)
+    fun isDisableEdit() = payEditBind.isDisableEdit(oldSavePayBind)
 
      init {
 
@@ -108,7 +108,7 @@ object PayEdit: VBox() { //Tab("Правка платежа", VBox()) {
 
         payEditBind.initPay(pay)
 
-        newPayOldBind.initPay(pay)
+        oldSavePayBind.initPay(pay)
     }
 
     fun saveOrCancelEditPay(selectEvent: ChangeSelectEdit? = null) {
@@ -140,7 +140,7 @@ object PayEdit: VBox() { //Tab("Правка платежа", VBox()) {
 
     private fun cancelPay(payEditBind: PayBind) {
 
-        newPayOldBind.copyTo(payEditBind)
+        oldSavePayBind.copyTo(payEditBind)
     }
 
     private fun savePay(payEditBind: PayBind) {
@@ -149,7 +149,7 @@ object PayEdit: VBox() { //Tab("Правка платежа", VBox()) {
 
             newPay?.apply { PayService.save(this) }
 
-            payEditBind.copyTo(newPayOldBind)
+            payEditBind.copyTo(oldSavePayBind)
 
         } catch (e :Exception) {
             logger.error("save", e)

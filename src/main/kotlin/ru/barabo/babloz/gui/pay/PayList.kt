@@ -26,8 +26,6 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
     private var findTextField: TextField? = null
 
     init {
-        //this.graphic = ResourcesManager.icon("tree.png")
-
         form {
             toolbar {
                 button ("Новый", ResourcesManager.icon("new.png")).apply {
@@ -57,14 +55,6 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
                 textfield().apply {
                     findTextField = this
 
-
-//                    focusedProperty().addListener(
-//                            { _, _, isNewFocus ->
-//
-//                                if(!isNewFocus) {
-//                                    findPay()
-//                                }
-//                            })
                 }
 
                 button ("", ResourcesManager.icon("find.png")).apply {

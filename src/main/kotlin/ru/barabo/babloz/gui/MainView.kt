@@ -3,12 +3,12 @@ package ru.barabo.babloz.gui
 import javafx.geometry.Orientation
 import javafx.scene.control.TabPane
 import javafx.scene.control.ToggleGroup
-import javafx.scene.control.ToolBar
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.stage.Screen
 import javafx.stage.Stage
 import org.slf4j.LoggerFactory
+import ru.barabo.babloz.gui.account.AccountList
 import ru.barabo.babloz.gui.pay.PayList
 import ru.barabo.babloz.main.ResourcesManager
 import tornadofx.*
@@ -34,18 +34,11 @@ class MainApp: App(MainView::class) {
 
         stage.height = screen.visualBounds.height
     }
-
-    override fun stop() {
-
-        super.stop()
-    }
 }
 
 class MainView: View() {
 
     override var root : HBox = HBox()
-
-    private val toolBar = ToolBar()
 
     private val tabPane :TabPane = TabPane()
 
@@ -69,7 +62,7 @@ class MainView: View() {
 
                 graphic = ResourcesManager.icon("account.png")
 
-                setOnAction { tabPane.selectionModel.select(AccountList) }
+                setOnAction { showAccount() }
 
                 prefWidth = 150.0
             }
@@ -82,11 +75,6 @@ class MainView: View() {
 
                 prefWidth = 150.0
             }
-
-//            button ("Платежи", ResourcesManager.icon("edit.png")).setOnAction { AccountList.showEditAccount() }
-//
-//            separator {  }
-//
 //            button ("Категории", ResourcesManager.icon("tree.png")).setOnAction { AccountList.showCategoryList() }
 //
 //            button ("Проекты", ResourcesManager.icon("tree.png")).setOnAction { AccountList.showPayList() }
@@ -97,11 +85,17 @@ class MainView: View() {
         HBox.setHgrow(tabPane, Priority.ALWAYS)
     }
 
+    private fun showAccount() {
+        if(!tabPane.tabs.contains(AccountList)) {
+            tabPane.tabs.add(AccountList)
+        }
+        tabPane.selectionModel.select(AccountList)
+    }
+
     private fun showPay() {
         if(!tabPane.tabs.contains(PayList)) {
             tabPane.tabs.add(PayList)
         }
-
         tabPane.selectionModel.select(PayList)
     }
 }

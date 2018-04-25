@@ -4,7 +4,7 @@ import tornadofx.observable
 import java.text.DecimalFormat
 
 data class GroupAccount(var account: Account = Account(),
-                        private var parent :GroupAccount? = null,
+                        var parent :GroupAccount? = null,
                         val child: MutableList<GroupAccount> = ArrayList<GroupAccount>().observable()
                         ) {
 
