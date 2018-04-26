@@ -1,23 +1,23 @@
 package ru.barabo.babloz.gui
 
 import javafx.geometry.Orientation
+import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
 import javafx.scene.control.ToggleGroup
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.stage.Screen
 import javafx.stage.Stage
-import org.slf4j.LoggerFactory
 import ru.barabo.babloz.gui.account.AccountList
+import ru.barabo.babloz.gui.category.CategoryList
 import ru.barabo.babloz.gui.pay.PayList
+import ru.barabo.babloz.gui.project.ProjectList
 import ru.barabo.babloz.main.ResourcesManager
 import tornadofx.*
 
 fun startLaunch(args :Array<String>) = launch<MainApp>(args)
 
 class MainApp: App(MainView::class) {
-
-    val logger = LoggerFactory.getLogger(MainApp::class.java)!!
 
     override fun start(stage: Stage) {
 
@@ -38,67 +38,77 @@ class MainApp: App(MainView::class) {
 
 class MainView: View() {
 
-    override var root : HBox = HBox()
+    override var root: HBox = HBox()
 
-    private val tabPane :TabPane = TabPane()
+    private val mainTabPane: TabPane = TabPane()
 
     init {
         title = "Babloz"
 
-        tabPane.tabMaxHeight = 0.0
-        tabPane.tabMaxWidth = 0.0
+        mainTabPane.tabMaxHeight = 0.0
+        mainTabPane.tabMaxWidth = 0.0
 
-        tabPane.tabs.add(AccountList)
+        mainTabPane.tabs.add(AccountList)
 
         val toggleGroup = ToggleGroup()
 
-        root +=  toolbar {
+        root += toolbar {
 
             orientation = Orientation.VERTICAL
 
             label(graphic = ResourcesManager.icon("babloz.png"))
 
-            togglebutton ("Счета", toggleGroup).apply {
+            togglebutton("Счета", toggleGroup).apply {
 
                 graphic = ResourcesManager.icon("account.png")
 
-                setOnAction { showAccount() }
+                setOnAction { AccountList.selectTab() }
 
                 prefWidth = 150.0
             }
 
-            togglebutton ("Платежи", toggleGroup).apply {
+            togglebutton("Платежи", toggleGroup).apply {
 
                 graphic = ResourcesManager.icon("pay.png")
 
-                setOnAction{ showPay() }
+                setOnAction { PayList.selectTab() }
 
                 prefWidth = 150.0
             }
-//            button ("Категории", ResourcesManager.icon("tree.png")).setOnAction { AccountList.showCategoryList() }
-//
-//            button ("Проекты", ResourcesManager.icon("tree.png")).setOnAction { AccountList.showPayList() }
+
+            togglebutton("Категории", toggleGroup).apply {
+
+                graphic = ResourcesManager.icon("tree.png")
+
+                setOnAction { CategoryList.selectTab() }
+
+                prefWidth = 150.0
+            }
+
+            togglebutton("Проекты", toggleGroup).apply {
+
+                graphic = ResourcesManager.icon("project.png")
+
+                setOnAction { ProjectList.selectTab() }
+
+                prefWidth = 150.0
+            }
         }
 
-        root += tabPane
+        root += mainTabPane
 
-        HBox.setHgrow(tabPane, Priority.ALWAYS)
+        HBox.setHgrow(mainTabPane, Priority.ALWAYS)
     }
 
-    private fun showAccount() {
-        if(!tabPane.tabs.contains(AccountList)) {
-            tabPane.tabs.add(AccountList)
+    private fun Tab.selectTab() {
+        if(!mainTabPane.tabs.contains(this)) {
+            mainTabPane.tabs.add(this)
         }
-        tabPane.selectionModel.select(AccountList)
-    }
-
-    private fun showPay() {
-        if(!tabPane.tabs.contains(PayList)) {
-            tabPane.tabs.add(PayList)
-        }
-        tabPane.selectionModel.select(PayList)
+        mainTabPane.selectionModel.select(this)
     }
 }
+
+
 
 
 

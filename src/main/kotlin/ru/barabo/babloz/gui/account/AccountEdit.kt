@@ -6,7 +6,7 @@ import ru.barabo.babloz.db.entity.Currency
 import ru.barabo.babloz.db.service.CurrencyService
 import tornadofx.*
 
-object AccountEdit : VBox() {
+internal object AccountEdit : VBox() {
 
     init {
         form {

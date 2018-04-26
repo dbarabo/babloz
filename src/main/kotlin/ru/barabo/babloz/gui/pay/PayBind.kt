@@ -8,8 +8,8 @@ import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.Category
-import ru.barabo.babloz.db.entity.GroupCategory
 import ru.barabo.babloz.db.entity.Pay
+import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.babloz.db.service.AccountService
 import ru.barabo.babloz.gui.binding.BindProperties
 import ru.barabo.babloz.gui.formatter.fromFormatToCurrency
@@ -17,7 +17,7 @@ import ru.barabo.babloz.gui.formatter.toCurrencyFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-internal class PayBind() : BindProperties<Pay> {
+internal class PayBind : BindProperties<Pay> {
 
     override var editValue: Pay? = null
 

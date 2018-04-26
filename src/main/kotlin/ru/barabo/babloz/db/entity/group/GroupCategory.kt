@@ -1,14 +1,13 @@
-package ru.barabo.babloz.db.entity
+package ru.barabo.babloz.db.entity.group
 
+import ru.barabo.babloz.db.entity.Category
 import tornadofx.observable
 
 data class GroupCategory(var category: Category = Category(),
-                     private var parent :GroupCategory? = null,
-                     val child: MutableList<GroupCategory> = ArrayList<GroupCategory>().observable() ) {
+                         private var parent : GroupCategory? = null,
+                         val child: MutableList<GroupCategory> = ArrayList<GroupCategory>().observable() ) {
 
     companion object {
-        //private val logger = LoggerFactory.getLogger(GroupCategory::class.java)
-
         val root = GroupCategory()
 
         private var lastParent = root
@@ -38,8 +37,6 @@ data class GroupCategory(var category: Category = Category(),
 
         fun findByCategory(category: Category): GroupCategory? {
 
-            //logger.error("findByCategory=$category")
-
             return root.findByCategory(category)
         }
     }
@@ -54,7 +51,6 @@ data class GroupCategory(var category: Category = Category(),
                 return find
             }
         }
-
         return null
     }
 

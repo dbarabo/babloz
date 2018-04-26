@@ -4,9 +4,9 @@ import db.service.ListenerAccount.accountRoot
 import db.service.ListenerCategory.categoryRoot
 import org.junit.Test
 import org.slf4j.LoggerFactory
-import ru.barabo.babloz.db.entity.GroupAccount
-import ru.barabo.babloz.db.entity.GroupCategory
+import ru.barabo.babloz.db.entity.group.GroupAccount
 import ru.barabo.babloz.db.entity.Pay
+import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.babloz.db.service.AccountService
 import ru.barabo.babloz.db.service.CategoryService
 import ru.barabo.babloz.db.service.PayService

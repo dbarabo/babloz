@@ -1,7 +1,7 @@
 package db.service
 
 import org.junit.Test
-import ru.barabo.babloz.db.entity.GroupAccount
+import ru.barabo.babloz.db.entity.group.GroupAccount
 import ru.barabo.babloz.db.service.AccountService
 import ru.barabo.db.service.StoreListener
 

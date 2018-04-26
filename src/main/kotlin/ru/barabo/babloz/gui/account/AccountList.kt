@@ -2,6 +2,7 @@ package ru.barabo.babloz.gui.account
 
 import javafx.application.Platform
 import javafx.geometry.Orientation
+import javafx.scene.Node
 import javafx.scene.control.SplitPane
 import javafx.scene.control.Tab
 import javafx.scene.control.TreeItem
@@ -9,7 +10,7 @@ import javafx.scene.control.TreeTableView
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import ru.barabo.babloz.db.entity.Account
-import ru.barabo.babloz.db.entity.GroupAccount
+import ru.barabo.babloz.db.entity.group.GroupAccount
 import ru.barabo.babloz.db.service.AccountService
 import ru.barabo.babloz.main.ResourcesManager
 import ru.barabo.db.service.StoreListener
@@ -40,7 +41,7 @@ object AccountList : Tab("Счета", VBox()), StoreListener<GroupAccount> {
                     disableProperty().bind(AccountSaver.isDisableEdit())
                 }
             }
-            splitpane(Orientation.HORIZONTAL, AccountEdit).apply { splitPane = this }
+            splitpane(Orientation.HORIZONTAL, AccountEdit).apply {splitPane = this}
         }
         VBox.setVgrow(splitPane, Priority.ALWAYS)
 
@@ -89,14 +90,13 @@ object AccountList : Tab("Счета", VBox()), StoreListener<GroupAccount> {
                                     if(newSelection?.value?.parent !== GroupAccount.root)newSelection?.value?.account else null)
                         })
 
-                splitPane?.items?.add(treeTable)
-
-                VBox.setVgrow(treeTable, Priority.ALWAYS)
+                splitPane?.addElemByLeft(treeTable!!, 0.45)
             }
         })
     }
 
-    private fun treeTable(rootGroup :GroupAccount) :TreeTableView<GroupAccount> {
+
+    private fun treeTable(rootGroup : GroupAccount) :TreeTableView<GroupAccount> {
         return TreeTableView<GroupAccount>().apply {
             column("Счет", GroupAccount::name)
 
@@ -113,4 +113,20 @@ object AccountList : Tab("Счета", VBox()), StoreListener<GroupAccount> {
             this.resizeColumnsToFitContent()
         }
     }
+}
+
+fun SplitPane?.addElemByLeft(elem: Node, positionLeft: Double) {
+    if(this == null) return
+
+    val editForm = items?.get(0)
+
+    items?.clear()
+
+    items?.add(elem)
+
+    items?.add(editForm)
+
+    setDividerPositions(positionLeft)
+
+    VBox.setVgrow(elem, Priority.ALWAYS)
 }

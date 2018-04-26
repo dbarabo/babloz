@@ -10,6 +10,7 @@ import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import ru.barabo.babloz.db.entity.Pay
 import ru.barabo.babloz.db.service.PayService
+import ru.barabo.babloz.gui.account.addElemByLeft
 import ru.barabo.babloz.main.ResourcesManager
 import ru.barabo.db.service.StoreListener
 import tornadofx.*
@@ -123,10 +124,8 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
                             table?.requestFocus()
                         })
 
-                splitPane?.items?.add(table)
-
-                VBox.setVgrow(table, Priority.ALWAYS)
-            }
+                splitPane?.addElemByLeft(table!!, 0.5)
+             }
         })
     }
 

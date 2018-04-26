@@ -10,7 +10,7 @@ import ru.barabo.babloz.gui.formatter.currencyTextFormatter
 import tornadofx.*
 
 
-object PayEdit: VBox() {
+internal object PayEdit: VBox() {
 
     private const val ROW_COUNT = 9.0
 
