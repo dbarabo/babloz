@@ -9,12 +9,15 @@ import java.time.format.DateTimeFormatter
 
 @TableName("PAY")
 @SelectQuery("select p.id, p.account, a.name ACC_NAME, a.type ACC_TYPE, p.created, " +
-        "p.category, c.name CAT_NAME, p.ACCOUNT_TO, ato.name ACCTO_NAME, p.person, per.name PERS_NAME, p.AMOUNT, p.description " +
+        "p.category, c.name CAT_NAME, p.ACCOUNT_TO, ato.name ACCTO_NAME, p.person, per.name PERS_NAME, " +
+        "p.project, prj.name PROJ_NAME, p.AMOUNT, p.description " +
         "from pay p " +
         "left join account a on p.account = a.id " +
         "left join category c on p.category = c.id " +
         "left join account ato on p.account_to = ato.id " +
-        "left join person per on p.person = per.id order by p.id")
+        "left join person per on p.person = per.id " +
+        "left join project prj on p.project = prj.id " +
+        "order by p.id")
 data class Pay(
         @ColumnName("ID")
         @SequenceName("SELECT COALESCE(MIN(ID), 0) - 1  from PAY")
@@ -50,6 +53,11 @@ data class Pay(
         @ManyToOne("PERS_")
         var person :Person? = null,
 
+        @ColumnName("PROJECT")
+        @ColumnType(java.sql.Types.INTEGER)
+        @ManyToOne("PROJ_")
+        var project :Project? = null,
+
         @ColumnName("DESCRIPTION")
         @ColumnType(java.sql.Types.VARCHAR)
         var description :String? = null
@@ -66,28 +74,9 @@ data class Pay(
 
         val descriptionPay: String get() = description?.let { it } ?:""
 
+        val projectPay: String get() = project?.name?:""
+
         private fun fromToAmount() = if(amount?.toDouble()?:0.0 > 0.0) "на " else "с "
 
         private fun accountToExists() :String = accountTo?.let { "${fromToAmount()}${it.name}" }?:""
-
-        fun copyFrom(source: Pay): Pay {
-
-                id = source.id
-
-                account = source.account
-
-                created = source.created
-
-                category = source.category
-
-                amount = source.amount
-
-                accountTo = source.accountTo
-
-                person = source.person
-
-                description = source.description
-
-                return this
-        }
 }
