@@ -21,4 +21,6 @@ data class Person (
     @ColumnName("DESCRIPTION")
     @ColumnType(java.sql.Types.VARCHAR)
     var description :String? = null
-)
+) {
+    override fun toString(): String = name?:""
+}

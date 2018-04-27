@@ -12,7 +12,6 @@ import ru.barabo.babloz.db.entity.Person
 import ru.barabo.babloz.db.entity.group.GroupPerson
 import ru.barabo.babloz.db.service.PersonService
 import ru.barabo.babloz.gui.account.addElemByLeft
-import ru.barabo.babloz.gui.project.ProjectEdit
 import ru.barabo.babloz.main.ResourcesManager
 import ru.barabo.db.service.StoreListener
 import tornadofx.*
@@ -42,7 +41,7 @@ object PersonList : Tab("Субъекты", VBox()), StoreListener<GroupPerson> 
                     disableProperty().bind(PersonSaver.isDisableEdit())
                 }
             }
-            splitpane(Orientation.HORIZONTAL, ProjectEdit).apply { splitPane = this}
+            splitpane(Orientation.HORIZONTAL, PersonEdit).apply { splitPane = this}
         }
         VBox.setVgrow(splitPane, Priority.ALWAYS)
 
