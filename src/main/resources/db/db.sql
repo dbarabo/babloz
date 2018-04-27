@@ -29,6 +29,8 @@ CHECK (TYPE in (0, 1, 2)) );
 create table PERSON (
 ID INT NOT NULL PRIMARY KEY,
 NAME varchar(100) NOT NULL,
+PARENT INT,
+CONTACT varchar(100),
 DESCRIPTION varchar(1024));
 
 

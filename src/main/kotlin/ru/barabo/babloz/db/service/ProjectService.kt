@@ -9,7 +9,7 @@ object ProjectService : StoreService<Project, GroupProject>(BablozOrm) {
 
     override fun clazz(): Class<Project> = Project::class.java
 
-    override fun elemRoot(): GroupProject = GroupProject.root
+    public override fun elemRoot(): GroupProject = GroupProject.root
 
     override fun beforeRead() {
         GroupProject.rootClear()

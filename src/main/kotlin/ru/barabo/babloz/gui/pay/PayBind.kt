@@ -6,10 +6,10 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
-import ru.barabo.babloz.db.entity.Account
-import ru.barabo.babloz.db.entity.Category
-import ru.barabo.babloz.db.entity.Pay
+import ru.barabo.babloz.db.entity.*
 import ru.barabo.babloz.db.entity.group.GroupCategory
+import ru.barabo.babloz.db.entity.group.GroupPerson
+import ru.barabo.babloz.db.entity.group.GroupProject
 import ru.barabo.babloz.db.service.AccountService
 import ru.barabo.babloz.gui.binding.BindProperties
 import ru.barabo.babloz.gui.formatter.fromFormatToCurrency
@@ -33,7 +33,15 @@ internal class PayBind : BindProperties<Pay> {
 
     private val categoryProperty = SimpleObjectProperty<GroupCategory>()
 
+    private val projectProperty = SimpleObjectProperty<GroupProject>()
+
+    private val personProperty = SimpleObjectProperty<GroupPerson>()
+
     private var treeViewCategory: TreeView<GroupCategory>? = null
+
+    private var treeViewProject: TreeView<GroupProject>? = null
+
+    private var treeViewPerson: TreeView<GroupPerson>? = null
 
     override fun fromValue(value: Pay?) {
 
@@ -43,7 +51,11 @@ internal class PayBind : BindProperties<Pay> {
 
         dateProperty.value = value?.created.toDate()
 
-        setSelectItem(value?.category)
+        setSelectItemCategory(value?.category)
+
+        setSelectItemProject(value?.project)
+
+        setSelectItemPerson(value?.person)
 
         amountProperty.value =  toCurrencyFormat(value?.amount)
 
@@ -58,6 +70,10 @@ internal class PayBind : BindProperties<Pay> {
         value.created = dateProperty.value.toDateTime()
 
         value.category = categoryProperty.value?.category
+
+        value.project = projectProperty.value?.project
+
+        value.person = personProperty.value?.person
 
         value.amount = fromFormatToCurrency(amountProperty.value)
 
@@ -76,6 +92,10 @@ internal class PayBind : BindProperties<Pay> {
 
         destPayBind.categoryProperty.value = this.categoryProperty.value
 
+        destPayBind.projectProperty.value = this.projectProperty.value
+
+        destPayBind.personProperty.value = this.personProperty.value
+
         destPayBind.amountProperty.value = this.amountProperty.value
 
         destPayBind.descriptionProperty.value = this.descriptionProperty.value
@@ -90,7 +110,10 @@ internal class PayBind : BindProperties<Pay> {
                         .and(amountProperty.isEqualTo(comparePayBind.amountProperty))
                         .and(dateProperty.isEqualTo(comparePayBind.dateProperty))
                         .and(descriptionProperty.isEqualTo(comparePayBind.descriptionProperty))
-                        .and(categoryProperty.isEqualTo(comparePayBind.categoryProperty))
+                        .and(categoryProperty.isEqualTo(comparePayBind.categoryProperty)
+                        .and(projectProperty.isEqualTo(comparePayBind.projectProperty))
+                        .and(personProperty.isEqualTo(comparePayBind.personProperty))
+                )
         )
     }
 
@@ -98,7 +121,15 @@ internal class PayBind : BindProperties<Pay> {
         treeViewCategory = treeView
     }
 
-    private fun setSelectItem(category : Category?) {
+    fun setTreeViewProject(treeView: TreeView<GroupProject>?) {
+        treeViewProject = treeView
+    }
+
+    fun setTreeViewPerson(treeView: TreeView<GroupPerson>?) {
+        treeViewPerson = treeView
+    }
+
+    private fun setSelectItemCategory(category : Category?) {
 
         treeViewCategory?.root?.collapseItems()
 
@@ -107,10 +138,24 @@ internal class PayBind : BindProperties<Pay> {
         treeViewCategory?.selectedItem(categoryProperty.value)
     }
 
-    private fun TreeView<GroupCategory>.selectedItem(item: GroupCategory?) {
+    private fun setSelectItemProject(project: Project?) {
 
-        this.root?.findTreeItem(item)?.let { this.selectionModel?.select(it) }
+        treeViewProject?.root?.collapseItems()
+
+        projectProperty.value = project?.let { GroupProject.findByProject(it) }
+
+        treeViewProject?.selectedItem(projectProperty.value)
     }
+
+    private fun setSelectItemPerson(person: Person?) {
+
+        treeViewPerson?.root?.collapseItems()
+
+        personProperty.value = person?.let { GroupPerson.findByPerson(it) }
+
+        treeViewPerson?.selectedItem(personProperty.value)
+    }
+
 
     fun setSelectCategoryFromTreeView(newSelection: GroupCategory?) {
 
@@ -120,6 +165,16 @@ internal class PayBind : BindProperties<Pay> {
 
             accountTransferProperty.value = AccountService.NULL_ACCOUNT
         }
+    }
+
+    fun setSelectProjectFromTreeView(newSelection: GroupProject?) {
+
+        projectProperty.value = newSelection
+    }
+
+    fun setSelectPersonFromTreeView(newSelection: GroupPerson?) {
+
+        personProperty.value = newSelection
     }
 
     fun setSelectCategoryFromAccountTransfer() {
@@ -137,6 +192,12 @@ private fun TreeItem<*>.collapseItems() {
 
     this.children.forEach { if(it.isExpanded) it.isExpanded = false }
 }
+
+private fun <T> TreeView<T>.selectedItem(item: T?) {
+
+    this.root?.findTreeItem(item)?.let { this.selectionModel?.select(it) }
+}
+
 
 private fun <T> TreeItem<T>.findTreeItem(childItem: T): TreeItem<T>? {
 

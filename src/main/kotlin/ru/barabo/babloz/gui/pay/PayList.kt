@@ -143,6 +143,8 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
 
             column("Проект", Pay::projectPay)
 
+            column("Субъект", Pay::personPay)
+
             this.resizeColumnsToFitContent()
         }
     }

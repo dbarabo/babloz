@@ -1,6 +1,5 @@
 package ru.barabo.babloz.db.service
 
-import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.BablozOrm
 import ru.barabo.babloz.db.entity.Pay
 import ru.barabo.db.service.FilterCriteria
@@ -10,8 +9,6 @@ import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
 object PayService : StoreService<Pay, List<Pay>>(BablozOrm), FilterStore<Pay> {
-
-    private val logger = LoggerFactory.getLogger(PayService::class.java)
 
     override fun elemRoot(): List<Pay> = dataList
 

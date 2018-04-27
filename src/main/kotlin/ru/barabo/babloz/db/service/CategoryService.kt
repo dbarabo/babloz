@@ -21,8 +21,6 @@ object CategoryService: StoreService<Category, GroupCategory>(BablozOrm) {
 
     fun categoryRoot() = elemRoot()
 
-    fun categoryList() = dataList
-
     fun parentList() :List<Category> {
 
         val list = ArrayList<Category>()

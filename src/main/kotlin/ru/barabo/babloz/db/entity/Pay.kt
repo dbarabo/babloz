@@ -76,6 +76,8 @@ data class Pay(
 
         val projectPay: String get() = project?.name?:""
 
+        val personPay: String get() = person?.name?:""
+
         private fun fromToAmount() = if(amount?.toDouble()?:0.0 > 0.0) "на " else "с "
 
         private fun accountToExists() :String = accountTo?.let { "${fromToAmount()}${it.name}" }?:""

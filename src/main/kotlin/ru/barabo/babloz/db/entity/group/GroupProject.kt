@@ -15,6 +15,8 @@ data class GroupProject(var project: Project = Project(),
             synchronized(root.child) { root.child.clear() }
         }
 
+        fun countAll() = root.child.map { it.child.size }.sum()
+
         fun addProject(project: Project): GroupProject {
 
             val groupProject = project.parent
@@ -25,6 +27,11 @@ data class GroupProject(var project: Project = Project(),
 
             return groupProject
         }
+
+        fun findByProject(project: Project): GroupProject? {
+
+            return GroupProject.root.findByProject(project)
+        }
     }
 
     val name: String get() = project.name?.let { it } ?: ""
@@ -32,4 +39,17 @@ data class GroupProject(var project: Project = Project(),
     val description: String get() = project.description?.let{ it } ?: ""
 
     override fun toString(): String = name
+
+    private fun findByProject(findProject: Project): GroupProject? {
+        if(findProject.id == project.id) return this
+
+        for (group in child) {
+            val find = group.findByProject(findProject)
+
+            if(find != null) {
+                return find
+            }
+        }
+        return null
+    }
 }
