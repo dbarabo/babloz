@@ -4,6 +4,8 @@ import com.sun.javafx.tk.Toolkit
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
 import javafx.scene.layout.VBox
+import javafx.stage.Screen
+import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.babloz.db.entity.group.GroupPerson
@@ -13,6 +15,7 @@ import ru.barabo.babloz.db.service.CategoryService
 import ru.barabo.babloz.db.service.PersonService
 import ru.barabo.babloz.db.service.ProjectService
 import ru.barabo.babloz.gui.formatter.currencyTextFormatter
+import ru.barabo.babloz.gui.pay.PayEdit.rowHeight
 import tornadofx.*
 import kotlin.math.max
 
@@ -20,8 +23,6 @@ import kotlin.math.max
 internal object PayEdit: VBox() {
 
     private const val CATEGORY_ROW_COUNT = 9
-
-    private val PROJECT_ROW_COUNT = if (GroupProject.countAll() < 7) max(GroupProject.countAll(), 3) else 7
 
      init {
 
@@ -73,7 +74,11 @@ internal object PayEdit: VBox() {
                  }
 
                  field("Ремарка") {
-                     textarea(PaySaver.editBind.descriptionProperty).prefRowCount = 3
+                     textarea(PaySaver.editBind.descriptionProperty).apply {
+                         prefRowCount = if(Screen.getPrimary().visualBounds.height /
+                                 (Toolkit.getToolkit().fontLoader.getFontMetrics(this.label("").font).lineHeight.toDouble() + 7.0)
+                         >= ALL_ROW_COUNT) 3 else 2
+                     }
                  }
             }
         }
@@ -110,7 +115,7 @@ internal object PayEdit: VBox() {
 
             root.isExpanded = true
 
-            prefHeight = rowHeight() * PROJECT_ROW_COUNT
+            prefHeight = rowHeight() * projectRowCount()
 
             selectionModel?.selectedItemProperty()?.addListener(
                     { _, _, newSelection ->
@@ -130,7 +135,7 @@ internal object PayEdit: VBox() {
 
             root.isExpanded = true
 
-            prefHeight = rowHeight() * PROJECT_ROW_COUNT
+            prefHeight = rowHeight() * personRowCount()
 
             selectionModel?.selectedItemProperty()?.addListener(
                     { _, _, newSelection ->
@@ -139,6 +144,24 @@ internal object PayEdit: VBox() {
         }
     }
 
+    private const val ALL_ROW_COUNT = 36
+
+    private fun TreeView<*>.maxRowCount(): Int {
+        val screenHeight = Screen.getPrimary().visualBounds.height
+
+        LoggerFactory.getLogger(PayEdit::class.java).info("screenHeight=$screenHeight")
+
+        LoggerFactory.getLogger(PayEdit::class.java).info("rowHeight()=${rowHeight()}")
+
+        return if(screenHeight / rowHeight() >= ALL_ROW_COUNT) 6 else 5
+    }
+
+    private fun TreeView<*>.personRowCount()= defaultRowCount(GroupPerson.countAll() )
+
+    private fun TreeView<*>.projectRowCount()= defaultRowCount(GroupProject.countAll() )
+
+    private fun TreeView<*>.defaultRowCount(realCount: Int) = if (realCount < maxRowCount() ) max(realCount, 3) else maxRowCount()
+
     private fun TreeView<*>.rowHeight() =
-         Toolkit.getToolkit().fontLoader.getFontMetrics(this.label("").font).lineHeight.toDouble() + 7.0
+            Toolkit.getToolkit().fontLoader.getFontMetrics(this.label("").font).lineHeight.toDouble() + 7.0
 }

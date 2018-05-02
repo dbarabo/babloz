@@ -15,7 +15,7 @@ data class GroupProject(var project: Project = Project(),
             synchronized(root.child) { root.child.clear() }
         }
 
-        fun countAll() = root.child.map { it.child.size }.sum()
+        fun countAll() = root.child.map { it.child.size + 1 }.sum()
 
         fun addProject(project: Project): GroupProject {
 
