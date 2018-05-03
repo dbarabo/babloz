@@ -78,6 +78,8 @@ internal object PayEdit: VBox() {
                          prefRowCount = if(Screen.getPrimary().visualBounds.height /
                                  (Toolkit.getToolkit().fontLoader.getFontMetrics(this.label("").font).lineHeight.toDouble() + 7.0)
                          >= ALL_ROW_COUNT) 3 else 2
+
+                         isWrapText = true
                      }
                  }
             }

@@ -1,6 +1,7 @@
 package ru.barabo.babloz.db.entity.group
 
 import ru.barabo.babloz.db.entity.Project
+import ru.barabo.babloz.db.service.ProjectService
 import tornadofx.observable
 
 data class GroupProject(var project: Project = Project(),
@@ -34,7 +35,7 @@ data class GroupProject(var project: Project = Project(),
         }
 
         fun findByDescription(projectDesc: String): GroupProject? =
-                GroupProject.root.findByDescription(projectDesc.toUpperCase())
+                GroupProject.root.findByDescription(projectDesc)
     }
 
     val name: String get() = project.name?.let { it } ?: ""
@@ -57,7 +58,7 @@ data class GroupProject(var project: Project = Project(),
     }
 
     private fun findByDescription(projectDescUpper: String): GroupProject? {
-        if(projectDescUpper == project.description?.toUpperCase()) return this
+        if(projectDescUpper.equals(project.description, true) ) return this
 
         for (group in child) {
             val find = group.findByDescription(projectDescUpper)

@@ -63,7 +63,7 @@ data class Pay(
         var description :String? = null
         ) {
 
-        val createPay: String get() = created?.let { DateTimeFormatter.ofPattern("dd.MM.yy HH:mm").format(it) } ?: ""
+        val createPay: String get() = created?.let { DateTimeFormatter.ofPattern("yy.MM.dd HH:mm").format(it) } ?: ""
 
         val fromAccountPay: String get() = account?.name ?: ""
 

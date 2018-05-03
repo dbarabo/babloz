@@ -1,13 +1,13 @@
 package ru.barabo.babloz.db.importer
 
+import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.Category
 import ru.barabo.babloz.db.entity.Pay
 import ru.barabo.babloz.db.entity.Project
 import ru.barabo.babloz.db.entity.group.GroupAccount
 import ru.barabo.babloz.db.entity.group.GroupProject
-import ru.barabo.babloz.db.service.CategoryService
-import ru.barabo.babloz.db.service.PayService
+import ru.barabo.babloz.db.service.*
 import java.io.File
 import java.math.BigDecimal
 import java.nio.charset.Charset
@@ -21,9 +21,11 @@ import java.util.regex.Pattern
 
 object CssImporter : Importer {
 
-    //private val logger = LoggerFactory.getLogger(CssImporter::class.java)!!
+    private val logger = LoggerFactory.getLogger(CssImporter::class.java)!!
 
     override fun import(file: File, charset: Charset) {
+
+        initServices()
 
         val lines = file.readLines(charset)
 
@@ -43,6 +45,16 @@ object CssImporter : Importer {
         }
 
         return fieldMap
+    }
+
+    private fun initServices() {
+        ProjectService.elemRoot()
+
+        AccountService.accountList()
+
+        CategoryService.categoryRoot()
+
+        PersonService.parentList()
     }
 
     private fun processRows(lines: List<String>, header: Map<String, Int>) {
@@ -75,15 +87,22 @@ object CssImporter : Importer {
 
         if(newPay.category == Category.TRANSFER_CATEGORY) {
             newPay.accountTo = parseAccountTo( categoryName )
+
+            logger.error("newPay.accountTo=${newPay.accountTo}")
         }
 
         return newPay
     }
 
     private fun parseAccountTo(accountToName: String?): Account? {
+
+        logger.error("accountToName=$accountToName")
+
         val accountName = if(!accountToName.isNullOrEmpty() ) accountToName!!.withoutBracket() else return null
 
         val account = parseAccount(accountName)
+
+        logger.error("account=$account")
 
         return account ?: defaultAccountTo(accountName)
     }
@@ -99,11 +118,19 @@ object CssImporter : Importer {
 
     private fun parseCategory(categoryName: String?) :Category? {
 
+        logger.error("categoryName=$categoryName")
+
         val category = if(!categoryName.isNullOrEmpty() ) categoryName!! else return CategoryService.findByName("Хз-куда")
+
+        logger.error("category=$category")
 
         if(category.first() == '[' && category.last() == ']') return Category.TRANSFER_CATEGORY
 
-        return MAP_CATEGORY[category]
+        val categ =  MAP_CATEGORY[category]
+
+        logger.error("MAP_CATEGORY=$categ")
+
+        return categ
     }
 
     private val MAP_CATEGORY = mapOf(
@@ -184,8 +211,15 @@ object CssImporter : Importer {
 
     private fun parseDescription(description: String?): String? = description
 
-    private fun parseProject(projectName: String?): Project? =
-            projectName?.let { GroupProject.findByDescription(it)?.project }
+    private fun parseProject(projectName: String?): Project? {
+        val project = projectName?.let { GroupProject.findByDescription(it)?.project }
+
+        logger.error("projectName=$projectName")
+        logger.error("project=$project")
+
+        return project
+    }
+
 
     private fun parseAmount(amount: String?): BigDecimal? = amount?.let{ decimalFormater().parse(it) as BigDecimal }
 

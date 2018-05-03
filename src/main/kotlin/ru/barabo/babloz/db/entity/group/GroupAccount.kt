@@ -2,6 +2,7 @@ package ru.barabo.babloz.db.entity.group
 
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.AccountType
+import ru.barabo.babloz.db.service.AccountService
 import tornadofx.observable
 import java.text.DecimalFormat
 
@@ -53,6 +54,10 @@ data class GroupAccount(var account: Account = Account(),
         }
 
         fun findByAccountName(accountName: String): GroupAccount? {
+
+            if(root.child[0].child.size == 0) {
+                AccountService.NULL_ACCOUNT
+            }
 
             return GroupAccount.root.findByAccountName(accountName)
         }
