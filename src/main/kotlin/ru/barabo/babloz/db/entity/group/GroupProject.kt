@@ -32,6 +32,9 @@ data class GroupProject(var project: Project = Project(),
 
             return GroupProject.root.findByProject(project)
         }
+
+        fun findByDescription(projectDesc: String): GroupProject? =
+                GroupProject.root.findByDescription(projectDesc.toUpperCase())
     }
 
     val name: String get() = project.name?.let { it } ?: ""
@@ -45,6 +48,19 @@ data class GroupProject(var project: Project = Project(),
 
         for (group in child) {
             val find = group.findByProject(findProject)
+
+            if(find != null) {
+                return find
+            }
+        }
+        return null
+    }
+
+    private fun findByDescription(projectDescUpper: String): GroupProject? {
+        if(projectDescUpper == project.description?.toUpperCase()) return this
+
+        for (group in child) {
+            val find = group.findByDescription(projectDescUpper)
 
             if(find != null) {
                 return find

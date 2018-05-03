@@ -25,17 +25,22 @@ object CategoryService: StoreService<Category, GroupCategory>(BablozOrm) {
 
         val list = ArrayList<Category>()
 
-        list.add(Category(name = "НЕТ"))
+        list.add(CATEGORY_NONE)
 
         list.addAll( GroupCategory.root.child.map { it.category } )
 
         return list
     }
 
-    fun findCategoryById(id :Int?) :Category {
+    private val CATEGORY_NONE = Category(name = "НЕТ")
+
+    fun findCategoryById(id :Int?): Category {
 
         val groupCategory = id?.let{ GroupCategory.root.child.firstOrNull { it.category.id == id } }
 
-        return groupCategory?.category ?: Category(name = "НЕТ")
+        return groupCategory?.category ?: CATEGORY_NONE
     }
+
+    fun findByName(nameCategory :String) :Category? = dataList.firstOrNull { nameCategory.equals(it.name, true)}
+
 }

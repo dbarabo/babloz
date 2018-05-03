@@ -22,7 +22,7 @@ data class Category (
     @ColumnName("TYPE")
     @ColumnType(java.sql.Types.INTEGER)
     @Converter(EnumConverter::class)
-    var type :CategoryType = CategoryType.COST
+    var type: CategoryType = CategoryType.COST
 ) {
     companion object {
         val TRANSFER_CATEGORY =  Category(id = null, name = CategoryType.TRANSFER.label, type = CategoryType.TRANSFER)

@@ -13,6 +13,7 @@ import ru.barabo.babloz.gui.category.CategoryList
 import ru.barabo.babloz.gui.pay.PayList
 import ru.barabo.babloz.gui.person.PersonList
 import ru.barabo.babloz.gui.project.ProjectList
+import ru.barabo.babloz.gui.service.ServiceTab
 import ru.barabo.babloz.main.ResourcesManager
 import tornadofx.*
 
@@ -102,6 +103,17 @@ class MainView: View() {
                 graphic = ResourcesManager.icon("person.png")
 
                 setOnAction { PersonList.selectTab() }
+
+                prefWidth = 150.0
+            }
+
+            label("\n")
+
+            togglebutton("Настройки", toggleGroup).apply {
+
+                graphic = ResourcesManager.icon("service.png")
+
+                setOnAction { ServiceTab.selectTab() }
 
                 prefWidth = 150.0
             }

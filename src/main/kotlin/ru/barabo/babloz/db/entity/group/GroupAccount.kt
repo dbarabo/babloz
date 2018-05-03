@@ -51,6 +51,24 @@ data class GroupAccount(var account: Account = Account(),
 
             return group
         }
+
+        fun findByAccountName(accountName: String): GroupAccount? {
+
+            return GroupAccount.root.findByAccountName(accountName)
+        }
+    }
+
+    private fun findByAccountName(accountName: String): GroupAccount? {
+        if(accountName == account.name) return this
+
+        for (group in child) {
+            val find = group.findByAccountName(accountName)
+
+            if(find != null) {
+                return find
+            }
+        }
+        return null
     }
 
     val name: String get() = account.name?.let { it } ?: ""
