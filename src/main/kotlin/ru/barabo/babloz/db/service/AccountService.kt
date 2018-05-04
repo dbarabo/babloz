@@ -34,5 +34,17 @@ object AccountService :StoreService<Account, GroupAccount>(BablozOrm){
 
         return result
     }
+
+    val ALL_ACCOUNT = Account(name = "ВСЕ")
+
+    fun accountAllList(): List<Account> {
+        val result = ArrayList<Account>()
+
+        result += ALL_ACCOUNT
+
+        result.addAll(dataList)
+
+        return result
+    }
 }
 

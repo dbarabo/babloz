@@ -44,6 +44,11 @@ class MainView: View() {
 
     private val mainTabPane: TabPane = TabPane()
 
+    companion object {
+        private const val WIDTH_RIGHT_PANEL = 120.0
+    }
+
+
     init {
         title = "Babloz"
 
@@ -58,7 +63,9 @@ class MainView: View() {
 
             orientation = Orientation.VERTICAL
 
-            label(graphic = ResourcesManager.icon("babloz.png"))
+            label(graphic = ResourcesManager.icon("babloz.png")).apply {
+                prefWidth = WIDTH_RIGHT_PANEL
+            }
 
             togglebutton("Счета", toggleGroup).apply {
 
@@ -66,7 +73,7 @@ class MainView: View() {
 
                 setOnAction { AccountList.selectTab() }
 
-                prefWidth = 150.0
+                prefWidth = WIDTH_RIGHT_PANEL
             }
 
             togglebutton("Платежи", toggleGroup).apply {
@@ -75,7 +82,7 @@ class MainView: View() {
 
                 setOnAction { PayList.selectTab() }
 
-                prefWidth = 150.0
+                prefWidth = WIDTH_RIGHT_PANEL
             }
 
             label("\n")
@@ -86,7 +93,7 @@ class MainView: View() {
 
                 setOnAction { CategoryList.selectTab() }
 
-                prefWidth = 150.0
+                prefWidth = WIDTH_RIGHT_PANEL
             }
 
             togglebutton("Проекты", toggleGroup).apply {
@@ -95,7 +102,7 @@ class MainView: View() {
 
                 setOnAction { ProjectList.selectTab() }
 
-                prefWidth = 150.0
+                prefWidth = WIDTH_RIGHT_PANEL
             }
 
             togglebutton("Субъекты", toggleGroup).apply {
@@ -104,7 +111,7 @@ class MainView: View() {
 
                 setOnAction { PersonList.selectTab() }
 
-                prefWidth = 150.0
+                prefWidth = WIDTH_RIGHT_PANEL
             }
 
             label("\n")
@@ -115,7 +122,7 @@ class MainView: View() {
 
                 setOnAction { ServiceTab.selectTab() }
 
-                prefWidth = 150.0
+                prefWidth = WIDTH_RIGHT_PANEL
             }
         }
 

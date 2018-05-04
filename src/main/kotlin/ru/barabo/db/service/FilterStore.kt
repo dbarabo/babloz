@@ -6,8 +6,6 @@ import kotlin.reflect.KClass
 
 interface FilterStore<E: Any> {
 
-    var isFiltered: Boolean
-
     val allData: MutableList<E>?
 
     var filterCriteria: MutableList<FilterCriteria>
@@ -16,31 +14,9 @@ interface FilterStore<E: Any> {
 
     fun getDataListStore(): MutableList<E>
 
-    fun clearCriteria() {
-        resetFilter()
-
-        setDataFromAll()
-    }
-
-    private fun resetFilter() {
-        if(!isFiltered) return
-
-        isFiltered = false
-
-        filterCriteria.clear()
-    }
-
-    private fun setDataFromAll() {
-        getDataListStore().clear()
-
-        getDataListStore().addAll(allData!!)
-    }
-
     fun setCriteria(criteria: String) {
 
         fillCriteriaData(criteria)
-
-        setFilter()
     }
 
     private fun fillCriteriaData(criteria: String) {
@@ -54,8 +30,6 @@ interface FilterStore<E: Any> {
 
         indexFieldToFilter.entries.forEach {
 
-            //LoggerFactory.getLogger(FilterStore::class.java).info("it.value=${it.value}")
-
             when(it.value) {
                 String::class -> if(words.isNotEmpty()) filterCriteria.add(FilterCriteria(it.key, words))
 
@@ -65,38 +39,8 @@ interface FilterStore<E: Any> {
         }
     }
 
-    private fun setFilter() {
-
-        if(filterCriteria.isNotEmpty()) {
-            return setFilterByCriteria()
-        }
-
-        if(isFiltered) {
-            clearCriteria()
-        }
-    }
-
-    private fun setFilterByCriteria() {
-
-        isFiltered = true
-
-        getDataListStore().clear()
-
-        allData?.forEach {
-
-            if(filterCriteria.isAccess(it) ) {
-                getDataListStore().add(it)
-            }
-        }
-    }
-
-    private fun MutableList<FilterCriteria>.isAccess(row: E): Boolean {
-
-        val accessTrue = this.firstOrNull { it.isAccess(row) }
-
-        return accessTrue != null
-    }
+    fun MutableList<FilterCriteria>.isAccess(row: E): Boolean =
+            this.isEmpty() || this.firstOrNull { it.isAccess(row) } != null
 }
-
 
 private fun String.toNumber(): Number? = this.trim().parseToMoney()

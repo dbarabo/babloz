@@ -19,8 +19,6 @@ data class FilterCriteria(val getter: KCallable<*>, val andValues: List<Any>) {
             }
         }.firstOrNull { !it }
 
-        logger.info("valueRow= $valueRow isNotAccess=$isNotAccess")
-
         return isNotAccess ?: true
     }
 }

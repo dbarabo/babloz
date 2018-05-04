@@ -2,13 +2,14 @@ package ru.barabo.babloz.gui.pay
 
 import javafx.application.Platform
 import javafx.geometry.Orientation
-import javafx.scene.control.SplitPane
-import javafx.scene.control.Tab
-import javafx.scene.control.TableView
-import javafx.scene.control.TextField
+import javafx.scene.control.*
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
+import org.controlsfx.control.CheckComboBox
+import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.Pay
+import ru.barabo.babloz.db.service.AccountService
+import ru.barabo.babloz.db.service.AccountService.ALL_ACCOUNT
 import ru.barabo.babloz.db.service.PayService
 import ru.barabo.babloz.gui.account.addElemByLeft
 import ru.barabo.babloz.main.ResourcesManager
@@ -52,6 +53,10 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
                     disableProperty().bind(PaySaver.isDisableEdit())
                 }
 
+                separator {  }
+
+                this += checkComboAccountList()
+
                 textfield().apply {
                     findTextField = this
 
@@ -70,6 +75,26 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
         VBox.setVgrow(splitPane, Priority.ALWAYS)
 
         PayService.addListener(this)
+    }
+
+    private fun checkComboAccountList(): CheckComboBox<Account> {
+
+        val checkCombo = CheckComboBox<Account>(AccountService.accountAllList().observable() )
+
+        checkCombo.maxWidth = 100.0
+
+        checkCombo.addEventHandler(ComboBox.ON_HIDDEN, {
+
+            val items = checkCombo.checkModel.checkedItems
+
+            if(items.isEmpty() || ALL_ACCOUNT in items) {
+                PayService.setAccountFilter(emptyList())
+            } else {
+                PayService.setAccountFilter(items)
+            }
+        })
+
+        return checkCombo
     }
 
     private fun findPay() {
