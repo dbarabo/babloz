@@ -48,4 +48,6 @@ object PayService : StoreService<Pay, List<Pay>>(BablozOrm), FilterStore<Pay> {
         sentRefreshAllListener()
     }
 
+    fun firstByCriteria(criteria: (Pay)->Boolean): Pay? = allData?.firstOrNull { criteria(it) }
+
 }

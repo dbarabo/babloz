@@ -58,13 +58,25 @@ object CssImporter : Importer {
     }
 
     private fun processRows(lines: List<String>, header: Map<String, Int>) {
-        lines.forEach {
-            val fields = parseCsvQuote(it)
 
-            val pay = createPay(fields, header)
+        val sessionSetting = PayService.startLongTransation()
 
-            pay?.let { PayService.save(it) }
+        try {
+            lines.forEach {
+                val fields = parseCsvQuote(it)
+
+                val pay = createPay(fields, header)
+
+                pay?.let { PayService.save(it, sessionSetting) }
+            }
+        } catch (e: Exception) {
+            logger.error("processRows", e)
+
+            PayService.rollbackLongTransaction(sessionSetting)
+
+            throw Exception(e)
         }
+        PayService.commitLongTransaction(sessionSetting)
     }
 
     private fun createPay(fields: List<String>, header: Map<String, Int>): Pay? {
@@ -85,31 +97,61 @@ object CssImporter : Importer {
 
         newPay.category = parseCategory( categoryName )
 
-        if(newPay.category == Category.TRANSFER_CATEGORY) {
-            newPay.accountTo = parseAccountTo( categoryName )
+        return processTransfer(newPay, categoryName)
+    }
 
-            logger.error("newPay.accountTo=${newPay.accountTo}")
+    private fun processTransfer(pay: Pay, accountToInCategory: String?): Pay? {
+
+        if(pay.category != Category.TRANSFER_CATEGORY) return pay
+
+        pay.accountTo = parseAccountTo( accountToInCategory )
+
+        if(isDuplicatePay(pay) ) return null
+
+        if(isEqualCurrencyPay(pay)) return pay
+
+        val mirrorPay = findMirrorPay(pay)
+
+        return mirrorPay?.let{ it } ?: pay
+    }
+
+    /*
+     * берем переводы только с положительнымы - чтобы не задваивались
+     */
+    private fun isDuplicatePay(pay: Pay): Boolean {
+        if(pay.amount?.toDouble()?:-1.0 >= 0) return false
+
+        return isEqualCurrencyPay(pay)
+    }
+
+    private fun isEqualCurrencyPay(pay: Pay)= pay.account?.currency?.id ?:-1 == pay.accountTo?.currency?.id?:-1
+
+    private fun findMirrorPay(pay: Pay): Pay? {
+
+        val mirrorPay = PayService.firstByCriteria {
+            (pay.account?.id == it.accountTo?.id) &&
+            (pay.accountTo?.id == it.account?.id) &&
+            (pay.created == it.created ) &&
+            (pay.description == it.description)
         }
 
-        return newPay
+        mirrorPay?.amountTo = pay.amount
+
+        return mirrorPay
     }
 
     private fun parseAccountTo(accountToName: String?): Account? {
 
-        logger.error("accountToName=$accountToName")
-
         val accountName = if(!accountToName.isNullOrEmpty() ) accountToName!!.withoutBracket() else return null
 
         val account = parseAccount(accountName)
-
-        logger.error("account=$account")
 
         return account ?: defaultAccountTo(accountName)
     }
 
     private fun defaultAccountTo(accountName: String): Account? {
 
-        if(accountName in listOf("Игорь", "Нака") ) return parseAccount("Должен")
+        //if(accountName in listOf("Игорь", "Нака") ) return parseAccount("Должен")
 
         return null
     }
@@ -118,19 +160,11 @@ object CssImporter : Importer {
 
     private fun parseCategory(categoryName: String?) :Category? {
 
-        logger.error("categoryName=$categoryName")
-
         val category = if(!categoryName.isNullOrEmpty() ) categoryName!! else return CategoryService.findByName("Хз-куда")
-
-        logger.error("category=$category")
 
         if(category.first() == '[' && category.last() == ']') return Category.TRANSFER_CATEGORY
 
-        val categ =  MAP_CATEGORY[category]
-
-        logger.error("MAP_CATEGORY=$categ")
-
-        return categ
+        return  MAP_CATEGORY[category]
     }
 
     private val MAP_CATEGORY = mapOf(
@@ -214,8 +248,8 @@ object CssImporter : Importer {
     private fun parseProject(projectName: String?): Project? {
         val project = projectName?.let { GroupProject.findByDescription(it)?.project }
 
-        logger.error("projectName=$projectName")
-        logger.error("project=$project")
+        //logger.error("projectName=$projectName")
+       // logger.error("project=$project")
 
         return project
     }

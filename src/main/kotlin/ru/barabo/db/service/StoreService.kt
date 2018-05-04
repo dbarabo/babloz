@@ -2,6 +2,7 @@ package ru.barabo.db.service
 
 import ru.barabo.db.EditType
 import ru.barabo.db.SessionException
+import ru.barabo.db.SessionSetting
 import ru.barabo.db.TemplateQuery
 import tornadofx.observable
 
@@ -53,9 +54,9 @@ abstract class StoreService<T: Any, G>(private val orm :TemplateQuery) {
     }
 
     @Throws(SessionException::class)
-    fun save(item :T) :T {
+    fun save(item :T, sessionSetting : SessionSetting = SessionSetting(false)) :T {
 
-        val type = orm.save(item)
+        val type = orm.save(item, sessionSetting)
 
         when (type) {
             EditType.INSERT -> {
@@ -71,6 +72,16 @@ abstract class StoreService<T: Any, G>(private val orm :TemplateQuery) {
         sentRefreshAllListener()
 
         return item
+    }
+
+    fun startLongTransation(): SessionSetting = orm.startLongTransation()
+
+    fun commitLongTransaction(sessionSetting: SessionSetting) {
+        orm.commitLongTransaction(sessionSetting)
+    }
+
+    fun rollbackLongTransaction(sessionSetting: SessionSetting) {
+        orm.rollbackLongTransaction(sessionSetting)
     }
 }
 

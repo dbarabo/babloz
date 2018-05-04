@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter
 @TableName("PAY")
 @SelectQuery("select p.id, p.account, a.name ACC_NAME, a.type ACC_TYPE, p.created, " +
         "p.category, c.name CAT_NAME, p.ACCOUNT_TO, ato.name ACCTO_NAME, p.person, per.name PERS_NAME, " +
-        "p.project, prj.name PROJ_NAME, p.AMOUNT, p.description " +
+        "p.project, prj.name PROJ_NAME, p.AMOUNT, p.description, p.amount_to " +
         "from pay p " +
         "left join account a on p.account = a.id " +
         "left join category c on p.category = c.id " +
@@ -60,7 +60,11 @@ data class Pay(
 
         @ColumnName("DESCRIPTION")
         @ColumnType(java.sql.Types.VARCHAR)
-        var description :String? = null
+        var description :String? = null,
+
+        @ColumnName("AMOUNT_TO")
+        @ColumnType(java.sql.Types.NUMERIC)
+        var amountTo : BigDecimal? = null
         ) {
 
         val createPay: String get() = created?.let { DateTimeFormatter.ofPattern("yy.MM.dd HH:mm").format(it) } ?: ""

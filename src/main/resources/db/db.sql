@@ -55,6 +55,7 @@ CREATED DATE NOT NULL DEFAULT CURRENT_DATE,
 AMOUNT NUMERIC(12, 2) NOT NULL, /*минус - расход + - приход*/
 CATEGORY INT REFERENCES CATEGORY(ID), /* категория платежа */
 ACCOUNT_TO INT REFERENCES ACCOUNT(ID), /* в случае перевода на др. счет */
+AMOUNT_TO NUMERIC(12, 2), /* для разновалютных переводов иначе null */
 DESCRIPTION varchar(1024),
 PROJECT INT REFERENCES PROJECT(ID),
 NUMBER_OF INT, /* кол-во*/

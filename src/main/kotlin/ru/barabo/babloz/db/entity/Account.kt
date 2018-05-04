@@ -7,7 +7,7 @@ import java.time.LocalDate
 
 @TableName("ACCOUNT")
 @SelectQuery("select a.ID, a.NAME, a.DESCRIPTION, a.TYPE, a.CLOSED, a.CURRENCY, c.name CUR_NAME, c.EXT CUR_EXT, " +
-        "(select COALESCE(sum(case when a.ID = p.ACCOUNT then p.AMOUNT else -1*p.AMOUNT end), 0) from PAY p where a.ID in (p.ACCOUNT, p.ACCOUNT_TO) ) REST " +
+        "(select COALESCE(sum(case when a.ID = p.ACCOUNT then p.AMOUNT else COALESCE(p.amount_to, -1*p.AMOUNT) end), 0) from PAY p where a.ID in (p.ACCOUNT, p.ACCOUNT_TO) ) REST " +
         "from ACCOUNT a, CURRENCY c " +
         "where a.CURRENCY = c.ID and (CLOSED IS NULL OR CLOSED > CURRENT_DATE) order by a.TYPE")
 data class Account (

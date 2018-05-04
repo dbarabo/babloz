@@ -1,6 +1,5 @@
 package ru.barabo.db
 
-import org.slf4j.LoggerFactory
 import ru.barabo.db.annotation.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -15,7 +14,7 @@ import kotlin.reflect.jvm.javaType
 
 open class TemplateQuery (private val query :Query) {
 
-    private val logger = LoggerFactory.getLogger(TemplateQuery::class.java)
+    //private val logger = LoggerFactory.getLogger(TemplateQuery::class.java)
 
     companion object {
 
@@ -34,6 +33,16 @@ open class TemplateQuery (private val query :Query) {
         private fun errorSequenceReturnNull(sequence :String) = "Sequence expression return NULL $sequence"
 
         private const val ID_COLUMN = "ID"
+    }
+
+    fun startLongTransation(): SessionSetting = query.uniqueSession()
+
+    fun commitLongTransaction(sessionSetting: SessionSetting) {
+        query.commitFree(sessionSetting)
+    }
+
+    fun rollbackLongTransaction(sessionSetting: SessionSetting) {
+        query.rollbackFree(sessionSetting)
     }
 
     @Throws(SessionException::class)
@@ -106,20 +115,20 @@ open class TemplateQuery (private val query :Query) {
     }
 
     @Throws(SessionException::class)
-    fun save(item :Any) :EditType {
+    fun save(item :Any, sessionSetting: SessionSetting = SessionSetting(false)) :EditType {
 
         val idField = getFieldData(item, ID_COLUMN)
 
         return if(idField.second is Class<*>) {
 
-            setSequenceValue(item)
+            setSequenceValue(item, sessionSetting)
 
-            insert(item)
+            insert(item, sessionSetting)
 
             EditType.INSERT
 
         } else {
-            updateById(item)
+            updateById(item, sessionSetting)
 
             EditType.EDIT
         }
@@ -141,17 +150,17 @@ open class TemplateQuery (private val query :Query) {
             ?: throw SessionException(errorNotFoundAnnotationSelectQuery(row.simpleName))
 
     @Throws(SessionException::class)
-    private fun insert (item :Any) {
+    private fun insert (item :Any, sessionSetting : SessionSetting = SessionSetting(false)) {
 
         val tableName = getTableName(item)
 
         val fieldsData = getFieldsDataUpdate(item)
 
-        insert(tableName, fieldsData)
+        insert(tableName, fieldsData, sessionSetting)
     }
 
     @Throws(SessionException::class)
-    private fun updateById(item :Any) {
+    private fun updateById(item :Any, sessionSetting: SessionSetting = SessionSetting(false)) {
         val tableName = getTableName(item)
 
         val fieldsData = getFieldsDataUpdate(item)
@@ -168,17 +177,17 @@ open class TemplateQuery (private val query :Query) {
 
         val updateQuery = updateTemplate(tableName, updateColumns, idField.first)
 
-        query.execute(updateQuery, params.toTypedArray())
+        query.execute(updateQuery, params.toTypedArray(), sessionSetting)
     }
 
-    private fun setSequenceValue(item :Any) {
+    private fun setSequenceValue(item :Any, sessionSetting : SessionSetting = SessionSetting(true)) {
         for (member in item::class.declaredMembers) {
 
             val annotationName = member.findAnnotation<SequenceName>()
 
             if(annotationName?.name != null){
 
-                val valueSequence = getNextSequenceValue(annotationName.name)
+                val valueSequence = getNextSequenceValue(annotationName.name, sessionSetting)
 
                 (member as KMutableProperty<*>).setter.call(item,
                         Type.convertValueToJavaTypeByClass(valueSequence, member.returnType.javaType as Class<*>))
@@ -189,8 +198,8 @@ open class TemplateQuery (private val query :Query) {
     }
 
     @Throws(SessionException::class)
-    private fun getNextSequenceValue(sequenceExpression: String) :Any {
-        return query.selectValue(sequenceExpression)
+    private fun getNextSequenceValue(sequenceExpression: String, sessionSetting : SessionSetting = SessionSetting(true)) :Any {
+        return query.selectValue(sequenceExpression, null, sessionSetting)
                 ?: throw SessionException(errorSequenceReturnNull(sequenceExpression))
     }
 
@@ -212,13 +221,13 @@ open class TemplateQuery (private val query :Query) {
 
 
     @Throws(SessionException::class)
-    private fun insert(table :String, fields :List<FieldData>) {
+    private fun insert(table :String, fields :List<FieldData>, sessionSetting : SessionSetting = SessionSetting(false)) {
 
         val queryInsert= getInsertQuery(table, fields)
 
         val params :Array<Any?>? = fields.map { it.second }.toTypedArray()
 
-        query.execute(queryInsert, params)
+        query.execute(queryInsert, params, sessionSetting)
     }
 
     @Throws(SessionException::class)

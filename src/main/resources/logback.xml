@@ -21,7 +21,7 @@
 
     <logger name="ru.barabo" level="debug"
             additivity="false">
-        <appender-ref ref="FILE_SAVE" />
+        <!--<appender-ref ref="FILE_SAVE" />-->
         <appender-ref ref="STDOUT" />
     </logger>
 
@@ -30,10 +30,10 @@
         <!--<appender-ref ref="FILE_SAVE" />-->
     <!--</root>-->
 
-    <!--<root level="DEBUG">-->
-        <!--<appender-ref ref="STDOUT" />-->
-        <!--<appender-ref ref="FILE-ERROR" />-->
-    <!--</root>-->
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE-ERROR" />
+    </root>
 
     <root level="ERROR">
         <appender-ref ref="STDOUT" />
