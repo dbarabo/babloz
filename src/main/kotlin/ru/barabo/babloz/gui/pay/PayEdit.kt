@@ -5,7 +5,6 @@ import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
 import javafx.scene.layout.VBox
 import javafx.stage.Screen
-import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.babloz.db.entity.group.GroupPerson
@@ -15,7 +14,6 @@ import ru.barabo.babloz.db.service.CategoryService
 import ru.barabo.babloz.db.service.PersonService
 import ru.barabo.babloz.db.service.ProjectService
 import ru.barabo.babloz.gui.formatter.currencyTextFormatter
-import ru.barabo.babloz.gui.pay.PayEdit.rowHeight
 import tornadofx.*
 import kotlin.math.max
 
@@ -150,10 +148,6 @@ internal object PayEdit: VBox() {
 
     private fun TreeView<*>.maxRowCount(): Int {
         val screenHeight = Screen.getPrimary().visualBounds.height
-
-        LoggerFactory.getLogger(PayEdit::class.java).info("screenHeight=$screenHeight")
-
-        LoggerFactory.getLogger(PayEdit::class.java).info("rowHeight()=${rowHeight()}")
 
         return if(screenHeight / rowHeight() >= ALL_ROW_COUNT) 6 else 5
     }

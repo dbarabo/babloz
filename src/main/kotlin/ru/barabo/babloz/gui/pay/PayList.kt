@@ -1,22 +1,41 @@
 package ru.barabo.babloz.gui.pay
 
 import javafx.application.Platform
+import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.Orientation
-import javafx.scene.control.*
+import javafx.scene.control.SplitPane
+import javafx.scene.control.Tab
+import javafx.scene.control.TableView
+import javafx.scene.control.TextField
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import org.controlsfx.control.CheckComboBox
+import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.entity.Account
+import ru.barabo.babloz.db.entity.Category
 import ru.barabo.babloz.db.entity.Pay
+import ru.barabo.babloz.db.entity.Project
 import ru.barabo.babloz.db.service.AccountService
 import ru.barabo.babloz.db.service.AccountService.ALL_ACCOUNT
+import ru.barabo.babloz.db.service.AccountService.accountAllList
+import ru.barabo.babloz.db.service.CategoryService
+import ru.barabo.babloz.db.service.CategoryService.ALL_CATEGORY
+import ru.barabo.babloz.db.service.CategoryService.categoryAllList
 import ru.barabo.babloz.db.service.PayService
+import ru.barabo.babloz.db.service.ProjectService
+import ru.barabo.babloz.db.service.ProjectService.ALL_PROJECT
+import ru.barabo.babloz.db.service.ProjectService.projectAllList
 import ru.barabo.babloz.gui.account.addElemByLeft
+import ru.barabo.babloz.gui.pay.filter.ComboxFilter
+import ru.barabo.babloz.gui.pay.filter.DateSelect
+import ru.barabo.babloz.gui.pay.filter.ModalDateSelect
 import ru.barabo.babloz.main.ResourcesManager
 import ru.barabo.db.service.StoreListener
 import tornadofx.*
 
 object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
+
+    private val logger = LoggerFactory.getLogger(PayList::class.java)!!
 
     private var splitPane: SplitPane? = null
 
@@ -26,40 +45,47 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
 
     private var findTextField: TextField? = null
 
+    private val dateSelectProperty = SimpleObjectProperty<DateSelect>(DateSelect.ALL_PERIOD)
+
     init {
         form {
             toolbar {
-                button ("Новый", ResourcesManager.icon("new.png")).apply {
+                button ("", ResourcesManager.icon("new.png")).apply {
                     setOnAction { showNewPay() }
 
+                    tooltip("Создать Новую запись")
+
                     disableProperty().bind(PaySaver.isDisableEdit().not())
                 }
 
-                button ("Дублировать", ResourcesManager.icon("new.png")).apply {
+                button ("", ResourcesManager.icon("duple.png")).apply {
                     setOnAction { twinPay() }
 
+                    tooltip("Дублировать текущую запись")
+
                     disableProperty().bind(PaySaver.isDisableEdit().not())
                 }
 
-                button ("Сохранить", ResourcesManager.icon("save.png")).apply {
+                button ("", ResourcesManager.icon("save.png")).apply {
                     setOnAction { savePay() }
+
+                    tooltip("Сохранить запись")
 
                     disableProperty().bind(PaySaver.isDisableEdit())
                 }
 
-                button ("Отменить", ResourcesManager.icon("cancel.png")).apply {
+                button ("", ResourcesManager.icon("cancel.png")).apply {
+
+                    tooltip("Отменить сохранение записи")
+
                     setOnAction { cancelPay() }
 
                     disableProperty().bind(PaySaver.isDisableEdit())
                 }
 
-                separator {  }
-
-                this += checkComboAccountList()
-
                 textfield().apply {
                     findTextField = this
-
+                    maxWidth = 100.0
                 }
 
                 button ("", ResourcesManager.icon("find.png")).apply {
@@ -68,6 +94,31 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
 
                     disableProperty().bind(PaySaver.isDisableEdit().not())
                 }
+
+                combobox<DateSelect>(property = dateSelectProperty, values = DateSelect.values().toList()).apply {
+
+                    selectionModel?.selectedItemProperty()?.addListener(
+                            { _, _, newSelection ->
+
+
+                                logger.info("newSelection=$newSelection")
+                                if(newSelection === DateSelect.DATE_PERIOD) {
+                                    val result = ModalDateSelect.showAndWait()
+                                    if(result.isPresent) {
+                                        DateSelect.startDate = result.get().first
+                                        DateSelect.endDate = result.get().second
+                                    }
+                                }
+
+                                PayService.setDateFilter(newSelection.start(), newSelection.end())
+                            })
+                }
+
+                addChildIfPossible( checkComboAccountList() )
+
+                addChildIfPossible( checkComboCategoryList() )
+
+                addChildIfPossible( checkComboProjectList() )
             }
 
             splitpane(Orientation.HORIZONTAL, PayEdit).apply { splitPane = this }
@@ -77,25 +128,14 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
         PayService.addListener(this)
     }
 
-    private fun checkComboAccountList(): CheckComboBox<Account> {
+    private fun checkComboProjectList(): CheckComboBox<Project> = ComboxFilter(
+            projectAllList().observable(), ALL_PROJECT, PayService::setProjectFilter, ProjectService::projectList)
 
-        val checkCombo = CheckComboBox<Account>(AccountService.accountAllList().observable() )
+    private fun checkComboCategoryList(): CheckComboBox<Category> = ComboxFilter(
+           categoryAllList().observable(), ALL_CATEGORY, PayService::setCategoryFilter, CategoryService::categoryList)
 
-        checkCombo.maxWidth = 100.0
-
-        checkCombo.addEventHandler(ComboBox.ON_HIDDEN, {
-
-            val items = checkCombo.checkModel.checkedItems
-
-            if(items.isEmpty() || ALL_ACCOUNT in items) {
-                PayService.setAccountFilter(emptyList())
-            } else {
-                PayService.setAccountFilter(items)
-            }
-        })
-
-        return checkCombo
-    }
+    private fun checkComboAccountList(): CheckComboBox<Account> =  ComboxFilter(
+            accountAllList().observable(), ALL_ACCOUNT, PayService::setAccountFilter, AccountService::accountList)
 
     private fun findPay() {
 

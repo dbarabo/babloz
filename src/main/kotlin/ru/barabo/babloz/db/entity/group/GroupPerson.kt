@@ -35,8 +35,6 @@ class GroupPerson(var person: Person = Person(),
 
             groupPerson.parent?.child?.add(groupPerson)
 
-            logger.info("addPerson=$groupPerson")
-
             return groupPerson
         }
 

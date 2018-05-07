@@ -1,17 +1,25 @@
 package ru.barabo.babloz.db.service
 
 import ru.barabo.babloz.db.BablozOrm
-import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.Pay
 import ru.barabo.babloz.db.service.filter.FilterPay
 import ru.barabo.db.service.FilterCriteria
 import ru.barabo.db.service.StoreService
+import java.time.LocalDateTime
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
 object PayService : StoreService<Pay, List<Pay>>(BablozOrm), FilterPay {
 
+    override var dateStart: LocalDateTime = LocalDateTime.MIN
+
+    override var dateEnd: LocalDateTime = LocalDateTime.MIN
+
     override val accountsFilter: MutableList<Int> = ArrayList()
+
+    override val categoryFilter: MutableList<Int> = ArrayList()
+
+    override val projectFilter: MutableList<Int> = ArrayList()
 
     override fun elemRoot(): List<Pay> = dataList
 
@@ -29,6 +37,10 @@ object PayService : StoreService<Pay, List<Pay>>(BablozOrm), FilterPay {
             Pay::amount to Number::class
     )
 
+    override fun afterFilterAction() {
+        sentRefreshAllListener()
+    }
+
     @Synchronized
     override fun beforeRead() {
 
@@ -41,18 +53,6 @@ object PayService : StoreService<Pay, List<Pay>>(BablozOrm), FilterPay {
 
     override fun processInsert(item :Pay) {
         allData!!.add(item)
-    }
-
-    override fun setCriteria(criteria: String) {
-        super.setCriteria(criteria)
-
-        sentRefreshAllListener()
-    }
-
-    override fun setAccountFilter(accounts: List<Account>) {
-        super.setAccountFilter(accounts)
-
-        sentRefreshAllListener()
     }
 
     fun firstByCriteria(criteria: (Pay)->Boolean): Pay? = allData?.firstOrNull { criteria(it) }

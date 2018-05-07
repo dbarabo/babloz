@@ -1,6 +1,7 @@
 package ru.barabo.babloz.db.service
 
 import ru.barabo.babloz.db.BablozOrm
+import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.Project
 import ru.barabo.babloz.db.entity.group.GroupProject
 import ru.barabo.db.service.StoreService
@@ -33,10 +34,24 @@ object ProjectService : StoreService<Project, GroupProject>(BablozOrm) {
 
     private val NULL_PROJECT = Project(name = "НЕТ")
 
+    val ALL_PROJECT = Project(name = "ВСЕ Проекты")
+
     fun findProjectById(id :Int?) : Project {
 
         val groupProject = id?.let{ GroupProject.root.child.firstOrNull { it.project.id == id } }
 
         return groupProject?.project ?: NULL_PROJECT
     }
+
+    fun projectAllList(): List<Project> {
+        val result = ArrayList<Project>()
+
+        result += ALL_PROJECT
+
+        result.addAll(dataList)
+
+        return result
+    }
+
+    fun projectList() = dataList
 }
