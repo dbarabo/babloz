@@ -17,7 +17,7 @@ import java.time.format.DateTimeFormatter
         "left join account ato on p.account_to = ato.id " +
         "left join person per on p.person = per.id " +
         "left join project prj on p.project = prj.id " +
-        "order by p.id")
+        "order by p.created")
 data class Pay(
         @ColumnName("ID")
         @SequenceName("SELECT COALESCE(MIN(ID), 0) - 1  from PAY")

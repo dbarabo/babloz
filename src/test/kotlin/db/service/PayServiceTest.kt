@@ -35,7 +35,7 @@ class PayServiceTest : StoreListener<List<Pay>>  {
         elemRoot.forEach { logger.error("$it") }
     }
 
-    @Test
+    //@Test
     fun testInsertPay() {
 
         val payWithCategory = payWithAccountCategory()

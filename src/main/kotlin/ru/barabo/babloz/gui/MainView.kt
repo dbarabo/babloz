@@ -10,11 +10,15 @@ import javafx.stage.Screen
 import javafx.stage.Stage
 import ru.barabo.babloz.gui.account.AccountList
 import ru.barabo.babloz.gui.category.CategoryList
+import ru.barabo.babloz.gui.dialog.LoginDb
 import ru.barabo.babloz.gui.pay.PayList
+import ru.barabo.babloz.gui.pay.filter.DateSelect
+import ru.barabo.babloz.gui.pay.filter.ModalDateSelect
 import ru.barabo.babloz.gui.person.PersonList
 import ru.barabo.babloz.gui.project.ProjectList
 import ru.barabo.babloz.gui.service.ServiceTab
 import ru.barabo.babloz.main.ResourcesManager
+import ru.barabo.babloz.sync.Sync
 import tornadofx.*
 
 fun startLaunch(args :Array<String>) = launch<MainApp>(args)
@@ -22,6 +26,12 @@ fun startLaunch(args :Array<String>) = launch<MainApp>(args)
 class MainApp: App(MainView::class) {
 
     override fun start(stage: Stage) {
+
+        val result = LoginDb.showAndWait()
+        if(result.isPresent) {
+
+            Sync.startSync(result.get().first!!, result.get().second!!)
+        }
 
         super.start(stage)
 
@@ -50,6 +60,9 @@ class MainView: View() {
 
 
     init {
+
+
+
         title = "Babloz"
 
         mainTabPane.tabMaxHeight = 0.0

@@ -144,16 +144,7 @@ object CssImporter : Importer {
 
         val accountName = if(!accountToName.isNullOrEmpty() ) accountToName!!.withoutBracket() else return null
 
-        val account = parseAccount(accountName)
-
-        return account ?: defaultAccountTo(accountName)
-    }
-
-    private fun defaultAccountTo(accountName: String): Account? {
-
-        //if(accountName in listOf("Игорь", "Нака") ) return parseAccount("Должен")
-
-        return null
+        return parseAccount(accountName)
     }
 
     private fun String.withoutBracket(): String = this.substring(1, this.length - 1)
@@ -267,7 +258,7 @@ object CssImporter : Importer {
     private fun parseDate(date: String?) : LocalDateTime? =
             date?.let { LocalDateTime.of(LocalDate.parse(it, DATE_FORMATTER), LocalTime.of(0,0)) }
 
-    private val DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy")//DateTimeFormatter.ofPattern("yyyy/M/d")
+    private val DATE_FORMATTER = /*DateTimeFormatter.ofPattern("dd.MM.yyyy")*/DateTimeFormatter.ofPattern("yyyy/M/d")
 
     private fun parseAccount(accountName: String?) :Account?
             = accountName?.let { GroupAccount.findByAccountName(accountName)?.account }
