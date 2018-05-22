@@ -1,6 +1,7 @@
 package ru.barabo.cmd
 
 import org.slf4j.LoggerFactory
+import ru.barabo.babloz.main.ResourcesManager
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -79,7 +80,7 @@ object Cmd {
         return temp
     }
 
-    private val JAR_FOLDER = File(Cmd::class.java.protectionDomain.codeSource.location.path).parentFile.path
+    val JAR_FOLDER = File(Cmd::class.java.protectionDomain.codeSource.location.path).parentFile.path
 
     val LIB_FOLDER = "$JAR_FOLDER/lib"
 

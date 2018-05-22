@@ -10,7 +10,9 @@ import javax.mail.search.*
 interface GetMailDb {
 
 
-    private fun subjectCriteria() = "Babloz db saved:"
+    fun subjectCriteria(): String
+
+    fun bablozAttachName(): String
 
     /**
      * @return db-file for mail inbox
@@ -104,8 +106,6 @@ interface GetMailDb {
         }
         return null
     }
-
-    private fun bablozAttachName() = "babloz.db"
 
     private fun MimeBodyPart.downloadFile(): File {
 

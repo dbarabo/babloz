@@ -9,7 +9,7 @@ class AccountServiceTest : StoreListener<GroupAccount> {
 
     override fun refreshAll(elemRoot: GroupAccount) {}
 
-    @Test
+    //@Test
     fun testReadList() {
         AccountService.addListener(this)
     }

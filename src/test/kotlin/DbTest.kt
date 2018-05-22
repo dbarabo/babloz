@@ -4,8 +4,10 @@ import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.BablozOrm
 import ru.barabo.babloz.db.BablozQuery
 import ru.barabo.babloz.db.entity.Account
+import ru.barabo.cmd.Cmd.JAR_FOLDER
 import ru.barabo.db.SessionSetting
 import java.math.BigDecimal
+import java.nio.file.FileSystems
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.time.format.DateTimeFormatter
@@ -72,9 +74,21 @@ class DbTest {
         logger.error(bigDecimal3.toString())
     }
 
-    @Test
+    //@Test
     fun testSubString() {
         val text = "[12345]"
         logger.error(text.substring(1, text.length - 1))
     }
+
+    //@Test
+    fun testCurrentDir() {
+
+
+        logger.error("${FileSystems.getDefault().getPath("").toAbsolutePath()}")
+
+        logger.error(JAR_FOLDER.toString())
+
+
+    }
+
 }

@@ -46,6 +46,13 @@ class MainApp: App(MainView::class) {
 
         stage.height = screen.visualBounds.height
     }
+
+    override fun stop() {
+
+        Sync.endSync()
+
+        super.stop()
+    }
 }
 
 class MainView: View() {

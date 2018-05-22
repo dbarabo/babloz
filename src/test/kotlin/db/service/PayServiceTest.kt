@@ -19,7 +19,7 @@ class PayServiceTest : StoreListener<List<Pay>>  {
         private val logger = LoggerFactory.getLogger(PayServiceTest::class.java)!!
     }
 
-    @Test
+    //@Test
     fun testReadList() {
         AccountService.addListener(ListenerAccount)
 

@@ -18,6 +18,8 @@ data class MailProperties(
     companion object {
         private const val IMAP_PROTOCOL = "imaps"
 
+        internal const val SMTP_PROTOCOL = "smtp"
+
         const val INBOX = "INBOX"
     }
 
@@ -44,12 +46,29 @@ data class MailProperties(
 
     private fun getImapStore(): Store = imapSession().getStore(IMAP_PROTOCOL)
 
-    fun connectImapStore(): Store {
-
-        val store =  getImapStore()
+    private fun connectStore(store: Store): Store {
 
         store.connect(user, password)
 
         return store
+    }
+
+    fun connectImapStore(): Store = connectStore(getImapStore() )
+
+
+    @Synchronized
+    fun smtpSession(): Session = Session.getInstance(smtpProperties(), authenticator() ).apply { debug = false }
+
+    private fun smtpProperties(): Properties = Properties().apply {
+
+        put("mail.transport.protocol", SMTP_PROTOCOL)
+        put("mail.smtp.host", hostSmtp)
+        put("mail.smtp.auth", tlsSmtpEnable.toString())
+        put("mail.smtp.starttls.enable", tlsSmtpEnable.toString())
+        put("mail.smtp.port", portSmtp.toString());
+        put("mail.smtp.from", user)
+
+        //put("mail.smtp.user", smtpProperties.user)
+        //put("mail.smtp.password", smtpProperties.password)
     }
 }
