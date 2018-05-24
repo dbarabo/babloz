@@ -30,10 +30,12 @@ object LoginDb : Dialog<Triple<String?, String?, SyncTypes>>() {
                         }
 
                         field("Пароль к gmail-аккаунту") {
-                            textfield(property = passwordAccount)
+                            passwordfield(property = passwordAccount)
                         }
 
-                        combobox<SyncTypes>(property = syncType, values = SyncTypes.values().toList())
+                        field("Тип синхронизации") {
+                            combobox<SyncTypes>(property = syncType, values = SyncTypes.values().toList())
+                        }
                     }
                 }
 
