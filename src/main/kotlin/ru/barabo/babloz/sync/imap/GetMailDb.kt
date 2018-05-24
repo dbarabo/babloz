@@ -25,9 +25,7 @@ interface GetMailDb {
 
             val folder = store.getFolder(MailProperties.INBOX)
 
-            val attachPart = folder.findLastMessageDb(mailProp)
-
-            attachPart?.downloadFile()
+            folder.findLastMessageDbDownload(mailProp)
 
         } catch (e: Exception) {
             LoggerFactory.getLogger(GetMailDb::class.java).error("getDbInMail", e)
@@ -42,15 +40,17 @@ interface GetMailDb {
         return file
     }
 
-    private fun Folder.findLastMessageDb(mailProp: MailProperties): MimeBodyPart? {
+    private fun Folder.findLastMessageDbDownload(mailProp: MailProperties): File? {
         open(Folder.READ_ONLY /*Folder.READ_WRITE*/)
 
         val searchTerm = getSearchTerm(mailProp)
 
-        val message = try {
+        val file = try {
            val messages = search(searchTerm)
 
-            messages.findLastMessageWithAttach()
+           val attachPart = messages.findLastMessageWithAttach()
+
+            attachPart?.downloadFile()
         } catch (e: Exception) {
             LoggerFactory.getLogger(GetMailDb::class.java).error("findLastMessageDb", e)
 
@@ -61,7 +61,7 @@ interface GetMailDb {
 
         close(false)
 
-        return message
+        return file
     }
 
     private fun getSearchTerm(mailProp: MailProperties): SearchTerm =

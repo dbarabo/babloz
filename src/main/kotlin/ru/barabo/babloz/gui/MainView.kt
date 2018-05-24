@@ -68,8 +68,6 @@ class MainView: View() {
 
     init {
 
-
-
         title = "Babloz"
 
         mainTabPane.tabMaxHeight = 0.0
