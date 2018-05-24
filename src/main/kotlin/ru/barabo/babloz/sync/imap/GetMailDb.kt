@@ -17,7 +17,7 @@ interface GetMailDb {
     /**
      * @return db-file for mail inbox
      */
-    fun getDbInMail(mailProp: MailProperties): File? {
+    fun getDbInMail(mailProp: MailProperties, saveLastCountMessage: Int = 1): File? {
 
         val store = mailProp.connectImapStore()
 
@@ -25,7 +25,7 @@ interface GetMailDb {
 
             val folder = store.getFolder(MailProperties.INBOX)
 
-            folder.findLastMessageDbDownload(mailProp)
+            folder.findLastMessageDbDownload(mailProp, saveLastCountMessage)
 
         } catch (e: Exception) {
             LoggerFactory.getLogger(GetMailDb::class.java).error("getDbInMail", e)
@@ -40,17 +40,17 @@ interface GetMailDb {
         return file
     }
 
-    private fun Folder.findLastMessageDbDownload(mailProp: MailProperties): File? {
-        open(Folder.READ_ONLY /*Folder.READ_WRITE*/)
+    private fun Folder.findLastMessageDbDownload(mailProp: MailProperties, saveLastCountMessage: Int): File? {
+        open(Folder.READ_WRITE /*Folder.READ_ONLY*/)
 
         val searchTerm = getSearchTerm(mailProp)
 
         val file = try {
            val messages = search(searchTerm)
 
-           val attachPart = messages.findLastMessageWithAttach()
+           val attachPart = messages.findLastMessageWithAttach(saveLastCountMessage)
 
-            attachPart?.downloadFile()
+           attachPart?.downloadFile()
         } catch (e: Exception) {
             LoggerFactory.getLogger(GetMailDb::class.java).error("findLastMessageDb", e)
 
@@ -58,6 +58,8 @@ interface GetMailDb {
 
             throw MessagingException(e.message)
         }
+
+        expunge()
 
         close(false)
 
@@ -70,15 +72,18 @@ interface GetMailDb {
                     SubjectTerm(subjectCriteria() )) )
 
 
-    private fun Array<Message>.findLastMessageWithAttach(): MimeBodyPart? {
+    private fun Array<Message>.findLastMessageWithAttach(saveLastCountMessage: Int): MimeBodyPart? {
 
         var lastTime: Long = Long.MIN_VALUE
         var lastPart: MimeBodyPart? = null
 
+        val messagesAttachList = ArrayList<Message>()
 
         for (message in this) {
 
             val part =  message.getAttachDb() ?: continue
+
+            messagesAttachList += message
 
             if(message.receivedDate?.time?:Long.MIN_VALUE > lastTime) {
 
@@ -87,6 +92,10 @@ interface GetMailDb {
                 lastPart = part
             }
         }
+
+        messagesAttachList.sortedWith (compareByDescending({it.receivedDate?.time?:Long.MIN_VALUE}))
+                .drop(saveLastCountMessage).forEach {it.setFlag(Flags.Flag.DELETED, true) }
+
         return lastPart
     }
 
