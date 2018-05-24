@@ -30,7 +30,7 @@ class MainApp: App(MainView::class) {
         val result = LoginDb.showAndWait()
         if(result.isPresent) {
 
-            Sync.startSync(result.get().first!!, result.get().second!!)
+            Sync.startSync(result.get().first!!, result.get().second!!, result.get().third!!)
         }
 
         super.start(stage)

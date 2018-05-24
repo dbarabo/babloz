@@ -1,6 +1,8 @@
 package ru.barabo.babloz.sync
 
 import javafx.scene.control.Alert
+import javafx.scene.control.ButtonBar
+import javafx.scene.control.ButtonType
 import org.slf4j.LoggerFactory
 import ru.barabo.babloz.sync.imap.GetMailDb
 import ru.barabo.babloz.sync.imap.MailProperties
@@ -14,7 +16,9 @@ object Sync : GetMailDb, SendMailDb {
 
     private val logger = LoggerFactory.getLogger(Sync::class.java)!!
 
-    lateinit var mailProp: MailProperties
+    private var mailProp: MailProperties? = null
+
+    private var syncType: SyncTypes = SyncTypes.NO_SYNC_LOCAL_ONLY
 
     override fun subjectCriteria() = "Babloz db saved:"
 
@@ -32,23 +36,29 @@ object Sync : GetMailDb, SendMailDb {
 
     private const val BABLOZ_JAR = "babloz.jar"
 
-    fun startSync(login: String, password: String) {
+    fun startSync(login: String, password: String, syncType: SyncTypes) {
 
         logger.error("${FileSystems.getDefault().getPath("").toAbsolutePath()}")
 
         mailProp = MailProperties(user = login, password = password)
 
-        downloadSyncFile(mailProp)
+        this.syncType = syncType
 
-        val file = this.getDbInMail(mailProp)
-
-        logger.error("fileSync=$file")
+        START_SYNC_PROCESS[syncType]!!.invoke(mailProp!!)
     }
+
+    private val START_SYNC_PROCESS = mapOf<SyncTypes, (MailProperties)->Unit>(
+            SyncTypes.SYNC_START_SAVE_LOCAL to ::downloadSyncFile,
+            SyncTypes.SYNC_START_DEL_LOCAL to ::downloadSyncFile,
+            SyncTypes.NO_SYNC_LOCAL_ONLY to ::startLocalOnly
+    )
+
+    private fun startLocalOnly(mailProp: MailProperties) { }
 
     private fun downloadSyncFile(mailProp: MailProperties) {
 
         val file = try {
-           this.getDbInMail(Sync.mailProp)
+           this.getDbInMail(mailProp)
         } catch (e: Exception) {
             alert(Alert.AlertType.ERROR, e.message!!)
 
@@ -59,7 +69,6 @@ object Sync : GetMailDb, SendMailDb {
     }
 
     private const val DB_IN_EMAIL_NOTFOUND = "База данных в эл. почте не найдена"
-
 
     private fun File.replaceToMainDb() {
 
@@ -78,12 +87,55 @@ object Sync : GetMailDb, SendMailDb {
 
     fun endSync() {
 
-        try {
-            sendDb(mailProp)
+        END_SYNC_PROCESS[syncType]!!.invoke(mailProp)
+    }
+
+    private val END_SYNC_PROCESS = mapOf<SyncTypes, (MailProperties?)->STATUS>(
+            SyncTypes.SYNC_START_SAVE_LOCAL to ::saveDbInMail,
+            SyncTypes.SYNC_START_DEL_LOCAL to ::saveDbDelete,
+            SyncTypes.NO_SYNC_LOCAL_ONLY to ::endLocalOnly
+    )
+
+    private fun saveDbInMail(mailProp: MailProperties?): STATUS {
+        return try {
+            sendDb(mailProp!!)
+
+            STATUS.OK
         } catch (e: Exception) {
             logger.error("endSync", e)
 
             alert(Alert.AlertType.ERROR, e.message!!)
+
+            STATUS.FAIL
         }
     }
+
+    private fun saveDbDelete(mailProp: MailProperties?): STATUS =
+            if(saveDbInMail(mailProp) == STATUS.OK) deleteLocalDb() else questionDelete(mailProp)
+
+    private fun questionDelete(mailProp: MailProperties?): STATUS {
+
+        val alertResult = alert(Alert.AlertType.INFORMATION, "Не удалось синхронизировать БД",
+                "Не удалось синхронизировать БД\n Всё-равно удалить локальную БД (данные будут потеряны)",
+                ButtonType.YES, ButtonType.NO).showAndWait()
+
+        if(alertResult.isPresent && alertResult.get().buttonData == ButtonBar.ButtonData.YES) {
+            deleteLocalDb()
+        }
+
+        return STATUS.OK
+    }
+
+    private fun deleteLocalDb(): STATUS {
+        val bablozDb = File("${currentDirectory()}/${bablozAttachName()}")
+
+        return if(bablozDb.delete()) STATUS.OK else STATUS.FAIL
+    }
+
+    private fun endLocalOnly(mailProp: MailProperties?):STATUS = STATUS.OK
+}
+
+private enum class STATUS {
+    OK,
+    FAIL
 }
