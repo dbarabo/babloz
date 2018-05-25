@@ -2,10 +2,17 @@ package ru.barabo.babloz.db.service
 
 import ru.barabo.babloz.db.BablozOrm
 import ru.barabo.babloz.db.entity.Account
+import ru.barabo.babloz.db.entity.Pay
 import ru.barabo.babloz.db.entity.group.GroupAccount
+import ru.barabo.db.EditType
+import ru.barabo.db.service.StoreListener
 import ru.barabo.db.service.StoreService
 
-object AccountService :StoreService<Account, GroupAccount>(BablozOrm){
+object AccountService :StoreService<Account, GroupAccount>(BablozOrm), StoreListener<List<Pay>> {
+
+    init {
+        PayService.addListener(this)
+    }
 
     override fun elemRoot(): GroupAccount = GroupAccount.root
 
@@ -45,6 +52,13 @@ object AccountService :StoreService<Account, GroupAccount>(BablozOrm){
         result.addAll(dataList)
 
         return result
+    }
+
+    override fun refreshAll(elemRoot: List<Pay>, refreshType: EditType) {
+
+        if(refreshType in listOf(EditType.ALL, EditType.DELETE, EditType.EDIT, EditType.INSERT)) {
+            initData()
+        }
     }
 }
 

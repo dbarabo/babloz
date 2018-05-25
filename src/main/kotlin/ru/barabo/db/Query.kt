@@ -17,7 +17,7 @@ open class Query (private val dbConnection :DbConnection) {
     private var uniqueSession : AtomicLong = AtomicLong(1L)
 
     fun uniqueSession() :SessionSetting =
-            SessionSetting(false,  TransactType.NO_ACTION, uniqueSession.incrementAndGet())
+            SessionSetting(false,  TransactType.NO_ACTION, null/*uniqueSession.incrementAndGet()*/)
 
     @Throws(SessionException::class)
     fun selectValue(query :String, params :Array<Any?>? = null,
@@ -53,7 +53,7 @@ open class Query (private val dbConnection :DbConnection) {
 
     @Throws(SessionException::class)
     fun select(query :String, params :Array<Any?>? = null,
-               sessionSetting : SessionSetting = SessionSetting(true),
+               sessionSetting : SessionSetting = SessionSetting(false),
                callBack :(isNewRow :Boolean, value :Any?, column :String?)->Unit) {
 
         logger.info("select=" + query)
@@ -243,11 +243,12 @@ open class Query (private val dbConnection :DbConnection) {
 
             processCommit(session, transactType)
 
-            session.isFree = true
-
             if(transactType == TransactType.ROLLBACK || transactType == TransactType.COMMIT) {
                 session.idSession = null
             }
+
+            session.isFree = true
+
          } catch (e :SQLException) {
             logger.error("closeQueryData", e)
         }
@@ -257,7 +258,11 @@ open class Query (private val dbConnection :DbConnection) {
     private fun processCommit(session :Session, transactType :TransactType) {
         when (transactType) {
             TransactType.ROLLBACK -> session.session.rollback()
-            TransactType.COMMIT -> session.session.commit()
+
+            TransactType.COMMIT -> {
+                logger.error("COMMIT SET ")
+                session.session.commit()
+            }
             else -> {}
         }
     }

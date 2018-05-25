@@ -13,6 +13,7 @@ import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.group.GroupAccount
 import ru.barabo.babloz.db.service.AccountService
 import ru.barabo.babloz.main.ResourcesManager
+import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
 import tornadofx.*
 
@@ -67,7 +68,7 @@ object AccountList : Tab("Счета", VBox()), StoreListener<GroupAccount> {
         treeTable?.requestFocus()
     }
 
-    override fun refreshAll(elemRoot: GroupAccount) {
+    override fun refreshAll(elemRoot: GroupAccount, refreshType: EditType) {
 
         treeTable?.let {
             Platform.runLater({ run {it.refresh()} })

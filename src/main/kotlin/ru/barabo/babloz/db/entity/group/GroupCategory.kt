@@ -2,6 +2,7 @@ package ru.barabo.babloz.db.entity.group
 
 import ru.barabo.babloz.db.entity.Category
 import tornadofx.observable
+import java.text.DecimalFormat
 
 data class GroupCategory(var category: Category = Category(),
                          private var parent : GroupCategory? = null,
@@ -57,6 +58,8 @@ data class GroupCategory(var category: Category = Category(),
     val name: String get() = category.name?.let { it } ?: ""
 
     val type: String get() = category.type.label
+
+    val turn: String get() = category.turn?.let { DecimalFormat("0.00").format(it) }?:""
 
     override fun toString(): String = name
 }

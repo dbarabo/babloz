@@ -19,7 +19,7 @@
 
     <logger name="com.memorynotfound" level="TRACE"/>
 
-    <logger name="ru.barabo" level="debug"
+    <logger name="ru.barabo" level="error"
             additivity="false">
         <!--<appender-ref ref="FILE_SAVE" />-->
         <appender-ref ref="STDOUT" />

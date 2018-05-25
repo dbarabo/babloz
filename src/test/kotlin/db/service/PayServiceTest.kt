@@ -10,6 +10,7 @@ import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.babloz.db.service.AccountService
 import ru.barabo.babloz.db.service.CategoryService
 import ru.barabo.babloz.db.service.PayService
+import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
 import java.math.BigDecimal
 
@@ -28,7 +29,7 @@ class PayServiceTest : StoreListener<List<Pay>>  {
         PayService.addListener(this)
     }
 
-    override fun refreshAll(elemRoot: List<Pay>) {
+    override fun refreshAll(elemRoot: List<Pay>, refreshType: EditType) {
 
         logger.error("elemRoot.size =${elemRoot.size}")
 
@@ -59,7 +60,7 @@ object ListenerAccount :StoreListener<GroupAccount> {
 
     var accountRoot: GroupAccount? = null
 
-    override fun refreshAll(elemRoot: GroupAccount) {
+    override fun refreshAll(elemRoot: GroupAccount, refreshType: EditType) {
         accountRoot = elemRoot
     }
 }
@@ -68,7 +69,7 @@ object ListenerCategory :StoreListener<GroupCategory> {
 
     var categoryRoot: GroupCategory? = null
 
-    override fun refreshAll(elemRoot: GroupCategory) {
+    override fun refreshAll(elemRoot: GroupCategory, refreshType: EditType) {
         categoryRoot = elemRoot
     }
 }

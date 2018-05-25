@@ -8,6 +8,7 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.stage.Screen
 import javafx.stage.Stage
+import ru.barabo.babloz.db.BablozConnection
 import ru.barabo.babloz.gui.account.AccountList
 import ru.barabo.babloz.gui.category.CategoryList
 import ru.barabo.babloz.gui.dialog.LoginDb
@@ -30,7 +31,7 @@ class MainApp: App(MainView::class) {
         val result = LoginDb.showAndWait()
         if(result.isPresent) {
 
-            Sync.startSync(result.get().first!!, result.get().second!!, result.get().third!!)
+            Sync.startSync(result.get().first!!, result.get().second!!, result.get().third)
         }
 
         super.start(stage)
@@ -49,6 +50,8 @@ class MainApp: App(MainView::class) {
 
     override fun stop() {
 
+        BablozConnection.closeAllSessions()
+
         Sync.endSync()
 
         super.stop()
@@ -63,12 +66,24 @@ class MainView: View() {
 
     companion object {
         private const val WIDTH_RIGHT_PANEL = 120.0
-    }
 
+        private lateinit var currentMainTab: TabPane
+
+        private fun Tab.selectTab() {
+            if(!currentMainTab.tabs.contains(this)) {
+                currentMainTab.tabs.add(this)
+            }
+            currentMainTab.selectionModel.select(this)
+        }
+
+        fun selectedTab(tab: Tab) = tab.selectTab()
+    }
 
     init {
 
         title = "Babloz"
+
+        currentMainTab = mainTabPane
 
         mainTabPane.tabMaxHeight = 0.0
         mainTabPane.tabMaxWidth = 0.0
@@ -148,15 +163,7 @@ class MainView: View() {
 
         HBox.setHgrow(mainTabPane, Priority.ALWAYS)
     }
-
-    private fun Tab.selectTab() {
-        if(!mainTabPane.tabs.contains(this)) {
-            mainTabPane.tabs.add(this)
-        }
-        mainTabPane.selectionModel.select(this)
-    }
 }
-
 
 
 

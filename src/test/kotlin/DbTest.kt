@@ -1,5 +1,4 @@
 
-import org.junit.Test
 import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.BablozOrm
 import ru.barabo.babloz.db.BablozQuery
@@ -17,7 +16,6 @@ class DbTest {
     companion object {
         private val logger = LoggerFactory.getLogger(DbTest::class.java)!!
     }
-
 
     //@Test
     fun initDb() {

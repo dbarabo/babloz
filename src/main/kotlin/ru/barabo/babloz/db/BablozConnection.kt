@@ -27,7 +27,7 @@ object BablozConnection :DbConnection(DbSetting(driver = "org.sqlite.JDBC",
 
         val textStruct = ResourcesManager.dbStructureText()
 
-        textStruct.split(";").forEach { session.execute(it + ";") }
+        textStruct.split(";").forEach { session.execute("$it;") }
 
         val textData = ResourcesManager.dbDataText()
 

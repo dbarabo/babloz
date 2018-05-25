@@ -12,21 +12,24 @@ abstract class StoreService<T: Any, G>(private val orm :TemplateQuery) {
 
     protected val dataList = ArrayList<T>().observable()
 
+    @Volatile
+    private var startedLongTransaction: LongTransactState = LongTransactState.NONE_LONG_TRANSACT
+
     init {
-        readData()
+        initData()
     }
 
-    protected abstract fun elemRoot() :G
+    protected abstract fun elemRoot(): G
 
-    protected abstract fun clazz() :Class<T>
+    protected abstract fun clazz(): Class<T>
 
-    protected open fun processInsert(item :T) {}
+    protected open fun processInsert(item: T) {}
 
-    protected open fun processUpdate(item :T) {}
+    protected open fun processUpdate(item: T) {}
 
     protected open fun beforeRead() {}
 
-    private fun callBackSelectData(item :T) {
+    private fun callBackSelectData(item: T) {
 
         synchronized(dataList) { dataList.add(item) }
 
@@ -36,21 +39,21 @@ abstract class StoreService<T: Any, G>(private val orm :TemplateQuery) {
     fun addListener(listener : StoreListener<G>) {
         listenerList.add(listener)
 
-        listener.refreshAll(elemRoot())
+        listener.refreshAll(elemRoot(), EditType.INIT)
     }
 
-    protected fun sentRefreshAllListener() {
-        listenerList.forEach {it.refreshAll(elemRoot())}
+    protected fun sentRefreshAllListener(refreshType: EditType) {
+        listenerList.forEach { it.refreshAll(elemRoot(), refreshType) }
     }
 
-    private fun readData() {
+    fun initData() {
         synchronized(dataList) { dataList.clear() }
 
         beforeRead()
 
         orm.select(clazz(), ::callBackSelectData)
 
-        sentRefreshAllListener()
+        sentRefreshAllListener(EditType.INIT)
     }
 
     @Throws(SessionException::class)
@@ -67,21 +70,54 @@ abstract class StoreService<T: Any, G>(private val orm :TemplateQuery) {
             EditType.EDIT -> {
                 processUpdate(item)
             }
+            else -> throw SessionException("EditType is not valid $type")
         }
 
-        sentRefreshAllListener()
+        processStartLongTransactState(type)
 
         return item
     }
 
-    fun startLongTransation(): SessionSetting = orm.startLongTransation()
+    private fun processStartLongTransactState(type: EditType) {
+        if(startedLongTransaction != LongTransactState.NONE_LONG_TRANSACT) {
+            startedLongTransaction = LongTransactState.LONG_TRANSACT_MUST_REFRESH
+        } else {
+            sentRefreshAllListener(type)
+        }
+    }
+
+    fun startLongTransation(): SessionSetting {
+        startedLongTransaction = LongTransactState.LONG_TRANSACT_STARTED
+
+        return orm.startLongTransation()
+    }
 
     fun commitLongTransaction(sessionSetting: SessionSetting) {
+
         orm.commitLongTransaction(sessionSetting)
+
+        processEndLongTransactState()
     }
 
     fun rollbackLongTransaction(sessionSetting: SessionSetting) {
         orm.rollbackLongTransaction(sessionSetting)
+
+        processEndLongTransactState()
     }
+
+    private fun processEndLongTransactState() {
+
+        if(startedLongTransaction == LongTransactState.LONG_TRANSACT_MUST_REFRESH) {
+            startedLongTransaction = LongTransactState.NONE_LONG_TRANSACT
+            sentRefreshAllListener(EditType.ALL)
+        }
+        startedLongTransaction = LongTransactState.NONE_LONG_TRANSACT
+    }
+}
+
+private enum class LongTransactState {
+    NONE_LONG_TRANSACT,
+    LONG_TRANSACT_STARTED,
+    LONG_TRANSACT_MUST_REFRESH
 }
 

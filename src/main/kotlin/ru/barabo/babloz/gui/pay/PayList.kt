@@ -2,11 +2,9 @@ package ru.barabo.babloz.gui.pay
 
 import javafx.application.Platform
 import javafx.beans.property.SimpleObjectProperty
+import javafx.event.EventTarget
 import javafx.geometry.Orientation
-import javafx.scene.control.SplitPane
-import javafx.scene.control.Tab
-import javafx.scene.control.TableView
-import javafx.scene.control.TextField
+import javafx.scene.control.*
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import org.controlsfx.control.CheckComboBox
@@ -30,8 +28,10 @@ import ru.barabo.babloz.gui.pay.filter.ComboxFilter
 import ru.barabo.babloz.gui.pay.filter.DateSelect
 import ru.barabo.babloz.gui.pay.filter.ModalDateSelect
 import ru.barabo.babloz.main.ResourcesManager
+import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
 import tornadofx.*
+import java.time.LocalDate
 
 object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
 
@@ -44,8 +44,6 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
     private var selectPay: Pay? = null
 
     private var findTextField: TextField? = null
-
-    private val dateSelectProperty = SimpleObjectProperty<DateSelect>(DateSelect.ALL_PERIOD)
 
     init {
         form {
@@ -95,24 +93,7 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
                     disableProperty().bind(PaySaver.isDisableEdit().not())
                 }
 
-                combobox<DateSelect>(property = dateSelectProperty, values = DateSelect.values().toList()).apply {
-
-                    selectionModel?.selectedItemProperty()?.addListener(
-                            { _, _, newSelection ->
-
-
-                                logger.info("newSelection=$newSelection")
-                                if(newSelection === DateSelect.DATE_PERIOD) {
-                                    val result = ModalDateSelect.showAndWait()
-                                    if(result.isPresent) {
-                                        DateSelect.startDate = result.get().first
-                                        DateSelect.endDate = result.get().second
-                                    }
-                                }
-
-                                PayService.setDateFilter(newSelection.start(), newSelection.end())
-                            })
-                }
+                comboBoxDates(PayService::setDateFilter)
 
                 addChildIfPossible( checkComboAccountList() )
 
@@ -165,7 +146,7 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
         PaySaver.changeSelectEditValue(Pay())
     }
 
-    override fun refreshAll(elemRoot: List<Pay>) {
+    override fun refreshAll(elemRoot: List<Pay>, refreshType: EditType) {
 
         table?.let {
             Platform.runLater({ run {it.refresh()} })
@@ -212,5 +193,28 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
 
             this.resizeColumnsToFitContent()
         }
+    }
+}
+
+
+fun EventTarget.comboBoxDates(processDates: (LocalDate, LocalDate)->Unit): ComboBox<DateSelect> {
+
+    val dateSelectProperty = SimpleObjectProperty<DateSelect>(DateSelect.ALL_PERIOD)
+
+    return combobox<DateSelect>(property = dateSelectProperty, values = DateSelect.values().toList()).apply {
+
+        selectionModel?.selectedItemProperty()?.addListener(
+                { _, _, newSelection ->
+
+                    if(newSelection === DateSelect.DATE_PERIOD) {
+                        val result = ModalDateSelect.showAndWait()
+                        if(result.isPresent) {
+                            DateSelect.startDate = result.get().first
+                            DateSelect.endDate = result.get().second
+                        }
+                    }
+
+                    processDates(newSelection.start(), newSelection.end() )
+                })
     }
 }

@@ -180,7 +180,7 @@ open class TemplateQuery (private val query :Query) {
         query.execute(updateQuery, params.toTypedArray(), sessionSetting)
     }
 
-    private fun setSequenceValue(item :Any, sessionSetting : SessionSetting = SessionSetting(true)) {
+    private fun setSequenceValue(item :Any, sessionSetting : SessionSetting = SessionSetting(false)) {
         for (member in item::class.declaredMembers) {
 
             val annotationName = member.findAnnotation<SequenceName>()
@@ -198,7 +198,7 @@ open class TemplateQuery (private val query :Query) {
     }
 
     @Throws(SessionException::class)
-    private fun getNextSequenceValue(sequenceExpression: String, sessionSetting : SessionSetting = SessionSetting(true)) :Any {
+    private fun getNextSequenceValue(sequenceExpression: String, sessionSetting : SessionSetting = SessionSetting(false)) :Any {
         return query.selectValue(sequenceExpression, null, sessionSetting)
                 ?: throw SessionException(errorSequenceReturnNull(sequenceExpression))
     }

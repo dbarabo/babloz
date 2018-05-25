@@ -10,7 +10,7 @@ open class DbConnection(private val dbSetting: DbSetting) {
 
     companion object {
 
-        private const val TRY_CONNECT_MAX = 3
+        private const val TRY_CONNECT_MAX = 1
 
         private const val ERROR_TRY_MAX_CONNECT = "Кол-во попыток подключений превысило $TRY_CONNECT_MAX"
     }
@@ -22,7 +22,7 @@ open class DbConnection(private val dbSetting: DbSetting) {
     }
 
     @Throws(SessionException::class)
-    fun getSession(sessionSetting :SessionSetting):Session {
+    fun getSession(sessionSetting: SessionSetting): Session {
 
         return getTrySession(0, sessionSetting.isReadTransact, sessionSetting.transactType, sessionSetting.idSession)
     }
@@ -37,6 +37,13 @@ open class DbConnection(private val dbSetting: DbSetting) {
         }
     }
 
+
+    @Synchronized
+    fun closeAllSessions() {
+        pool.forEach { it.killSession() }
+
+        pool.clear()
+    }
 
     private fun closeDeathSessions() {
         val deathList = synchronized(pool) { pool.filter { !it.checkConnect(dbSetting.selectCheck) } }
@@ -90,7 +97,9 @@ open class DbConnection(private val dbSetting: DbSetting) {
 
         var session = if(idSession != null) getSessionById(idSession, isReadTransact) else getFreeSession(isReadTransact)
 
-        if(session == null) session = addSession(isRead, idSession)
+        if(session == null) {
+            session = addSession(isRead, idSession)
+        }
 
         if(isDeathSession(session)) {
 
@@ -156,7 +165,7 @@ open class DbConnection(private val dbSetting: DbSetting) {
             pool.add(session)
         }
 
-        logger.error("CONNECT IS CREATE ${dbSetting.url}")
+        logger.error("CONNECT IS CREATE ${dbSetting.url} isReadOnly=$isRead, idSession=$idSession")
         return session
     }
 

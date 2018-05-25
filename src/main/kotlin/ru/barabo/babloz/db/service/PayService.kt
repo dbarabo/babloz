@@ -3,6 +3,7 @@ package ru.barabo.babloz.db.service
 import ru.barabo.babloz.db.BablozOrm
 import ru.barabo.babloz.db.entity.Pay
 import ru.barabo.babloz.db.service.filter.FilterPay
+import ru.barabo.db.EditType
 import ru.barabo.db.service.FilterCriteria
 import ru.barabo.db.service.StoreService
 import java.time.LocalDateTime
@@ -38,7 +39,7 @@ object PayService : StoreService<Pay, List<Pay>>(BablozOrm), FilterPay {
     )
 
     override fun afterFilterAction() {
-        sentRefreshAllListener()
+        sentRefreshAllListener(EditType.FILTER)
     }
 
     @Synchronized

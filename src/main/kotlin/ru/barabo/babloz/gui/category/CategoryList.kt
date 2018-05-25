@@ -9,10 +9,15 @@ import javafx.scene.control.TreeTableView
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import ru.barabo.babloz.db.entity.Category
+import ru.barabo.babloz.db.entity.Category.Companion.setDatePeriod
 import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.babloz.db.service.CategoryService
+import ru.barabo.babloz.db.service.PayService
 import ru.barabo.babloz.gui.account.addElemByLeft
+import ru.barabo.babloz.gui.pay.PayList
+import ru.barabo.babloz.gui.pay.comboBoxDates
 import ru.barabo.babloz.main.ResourcesManager
+import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
 import tornadofx.*
 
@@ -40,12 +45,35 @@ object CategoryList : Tab("Категории", VBox()), StoreListener<GroupCate
 
                     disableProperty().bind(CategorySaver.isDisableEdit())
                 }
+
+                button ("В платежи->").apply {
+                    setOnAction { goToPay() }
+                }
+
+                comboBoxDates(::setDatePeriod)
             }
             splitpane(Orientation.HORIZONTAL, CategoryEdit).apply { splitPane = this}
         }
         VBox.setVgrow(splitPane, Priority.ALWAYS)
 
         CategoryService.addListener(this)
+    }
+
+    private fun goToPay() {
+
+        val selectItem = treeTable?.selectedItem?:return
+
+        val items = ArrayList(selectItem.child.map { it.category })
+
+        items += selectItem.category
+
+        val (start, end) = Category.getDatePeriod()
+
+        PayService.setDateFilter(start, end)
+
+        PayService.setCategoryFilter(items)
+
+        ru.barabo.babloz.gui.MainView.selectedTab(PayList)
     }
 
     private fun showNewCategory() {
@@ -67,7 +95,7 @@ object CategoryList : Tab("Категории", VBox()), StoreListener<GroupCate
         treeTable?.requestFocus()
     }
 
-    override fun refreshAll(elemRoot: GroupCategory) {
+    override fun refreshAll(elemRoot: GroupCategory, refreshType: EditType) {
 
         treeTable?.let {
             Platform.runLater({ run {it.refresh()} })
@@ -95,6 +123,8 @@ object CategoryList : Tab("Категории", VBox()), StoreListener<GroupCate
             column("Категория", GroupCategory::name)
 
             column("Тип", GroupCategory::type)
+
+            column("Сумма платежей", GroupCategory::turn)
 
             root = TreeItem(rootGroup)
 

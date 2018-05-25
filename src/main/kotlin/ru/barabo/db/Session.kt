@@ -11,7 +11,7 @@ data class Session (var session : Connection,
     companion object {
         private val logger = LoggerFactory.getLogger(Session::class.java)
 
-        private val ERROR_CHECK_SESSION = "session is death"
+        private const val ERROR_CHECK_SESSION = "session is death"
     }
 
     fun checkConnect(selectCheck :String) :Boolean {
@@ -40,5 +40,11 @@ data class Session (var session : Connection,
         session.commit()
     }
 
+    fun killSession() {
+        idSession = null
+        isFree = false
+
+        try { session.close() } catch (e: Exception){ logger.error("killSession", e) }
+    }
 
 }
