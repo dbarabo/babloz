@@ -179,6 +179,7 @@ open class Query (private val dbConnection :DbConnection) {
                 return prepareSelect(query, params, sessionSetting)
             }
 
+
             closeQueryData(session, TransactType.ROLLBACK)
             throw SessionException(e.message?:"")
         }

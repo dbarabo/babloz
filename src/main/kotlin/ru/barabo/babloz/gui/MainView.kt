@@ -10,6 +10,7 @@ import javafx.stage.Screen
 import javafx.stage.Stage
 import ru.barabo.babloz.db.BablozConnection
 import ru.barabo.babloz.gui.account.AccountList
+import ru.barabo.babloz.gui.budget.BudgetList
 import ru.barabo.babloz.gui.category.CategoryList
 import ru.barabo.babloz.gui.dialog.LoginDb
 import ru.barabo.babloz.gui.pay.PayList
@@ -148,6 +149,15 @@ class MainView: View() {
             }
 
             label("\n")
+
+            togglebutton("Бюджет", toggleGroup).apply {
+
+                graphic = ResourcesManager.icon("budget.png")
+
+                setOnAction { BudgetList.selectTab() }
+
+                prefWidth = WIDTH_RIGHT_PANEL
+            }
 
             togglebutton("Настройки", toggleGroup).apply {
 

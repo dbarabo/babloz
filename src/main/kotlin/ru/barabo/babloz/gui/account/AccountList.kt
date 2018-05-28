@@ -119,13 +119,13 @@ object AccountList : Tab("Счета", VBox()), StoreListener<GroupAccount> {
 fun SplitPane?.addElemByLeft(elem: Node, positionLeft: Double) {
     if(this == null) return
 
-    val editForm = items?.get(0)
+    val editForm = if(items.isEmpty()) null else items?.get(0)
 
     items?.clear()
 
     items?.add(elem)
 
-    items?.add(editForm)
+    editForm?.let { items?.add(it) }
 
     setDividerPositions(positionLeft)
 

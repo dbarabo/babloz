@@ -62,7 +62,32 @@ NUMBER_OF INT, /* кол-во*/
 PERSON INT REFERENCES PERSON(ID)
 );
 
-/* 7. Планы */
+/* 7. Бюджет - весь */
+create table BUDGET_MAIN (
+ID INT NOT NULL PRIMARY KEY,
+NAME varchar(200),
+TYPE_PERIOD INT NOT NULL DEFAULT 0, /*тип периода 0-месячн, 1-годовой, 2-квартальный, 3-полугодовой, 4-заданный по датам*/
+START_PERIOD DATE NOT NULL,
+END_PERIOD DATE NOT NULL
+);
+
+/* 8. Строка бюджета - содержит список категорий */
+create table BUDGET_ROW (
+ID INT NOT NULL PRIMARY KEY,
+MAIN INT NOT NULL REFERENCES BUDGET_MAIN(ID),
+NAME varchar(200),
+AMOUNT NUMERIC(12, 2) NOT NULL DEFAULT 0 /*сумма строки бюджета*/
+);
+
+/* 9. Категория строки бюджета */
+create table BUDGET_CATEGORY (
+ID INT NOT NULL PRIMARY KEY,
+BUDGET_ROW INT NOT NULL REFERENCES BUDGET_ROW(ID),
+CATEGORY INT REFERENCES CATEGORY(ID), /* категория входящ в строку бюджета */
+INCLUDE_SUB_CATEGORY INT NOT NULL DEFAULT 0 /* включать все подкатегории тоже */
+);
+
+/* 10. Планы */
 create table PLAN (
 ID INT NOT NULL PRIMARY KEY,
 NAME varchar(100),
