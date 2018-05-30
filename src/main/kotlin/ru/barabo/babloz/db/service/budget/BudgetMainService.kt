@@ -1,7 +1,7 @@
-package ru.barabo.babloz.db.service
+package ru.barabo.babloz.db.service.budget
 
 import ru.barabo.babloz.db.BablozOrm
-import ru.barabo.babloz.db.entity.BudgetMain
+import ru.barabo.babloz.db.entity.budget.BudgetMain
 import ru.barabo.db.service.StoreService
 
 object BudgetMainService: StoreService<BudgetMain, List<BudgetMain>>(BablozOrm) {

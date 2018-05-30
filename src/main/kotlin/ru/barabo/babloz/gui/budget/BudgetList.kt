@@ -11,10 +11,10 @@ import javafx.scene.control.TableView
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import ru.barabo.babloz.db.BudgetTypePeriod
-import ru.barabo.babloz.db.entity.BudgetMain
-import ru.barabo.babloz.db.entity.BudgetRow
-import ru.barabo.babloz.db.service.BudgetMainService
-import ru.barabo.babloz.db.service.BudgetRowService
+import ru.barabo.babloz.db.entity.budget.BudgetMain
+import ru.barabo.babloz.db.entity.budget.BudgetRow
+import ru.barabo.babloz.db.service.budget.BudgetMainService
+import ru.barabo.babloz.db.service.budget.BudgetRowService
 import ru.barabo.babloz.gui.account.addElemByLeft
 import ru.barabo.babloz.main.ResourcesManager
 import ru.barabo.db.EditType
@@ -62,6 +62,8 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
                 typePeriod = BudgetMain.budgetTypePeriod.dbValue, startPeriod = start, endPeriod = end)
 
         BudgetMainService.save(budgetMain)
+
+        BudgetRowService.save(BudgetRow.createOthersRow(budgetMain) )
     }
 
     private fun showNewBudgetRow() {
@@ -84,7 +86,7 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
                     BudgetMain.selectedBudget = newSelection
                 })
 
-            splitPane?.addElemByLeft(this, 0.5)
+            splitPane?.addElemByLeft(this, 0.3)
         }
 
     private fun table(rootGroup: List<BudgetMain>): TableView<BudgetMain> {
@@ -118,12 +120,31 @@ internal object BudgetRowTable : StoreListener<List<BudgetRow>> {
 
     private var tableRowBudget: TableView<BudgetRow>? = null
 
+    private var splitPane: SplitPane? = null
+
     override fun refreshAll(elemRoot: List<BudgetRow>, refreshType: EditType) {
         Platform.runLater({
             run {
-                tableRowBudget?.refresh() ?: run {tableRowBudget = createTableRowBudget(elemRoot) }
+                tableRowBudget?.refresh() ?: createPanelRowBudget(elemRoot)
             }
         })
+    }
+
+    private fun createPanelRowBudget(elemRoot: List<BudgetRow>) {
+
+        splitPane = SplitPane().apply {
+            orientation = Orientation.HORIZONTAL
+
+            VBox.setVgrow(this, Priority.ALWAYS)
+        }
+
+        tableRowBudget = table(elemRoot)
+
+        splitPane?.addChildIfPossible(tableRowBudget!!)
+
+        splitPane?.addChildIfPossible(BudgetRowEdit)
+
+        BudgetList.splitPane?.addChildIfPossible(splitPane!!)
     }
 
     private fun createTableRowBudget(elemRoot: List<BudgetRow>) = table(elemRoot).apply {
@@ -138,6 +159,11 @@ internal object BudgetRowTable : StoreListener<List<BudgetRow>> {
             column("Выделено", BudgetRow::amount)
 
             column("Освоено", BudgetRow::amountReal)
+
+            selectionModel?.selectedItemProperty()?.addListener(
+                    { _, _, newSelection ->
+                        BudgetRow.budgetRowSelected = newSelection
+                    })
 
             this.resizeColumnsToFitContent()
         }

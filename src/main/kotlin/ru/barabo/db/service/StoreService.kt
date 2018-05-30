@@ -6,7 +6,7 @@ import ru.barabo.db.SessionSetting
 import ru.barabo.db.TemplateQuery
 import tornadofx.observable
 
-abstract class StoreService<T: Any, G>(private val orm :TemplateQuery) {
+abstract class StoreService<T: Any, G>(protected val orm :TemplateQuery) {
 
     private val listenerList = ArrayList<StoreListener<G>>()
 
@@ -29,7 +29,7 @@ abstract class StoreService<T: Any, G>(private val orm :TemplateQuery) {
 
     protected open fun beforeRead() {}
 
-    private fun callBackSelectData(item: T) {
+    protected fun callBackSelectData(item: T) {
 
         synchronized(dataList) { dataList.add(item) }
 
@@ -46,7 +46,7 @@ abstract class StoreService<T: Any, G>(private val orm :TemplateQuery) {
         listenerList.forEach { it.refreshAll(elemRoot(), refreshType) }
     }
 
-    fun initData() {
+    open fun initData() {
         synchronized(dataList) { dataList.clear() }
 
         beforeRead()

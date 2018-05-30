@@ -46,17 +46,12 @@ open class TemplateQuery (private val query :Query) {
     }
 
     @Throws(SessionException::class)
-    fun <T> select(row :Class<T>, callBack :(row :T)->Unit) {
-        val selectQuery =  getSelect(row)
-
+    fun <T> select(select: String, params: Array<Any?>?, row :Class<T>, callBack :(row :T)->Unit) {
         var item :T? = null
 
         val propertyByColumn = getPropertyByColumn(row)
 
-        val params = if(ParamsSelect::class.java.isAssignableFrom(row)) {
-            (row.newInstance() as ParamsSelect).selectParams() } else null
-
-        query.select(selectQuery, params, SessionSetting(false)) lambda@ {
+        query.select(select, params, SessionSetting(false)) lambda@ {
             isNewRow :Boolean, value :Any?, column :String? ->
 
             if(isNewRow) {
@@ -73,20 +68,24 @@ open class TemplateQuery (private val query :Query) {
 
             val member = propertyByColumn[column] ?: return@lambda
 
-           // logger.info("javaType=${member.returnType.javaType}")
-
-           // logger.info("value=$value")
-
             val javaValue =  valueToJava(item as Any, value, member, column!!)
 
             javaValue ?: return@lambda
 
-           // logger.info("javaValue=$javaValue")
-
             member.setter.call(item, javaValue)
-          }
+        }
 
         item?.let(callBack)
+    }
+
+    @Throws(SessionException::class)
+    fun <T> select(row :Class<T>, callBack :(row :T)->Unit) {
+        val selectQuery =  getSelect(row)
+
+        val params = if(ParamsSelect::class.java.isAssignableFrom(row)) {
+            (row.newInstance() as ParamsSelect).selectParams() } else null
+
+        select(selectQuery, params, row, callBack)
     }
 
     private fun getPropertyByColumn(row :Class<*>) :Map<String, KMutableProperty<*>> {

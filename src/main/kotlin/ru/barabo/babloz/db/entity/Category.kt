@@ -38,7 +38,12 @@ data class Category (
     @ColumnName("TURN")
     @ColumnType(java.sql.Types.NUMERIC)
     @ReadOnly
-    var turn : BigDecimal? = null
+    var turn : BigDecimal? = null,
+
+    @ColumnName("IS_SELECTED")
+    @ColumnType(java.sql.Types.INTEGER)
+    @ReadOnly
+    var isSelected : Int? = null
 
 ) : ParamsSelect {
 

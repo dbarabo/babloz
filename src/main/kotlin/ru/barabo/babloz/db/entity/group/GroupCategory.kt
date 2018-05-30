@@ -23,13 +23,15 @@ data class GroupCategory(var category: Category = Category(),
 
                 root.child.add(TRANSFER_CATEGORY)
             }
+            lastParent = root
         }
 
-        fun addCategory(category: Category): GroupCategory {
+        fun addCategory(category: Category, rootCategory: GroupCategory = root, lastGroupGet: GroupCategory = lastParent,
+                        lastGroupSet: (GroupCategory)->Unit = {lastParent = it}): GroupCategory {
 
             val groupCategory = category.parent
-                    ?.let { GroupCategory(category, lastParent) }
-                    ?: GroupCategory(category, root).apply { lastParent = this }
+                    ?.let { GroupCategory(category, lastGroupGet) }
+                    ?: GroupCategory(category, rootCategory).apply { lastGroupSet(this) }
 
             groupCategory.parent?.child?.add(groupCategory)
 

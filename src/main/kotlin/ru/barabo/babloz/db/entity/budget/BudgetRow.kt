@@ -1,5 +1,10 @@
-package ru.barabo.babloz.db.entity
+package ru.barabo.babloz.db.entity.budget
 
+import ru.barabo.babloz.db.BudgetTypePeriod
+import ru.barabo.babloz.db.entity.budget.BudgetMain
+import ru.barabo.babloz.db.service.budget.BudgetCategoryService
+import ru.barabo.babloz.db.service.budget.BudgetMainService
+import ru.barabo.babloz.db.service.budget.BudgetRowService
 import ru.barabo.db.annotation.*
 import java.math.BigDecimal
 
@@ -35,5 +40,21 @@ data class BudgetRow(
         var amountReal: BigDecimal? = null)
     : ParamsSelect {
 
+    companion object {
+        var budgetRowSelected: BudgetRow? = null
+        set(value) {
+            field = value
+
+            BudgetCategoryService.initData()
+        }
+
+        private const val OTHER_NAME = "Все остальные категории"
+
+        fun createOthersRow(budgetMain: BudgetMain): BudgetRow =
+            BudgetRow(main = budgetMain.id, name = OTHER_NAME, amount = BigDecimal(0))
+    }
+
     override fun selectParams(): Array<Any?>? = arrayOf(BudgetMain.selectedBudget?.id)
+
+    fun isOther(): Boolean = name == OTHER_NAME
 }

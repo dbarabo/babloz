@@ -84,7 +84,7 @@ create table BUDGET_CATEGORY (
 ID INT NOT NULL PRIMARY KEY,
 BUDGET_ROW INT NOT NULL REFERENCES BUDGET_ROW(ID),
 CATEGORY INT REFERENCES CATEGORY(ID), /* категория входящ в строку бюджета */
-INCLUDE_SUB_CATEGORY INT NOT NULL DEFAULT 0 /* включать все подкатегории тоже */
+INCLUDE_SUB_CATEGORY INT NOT NULL DEFAULT 0 /* включать все подкатегории тоже -значение 1*/
 );
 
 /* 10. Планы */
