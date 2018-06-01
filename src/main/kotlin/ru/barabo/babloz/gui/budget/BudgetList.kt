@@ -10,6 +10,7 @@ import javafx.scene.control.Tab
 import javafx.scene.control.TableView
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
+import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.BudgetTypePeriod
 import ru.barabo.babloz.db.entity.budget.BudgetMain
 import ru.barabo.babloz.db.entity.budget.BudgetRow
@@ -22,6 +23,8 @@ import ru.barabo.db.service.StoreListener
 import tornadofx.*
 
 object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>> {
+
+    private val logger = LoggerFactory.getLogger(BudgetList::class.java)
 
     private var tableMainBudget: TableView<BudgetMain>? = null
 
@@ -61,6 +64,7 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
         val budgetMain = BudgetMain(name = BudgetMain.budgetTypePeriod.nameByTypeDate(start),
                 typePeriod = BudgetMain.budgetTypePeriod.dbValue, startPeriod = start, endPeriod = end)
 
+        BudgetMain.selectedBudget = budgetMain
         BudgetMainService.save(budgetMain)
 
         BudgetRowService.save(BudgetRow.createOthersRow(budgetMain) )
@@ -68,13 +72,17 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
 
     private fun showNewBudgetRow() {
 
+        BudgetMain.selectedBudget?.let { BudgetRowService.save(BudgetRow.createNewEmptyRow(it)) }
     }
 
     override fun refreshAll(elemRoot: List<BudgetMain>, refreshType: EditType) {
+
         Platform.runLater({
             run {
 
                 tableMainBudget?.refresh() ?: run { tableMainBudget = createTableMainBudget(elemRoot) }
+
+                BudgetMain.selectedBudget = if (elemRoot.isEmpty()) null else tableMainBudget?.selectionModel?.selectedItem
             }
         })
     }
@@ -118,14 +126,19 @@ fun EventTarget.comboBoxBudgetTypes(processBudjectTypePeriod: (BudgetTypePeriod)
 
 internal object BudgetRowTable : StoreListener<List<BudgetRow>> {
 
+    private val logger = LoggerFactory.getLogger(BudgetRowTable::class.java)
+
     private var tableRowBudget: TableView<BudgetRow>? = null
 
     private var splitPane: SplitPane? = null
 
     override fun refreshAll(elemRoot: List<BudgetRow>, refreshType: EditType) {
+
         Platform.runLater({
             run {
                 tableRowBudget?.refresh() ?: createPanelRowBudget(elemRoot)
+
+                BudgetRow.budgetRowSelected = if (elemRoot.isEmpty()) null else tableRowBudget?.selectionModel?.selectedItem
             }
         })
     }
@@ -147,11 +160,6 @@ internal object BudgetRowTable : StoreListener<List<BudgetRow>> {
         BudgetList.splitPane?.addChildIfPossible(splitPane!!)
     }
 
-    private fun createTableRowBudget(elemRoot: List<BudgetRow>) = table(elemRoot).apply {
-
-        BudgetList.splitPane?.addChildIfPossible(this)
-    }
-
     private fun table(rootGroup: List<BudgetRow>): TableView<BudgetRow> {
         return TableView<BudgetRow>(rootGroup.observable()).apply {
             column("Строка бюджета", BudgetRow::name)
@@ -168,5 +176,4 @@ internal object BudgetRowTable : StoreListener<List<BudgetRow>> {
             this.resizeColumnsToFitContent()
         }
     }
-
 }

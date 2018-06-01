@@ -5,7 +5,7 @@ import tornadofx.observable
 import java.text.DecimalFormat
 
 data class GroupCategory(var category: Category = Category(),
-                         private var parent : GroupCategory? = null,
+                         private var parent: GroupCategory? = null,
                          val child: MutableList<GroupCategory> = ArrayList<GroupCategory>().observable() ) {
 
     companion object {

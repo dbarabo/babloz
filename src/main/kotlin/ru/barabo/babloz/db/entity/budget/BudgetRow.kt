@@ -1,10 +1,7 @@
 package ru.barabo.babloz.db.entity.budget
 
-import ru.barabo.babloz.db.BudgetTypePeriod
-import ru.barabo.babloz.db.entity.budget.BudgetMain
-import ru.barabo.babloz.db.service.budget.BudgetCategoryService
-import ru.barabo.babloz.db.service.budget.BudgetMainService
-import ru.barabo.babloz.db.service.budget.BudgetRowService
+import org.slf4j.LoggerFactory
+import ru.barabo.babloz.db.service.budget.BudgetTreeCategoryService
 import ru.barabo.db.annotation.*
 import java.math.BigDecimal
 
@@ -41,20 +38,33 @@ data class BudgetRow(
     : ParamsSelect {
 
     companion object {
+        private val logger = LoggerFactory.getLogger(BudgetRow::class.java)
+
         var budgetRowSelected: BudgetRow? = null
         set(value) {
             field = value
 
-            BudgetCategoryService.initData()
+            BudgetTreeCategoryService.initData()
         }
 
         private const val OTHER_NAME = "Все остальные категории"
 
+        private const val NEW_NAME = "Новая строка бюджета"
+
         fun createOthersRow(budgetMain: BudgetMain): BudgetRow =
             BudgetRow(main = budgetMain.id, name = OTHER_NAME, amount = BigDecimal(0))
+
+        fun createNewEmptyRow(budgetMain: BudgetMain): BudgetRow =
+                BudgetRow(main = budgetMain.id, name = NEW_NAME, amount = BigDecimal(0))
     }
 
-    override fun selectParams(): Array<Any?>? = arrayOf(BudgetMain.selectedBudget?.id)
+    override fun selectParams(): Array<Any?>? {
+        val selectBudgetMain: Array<Any?>? =  arrayOf(BudgetMain.selectedBudget?.id?:Int::class)
+
+        logger.error("BudgetMain.selectedBudget?.id=${BudgetMain.selectedBudget?.id?:Int::class}")
+
+        return selectBudgetMain
+    }
 
     fun isOther(): Boolean = name == OTHER_NAME
 }

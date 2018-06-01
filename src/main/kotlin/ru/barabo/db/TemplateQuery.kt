@@ -134,22 +134,21 @@ open class TemplateQuery (private val query :Query) {
     }
 
     @Throws(SessionException::class)
-    fun deleteById(item :Any) {
+    fun deleteById(item :Any, sessionSetting: SessionSetting = SessionSetting(false) ) {
 
         val tableName = getTableName(item)
 
         val idField = getFieldData(item, ID_COLUMN)
 
-        query.execute(deleteTemplate(tableName), Array(1, {idField.second}))
+        query.execute(deleteTemplate(tableName), Array(1, {idField.second}), sessionSetting)
     }
-
 
     @Throws(SessionException::class)
     private fun getSelect(row :Class<*>) :String = row.kotlin.findAnnotation<SelectQuery>()?.name
             ?: throw SessionException(errorNotFoundAnnotationSelectQuery(row.simpleName))
 
     @Throws(SessionException::class)
-    private fun insert (item :Any, sessionSetting : SessionSetting = SessionSetting(false)) {
+    private fun insert (item :Any, sessionSetting: SessionSetting = SessionSetting(false)) {
 
         val tableName = getTableName(item)
 

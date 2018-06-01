@@ -23,6 +23,8 @@ abstract class StoreService<T: Any, G>(protected val orm :TemplateQuery) {
 
     protected abstract fun clazz(): Class<T>
 
+    protected open fun processDelete(item: T) {}
+
     protected open fun processInsert(item: T) {}
 
     protected open fun processUpdate(item: T) {}
@@ -47,7 +49,7 @@ abstract class StoreService<T: Any, G>(protected val orm :TemplateQuery) {
     }
 
     open fun initData() {
-        synchronized(dataList) { dataList.clear() }
+        dataList.clear()
 
         beforeRead()
 
@@ -56,8 +58,19 @@ abstract class StoreService<T: Any, G>(protected val orm :TemplateQuery) {
         sentRefreshAllListener(EditType.INIT)
     }
 
+
     @Throws(SessionException::class)
-    fun save(item :T, sessionSetting : SessionSetting = SessionSetting(false)) :T {
+    fun delete(item: T, sessionSetting: SessionSetting = SessionSetting(false)) {
+
+        dataList.remove(item)
+
+        orm.deleteById(item, sessionSetting)
+
+        processDelete(item)
+    }
+
+    @Throws(SessionException::class)
+    fun save(item: T, sessionSetting: SessionSetting = SessionSetting(false)): T {
 
         val type = orm.save(item, sessionSetting)
 

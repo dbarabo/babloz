@@ -261,7 +261,6 @@ open class Query (private val dbConnection :DbConnection) {
             TransactType.ROLLBACK -> session.session.rollback()
 
             TransactType.COMMIT -> {
-                logger.error("COMMIT SET ")
                 session.session.commit()
             }
             else -> {}

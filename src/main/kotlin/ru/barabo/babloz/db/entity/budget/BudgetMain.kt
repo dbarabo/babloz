@@ -1,6 +1,7 @@
 package ru.barabo.babloz.db.entity.budget
 
 import ru.barabo.babloz.db.BudgetTypePeriod
+import ru.barabo.babloz.db.service.budget.BudgetCategoryService
 import ru.barabo.babloz.db.service.budget.BudgetMainService
 import ru.barabo.babloz.db.service.budget.BudgetRowService
 import ru.barabo.db.annotation.*
@@ -61,6 +62,8 @@ data class BudgetMain (
                 field = value
 
                 BudgetRowService.initData()
+
+                BudgetCategoryService.initData()
             }
     }
     override fun selectParams(): Array<Any?>? = arrayOf(budgetTypePeriod.dbValue)
