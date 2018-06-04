@@ -1,5 +1,6 @@
 package ru.barabo.babloz.db.entity
 
+import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.babloz.db.service.CategoryService
 import ru.barabo.babloz.db.service.PayService.dateEnd
 import ru.barabo.babloz.db.service.PayService.dateStart
@@ -71,6 +72,19 @@ data class Category (
     }
 
     override fun selectParams(): Array<Any?>? = arrayOf(dateStart.toSqlDate(), dateEnd.toSqlDate())
+
+    override fun equals(other: Any?): Boolean {
+
+        if(this === other) return true
+
+        if(other === null || other !is Category) return false
+
+        if(this.id === other.id && this.id != null) return true
+
+        if((this.id === other.id) && (this.name === other.name) ) return true
+
+        return false
+    }
 }
 
 fun LocalDateTime.toSqlDate() = java.sql.Date(this.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())

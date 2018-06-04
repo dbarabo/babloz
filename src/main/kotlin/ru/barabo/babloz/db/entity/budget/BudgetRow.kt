@@ -6,12 +6,19 @@ import ru.barabo.db.annotation.*
 import java.math.BigDecimal
 
 @TableName("BUDGET_ROW")
-@SelectQuery("select r.*, " +
-        "(select coalesce(sum(-1*p.amount), 0) from pay p, category c, BUDGET_MAIN m, BUDGET_CATEGORY bc " +
-            " where m.id = r.MAIN and p.category = c.id and c.TYPE = 0 and p.created >= m.START_PERIOD and p.created < m.END_PERIOD " +
-            " and bc.BUDGET_ROW = r.id and " +
-           " (c.id = bc.category or (bc.INCLUDE_SUB_CATEGORY != 0 and c.id in (select cc.id from category cc where cc.parent = c.id) ) ) ) AMOUNT_REAL " +
-        "from BUDGET_ROW r where r.MAIN = ? order by id")
+@SelectQuery("""select r.*,
+       case when r.name = 'Все остальные категории' then
+
+       (select coalesce(sum(-1*p.amount), 0) from PAY p, CATEGORY c, BUDGET_MAIN m
+where m.id = r.MAIN and p.category = c.id and c.TYPE = 0 and p.created >= m.START_PERIOD and p.created < m.END_PERIOD
+  and c.id not in (select bc.category from BUDGET_CATEGORY bc, BUDGET_ROW br where bc.BUDGET_ROW = br.ID and br.MAIN = m.id) )
+
+       else  (select coalesce(sum(-1*p.amount), 0) from pay p, category c, BUDGET_MAIN m, BUDGET_CATEGORY bc
+            where m.id = r.MAIN and p.category = c.id and c.TYPE = 0 and p.created >= m.START_PERIOD and p.created < m.END_PERIOD
+            and bc.BUDGET_ROW = r.id and
+           (c.id = bc.category or (bc.INCLUDE_SUB_CATEGORY != 0 and c.id in (select cc.id from category cc where cc.parent = c.id) ) ) )
+       end     AMOUNT_REAL
+       from BUDGET_ROW r where r.MAIN = ? order by id""")
 data class BudgetRow(
         @ColumnName("ID")
         @SequenceName("SELECT COALESCE(MAX(ID), 0) + 1  from BUDGET_ROW")
@@ -42,9 +49,14 @@ data class BudgetRow(
 
         var budgetRowSelected: BudgetRow? = null
         set(value) {
+
+            val oldValue = field
+
             field = value
 
-            BudgetTreeCategoryService.initData()
+            if(oldValue !== value) {
+                BudgetTreeCategoryService.initData()
+            }
         }
 
         private const val OTHER_NAME = "Все остальные категории"
@@ -58,13 +70,9 @@ data class BudgetRow(
                 BudgetRow(main = budgetMain.id, name = NEW_NAME, amount = BigDecimal(0))
     }
 
-    override fun selectParams(): Array<Any?>? {
-        val selectBudgetMain: Array<Any?>? =  arrayOf(BudgetMain.selectedBudget?.id?:Int::class)
+    override fun selectParams(): Array<Any?>? =  arrayOf(BudgetMain.selectedBudget?.id?:Int::class)
 
-        logger.error("BudgetMain.selectedBudget?.id=${BudgetMain.selectedBudget?.id?:Int::class}")
+    fun isOther(): Boolean = (name == OTHER_NAME)
 
-        return selectBudgetMain
-    }
-
-    fun isOther(): Boolean = name == OTHER_NAME
+    fun isNewName(): Boolean = (name == NEW_NAME)
 }

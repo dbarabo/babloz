@@ -23,7 +23,7 @@ object BudgetTreeCategoryService: StoreService<Category, GroupCategory>(BablozOr
 
     override fun initData() {
 
-        dataList.removeAll()
+        dataList.clear()
 
         beforeRead()
 
@@ -73,16 +73,12 @@ object BudgetTreeCategoryService: StoreService<Category, GroupCategory>(BablozOr
             order by case when c.parent is null then 100000*c.id else 100000*c.parent + c.id end"""
 
     private const val SELECT_OTHERS_ONLY =
-            """select 1 IS_SELECTED, c.*
+            """select 1 IS_SELECTED,
+               c.*
                 from CATEGORY c
                 where c.type = 0 and
-                    c.id not in (select allc.id
-                      from BUDGET_CATEGORY bc,
-                           CATEGORY cz,
-                           CATEGORY allc
-                     where bc.BUDGET_ROW in (?, ?)
-                       and cz.id = bc.category
-                       and ( allc.id in (cz.parent, cz.id) or (allc.parent = coalesce(cz.parent, cz.id) ) )
+                    c.id not in (select bc.category from BUDGET_CATEGORY bc
+                     where bc.BUDGET_ROW in (select br.id from BUDGET_ROW br where br.main in (?, ?) )
                     )
             order by case when c.parent is null then 100000*c.id else 100000*c.parent + c.id end"""
 
@@ -107,26 +103,59 @@ object BudgetTreeCategoryService: StoreService<Category, GroupCategory>(BablozOr
 
         val budgetCategory = BudgetCategoryService.findByCategory(groupCategory.category)
 
-        //logger.error("FIND ADD budgetCategory = $budgetCategory")
-
-        //logger.error("BudgetRow.budgetRowSelected?.id = ${BudgetRow.budgetRowSelected?.id}")
-
         if(budgetCategory?.budgetRow == BudgetRow.budgetRowSelected?.id) return
 
         budgetCategory?.budgetRow?.let { BudgetCategoryService.delete(budgetCategory) }
 
-        //logger.error("New category.id = ${groupCategory.category.id}")
-
         val newBudgetCategory = BudgetCategory(budgetRow = BudgetRow.budgetRowSelected?.id, category = groupCategory.category.id)
 
         BudgetCategoryService.save(newBudgetCategory)
-    }
 
+        checkUpdateNameBudgetRow()
+    }
 
     fun removeCategory(groupCategory: GroupCategory) {
 
         val budgetCategory = BudgetCategoryService.findByCategory(groupCategory.category)
 
         budgetCategory?.budgetRow?.let { BudgetCategoryService.delete(budgetCategory) }
+
+        checkUpdateNameBudgetRow()
     }
+
+    private fun checkUpdateNameBudgetRow(): Boolean {
+
+        val budgetRowSelected = BudgetRow.budgetRowSelected ?: return false
+
+        if(budgetRowSelected.isOther()) return false
+
+        return updateRowByCategories(budgetRowSelected)
+    }
+
+    private fun updateRowByCategories(budgetRowSelected: BudgetRow): Boolean {
+
+        val params: Array<Any?> = arrayOf(budgetRowSelected.id)
+
+        val categoryList = orm.select(SELECT_CATEGORY_NAME_ROW, params).map { it[0] }.joinToString(",")
+
+        budgetRowSelected.name = categoryList
+
+        BudgetRowService.save(budgetRowSelected)
+
+        return true
+    }
+
+    private const val SELECT_CATEGORY_NAME_ROW =
+            """select c.name
+                 from BUDGET_CATEGORY bc,
+                      CATEGORY c
+                where c.id = bc.category
+                  and bc.BUDGET_ROW = ?
+                  and (c.parent is null or c.parent not in (select cc.id
+                        from CATEGORY cc,
+                             BUDGET_CATEGORY bc2
+                       where cc.id = bc2.category
+                         and cc.parent is null
+                         and bc2.BUDGET_ROW = bc.BUDGET_ROW))
+               order by case when c.parent is null then 10000*c.id else 100000*c.parent + c.id end"""
 }

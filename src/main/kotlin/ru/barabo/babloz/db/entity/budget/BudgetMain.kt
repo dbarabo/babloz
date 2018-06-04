@@ -59,11 +59,16 @@ data class BudgetMain (
 
         var selectedBudget: BudgetMain? = null
             set(value) {
+
+                val oldValue = field
+
                 field = value
 
-                BudgetRowService.initData()
+                if(oldValue !== value) {
+                    BudgetRowService.initData()
 
-                BudgetCategoryService.initData()
+                    BudgetCategoryService.initData()
+                }
             }
     }
     override fun selectParams(): Array<Any?>? = arrayOf(budgetTypePeriod.dbValue)

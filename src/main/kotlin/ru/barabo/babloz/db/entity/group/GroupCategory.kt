@@ -13,15 +13,15 @@ data class GroupCategory(var category: Category = Category(),
 
         private var lastParent = root
 
-        lateinit var TRANSFER_CATEGORY: GroupCategory
+        var TRANSFER_CATEGORY: GroupCategory? = null
 
         fun rootClear() {
             synchronized(root.child) {
                 root.child.clear()
 
-                TRANSFER_CATEGORY = GroupCategory(Category.TRANSFER_CATEGORY, root)
+                TRANSFER_CATEGORY = TRANSFER_CATEGORY?.let { it }?:GroupCategory(Category.TRANSFER_CATEGORY, root)
 
-                root.child.add(TRANSFER_CATEGORY)
+                root.child.add(TRANSFER_CATEGORY!!)
             }
             lastParent = root
         }
@@ -45,14 +45,13 @@ data class GroupCategory(var category: Category = Category(),
     }
 
     private fun findByCategory(findCategory: Category): GroupCategory? {
+
         if(findCategory.id == category.id) return this
 
         for (group in child) {
-            val find = group.findByCategory(findCategory)
+            val find = group.findByCategory(findCategory)?:continue
 
-            if(find != null) {
-                return find
-            }
+            return find
         }
         return null
     }
@@ -64,4 +63,13 @@ data class GroupCategory(var category: Category = Category(),
     val turn: String get() = category.turn?.let { DecimalFormat("0.00").format(it) }?:""
 
     override fun toString(): String = name
+
+    override fun equals(other: Any?): Boolean {
+
+        if(this === other) return true
+
+        if(other === null || other !is GroupCategory) return false
+
+        return (this.category == other.category)
+    }
 }

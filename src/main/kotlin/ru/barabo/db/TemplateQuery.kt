@@ -46,6 +46,9 @@ open class TemplateQuery (private val query :Query) {
     }
 
     @Throws(SessionException::class)
+    fun select(select: String, params: Array<in Any?>? = null): List<Array<Any?>> = query.select(select, params)
+
+    @Throws(SessionException::class)
     fun <T> select(select: String, params: Array<Any?>?, row :Class<T>, callBack :(row :T)->Unit) {
         var item :T? = null
 
