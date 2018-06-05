@@ -71,5 +71,15 @@ data class BudgetMain (
                 }
             }
     }
+
+    val percentAll: Double?
+        get() {
+            val amountDouble = amountBudget?.toDouble()?.let { if(it == 0.0) Double.MAX_VALUE else it} ?: Double.MAX_VALUE
+
+            val amountRealDouble = amountReal?.toDouble() ?: 0.0
+
+            return amountRealDouble / amountDouble
+        }
+
     override fun selectParams(): Array<Any?>? = arrayOf(budgetTypePeriod.dbValue)
 }

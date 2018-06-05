@@ -94,7 +94,7 @@ object BudgetTreeCategoryService: StoreService<Category, GroupCategory>(BablozOr
                 where bc.BUDGET_ROW = br.ID
                 and br.MAIN = ?
                 and cz.id = bc.category
-                and ( allc.id in (cz.parent, cz.id) or (allc.parent = coalesce(cz.parent, cz.id) ) )
+                and ( allc.id in (cz.id) /*(cz.parent, cz.id) or (allc.parent = coalesce(cz.parent, cz.id) )*/  )
                 )
                 order by case when c.parent is null then 100000*c.id else 100000*c.parent + c.id end"""
 

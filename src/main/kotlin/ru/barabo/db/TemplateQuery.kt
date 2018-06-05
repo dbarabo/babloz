@@ -123,9 +123,11 @@ open class TemplateQuery (private val query :Query) {
 
         return if(idField.second is Class<*>) {
 
-            setSequenceValue(item, sessionSetting)
+            val id = setSequenceValue(item, sessionSetting)
 
             insert(item, sessionSetting)
+
+            setCalcValue(id, item, sessionSetting)
 
             EditType.INSERT
 
@@ -179,24 +181,38 @@ open class TemplateQuery (private val query :Query) {
         val updateQuery = updateTemplate(tableName, updateColumns, idField.first)
 
         query.execute(updateQuery, params.toTypedArray(), sessionSetting)
+
+        setCalcValue(idField.second, item, sessionSetting)
     }
 
-    private fun setSequenceValue(item :Any, sessionSetting : SessionSetting = SessionSetting(false)) {
+    private fun setSequenceValue(item :Any, sessionSetting : SessionSetting = SessionSetting(false)): Any {
         for (member in item::class.declaredMembers) {
 
-            val annotationName = member.findAnnotation<SequenceName>()
+            val annotationName = member.findAnnotation<SequenceName>()?.name?:continue
 
-            if(annotationName?.name != null){
+            val valueSequence = getNextSequenceValue(annotationName, sessionSetting)
 
-                val valueSequence = getNextSequenceValue(annotationName.name, sessionSetting)
-
-                (member as KMutableProperty<*>).setter.call(item,
+            (member as KMutableProperty<*>).setter.call(item,
                         Type.convertValueToJavaTypeByClass(valueSequence, member.returnType.javaType as Class<*>))
-                return
-            }
+            return valueSequence
         }
         throw SessionException(errorNotFoundAnnotationSequenceName(item::class.simpleName))
     }
+
+    private fun setCalcValue(idParam: Any, item :Any, sessionSetting: SessionSetting) {
+        for (member in item::class.declaredMembers) {
+            val annotationCalc = member.findAnnotation<CalcColumnQuery>()?.query ?: continue
+
+            val valueCalc = calcValueById(annotationCalc, idParam, sessionSetting)
+
+            (member as KMutableProperty<*>).setter.call(item,
+                    valueCalc?.let { Type.convertValueToJavaTypeByClass(it, member.returnType.javaType as Class<*>)})
+        }
+    }
+
+    private fun calcValueById(selectCalc: String, idParam: Any, sessionSetting : SessionSetting): Any? =
+        query.selectValue(selectCalc, arrayOf(idParam), sessionSetting)
+
 
     @Throws(SessionException::class)
     private fun getNextSequenceValue(sequenceExpression: String, sessionSetting : SessionSetting = SessionSetting(false)) :Any {

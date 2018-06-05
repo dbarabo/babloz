@@ -4,12 +4,10 @@ import javafx.application.Platform
 import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventTarget
 import javafx.geometry.Orientation
-import javafx.scene.control.ComboBox
-import javafx.scene.control.SplitPane
-import javafx.scene.control.Tab
-import javafx.scene.control.TableView
+import javafx.scene.control.*
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
+import javafx.util.Callback
 import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.BudgetTypePeriod
 import ru.barabo.babloz.db.entity.budget.BudgetMain
@@ -20,6 +18,7 @@ import ru.barabo.babloz.gui.account.addElemByLeft
 import ru.barabo.babloz.main.ResourcesManager
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
+import ru.barabo.gui.javafx.tableCellProgressCallback
 import tornadofx.*
 
 object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>> {
@@ -105,8 +104,19 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
 
             column("Освоено", BudgetMain::amountReal)
 
+            columns.add(progressColumn() )
+
             this.resizeColumnsToFitContent()
         }
+    }
+}
+
+private fun TableView<BudgetMain>.progressColumn(): TableColumn<BudgetMain, Double?> {
+    return TableColumn<BudgetMain, Double?>("Процент").apply {
+
+        cellValueFactory = Callback { observable(it.value, BudgetMain::percentAll) }
+
+        cellFactory = tableCellProgressCallback()
     }
 }
 
@@ -124,56 +134,3 @@ fun EventTarget.comboBoxBudgetTypes(processBudjectTypePeriod: (BudgetTypePeriod)
     }
 }
 
-internal object BudgetRowTable : StoreListener<List<BudgetRow>> {
-
-    private val logger = LoggerFactory.getLogger(BudgetRowTable::class.java)
-
-    private var tableRowBudget: TableView<BudgetRow>? = null
-
-    private var splitPane: SplitPane? = null
-
-    override fun refreshAll(elemRoot: List<BudgetRow>, refreshType: EditType) {
-
-        Platform.runLater({
-            run {
-                tableRowBudget?.refresh() ?: createPanelRowBudget(elemRoot)
-
-                BudgetRow.budgetRowSelected = if (elemRoot.isEmpty()) null else tableRowBudget?.selectionModel?.selectedItem
-            }
-        })
-    }
-
-    private fun createPanelRowBudget(elemRoot: List<BudgetRow>) {
-
-        splitPane = SplitPane().apply {
-            orientation = Orientation.HORIZONTAL
-
-            VBox.setVgrow(this, Priority.ALWAYS)
-        }
-
-        tableRowBudget = table(elemRoot)
-
-        splitPane?.addChildIfPossible(tableRowBudget!!)
-
-        splitPane?.addChildIfPossible(BudgetRowEdit)
-
-        BudgetList.splitPane?.addChildIfPossible(splitPane!!)
-    }
-
-    private fun table(rootGroup: List<BudgetRow>): TableView<BudgetRow> {
-        return TableView<BudgetRow>(rootGroup.observable()).apply {
-            column("Строка бюджета", BudgetRow::name)
-
-            column("Выделено", BudgetRow::amount)
-
-            column("Освоено", BudgetRow::amountReal)
-
-            selectionModel?.selectedItemProperty()?.addListener(
-                    { _, _, newSelection ->
-                        BudgetRow.budgetRowSelected = newSelection
-                    })
-
-            this.resizeColumnsToFitContent()
-        }
-    }
-}

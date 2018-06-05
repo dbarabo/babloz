@@ -49,7 +49,7 @@ abstract class StoreService<T: Any, G>(protected val orm :TemplateQuery) {
     }
 
     open fun initData() {
-        dataList.clear()
+        dataList.removeAll(dataList)
 
         beforeRead()
 

@@ -1,24 +1,15 @@
 package ru.barabo.babloz.db.entity.budget
 
 import org.slf4j.LoggerFactory
+import ru.barabo.babloz.db.entity.budget.BudgetRow.Companion.CALC_AMOUNT_REAL
 import ru.barabo.babloz.db.service.budget.BudgetTreeCategoryService
+import ru.barabo.babloz.gui.budget.BudgetRowSaver
+import ru.barabo.babloz.gui.budget.BudgetRowTable
 import ru.barabo.db.annotation.*
 import java.math.BigDecimal
 
 @TableName("BUDGET_ROW")
-@SelectQuery("""select r.*,
-       case when r.name = 'Все остальные категории' then
-
-       (select coalesce(sum(-1*p.amount), 0) from PAY p, CATEGORY c, BUDGET_MAIN m
-where m.id = r.MAIN and p.category = c.id and c.TYPE = 0 and p.created >= m.START_PERIOD and p.created < m.END_PERIOD
-  and c.id not in (select bc.category from BUDGET_CATEGORY bc, BUDGET_ROW br where bc.BUDGET_ROW = br.ID and br.MAIN = m.id) )
-
-       else  (select coalesce(sum(-1*p.amount), 0) from pay p, category c, BUDGET_MAIN m, BUDGET_CATEGORY bc
-            where m.id = r.MAIN and p.category = c.id and c.TYPE = 0 and p.created >= m.START_PERIOD and p.created < m.END_PERIOD
-            and bc.BUDGET_ROW = r.id and
-           (c.id = bc.category or (bc.INCLUDE_SUB_CATEGORY != 0 and c.id in (select cc.id from category cc where cc.parent = c.id) ) ) )
-       end     AMOUNT_REAL
-       from BUDGET_ROW r where r.MAIN = ? order by id""")
+@SelectQuery("""select r.*, $CALC_AMOUNT_REAL from BUDGET_ROW r where r.MAIN = ? order by id""")
 data class BudgetRow(
         @ColumnName("ID")
         @SequenceName("SELECT COALESCE(MAX(ID), 0) + 1  from BUDGET_ROW")
@@ -35,17 +26,43 @@ data class BudgetRow(
 
         @ColumnName("AMOUNT")
         @ColumnType(java.sql.Types.NUMERIC)
-        @ReadOnly
         var amount: BigDecimal? = null,
 
         @ColumnName("AMOUNT_REAL")
         @ColumnType(java.sql.Types.NUMERIC)
+        @CalcColumnQuery("select $CALC_AMOUNT_REAL from BUDGET_ROW r where r.id = ?")
         @ReadOnly
-        var amountReal: BigDecimal? = null)
+        var amountReal: BigDecimal? = null
+)
+
     : ParamsSelect {
+
+
+    val percentAll: Double?
+    get() {
+        val amountDouble = amount?.toDouble()?.let { if(it == 0.0) Double.MAX_VALUE else it} ?: Double.MAX_VALUE
+
+        val amountRealDouble = amountReal?.toDouble() ?: 0.0
+
+        return amountRealDouble / amountDouble
+    }
 
     companion object {
         private val logger = LoggerFactory.getLogger(BudgetRow::class.java)
+
+        internal const val OTHER_NAME = "Все остальные категории"
+
+        internal const val CALC_AMOUNT_REAL =
+
+           """case when r.name = '$OTHER_NAME' then
+               (select coalesce(sum(-1*p.amount), 0) from PAY p, CATEGORY c, BUDGET_MAIN m
+                         where m.id = r.MAIN and p.category = c.id and c.TYPE = 0 and p.created >= m.START_PERIOD and p.created < m.END_PERIOD
+                           and c.id not in (select bc.category from BUDGET_CATEGORY bc, BUDGET_ROW br where bc.BUDGET_ROW = br.ID and br.MAIN = m.id) )
+           else  (select coalesce(sum(-1*p.amount), 0) from pay p, category c, BUDGET_MAIN m, BUDGET_CATEGORY bc
+                where m.id = r.MAIN and p.category = c.id and c.TYPE = 0 and p.created >= m.START_PERIOD and p.created < m.END_PERIOD
+                and bc.BUDGET_ROW = r.id and
+               (c.id = bc.category or (bc.INCLUDE_SUB_CATEGORY != 0 and c.id in (select cc.id from category cc where cc.parent = c.id) ) ) )
+           end     AMOUNT_REAL"""
 
         var budgetRowSelected: BudgetRow? = null
         set(value) {
@@ -56,10 +73,10 @@ data class BudgetRow(
 
             if(oldValue !== value) {
                 BudgetTreeCategoryService.initData()
+
+                BudgetRowSaver.changeSelectEditValue(field)
             }
         }
-
-        private const val OTHER_NAME = "Все остальные категории"
 
         private const val NEW_NAME = "Новая строка бюджета"
 
