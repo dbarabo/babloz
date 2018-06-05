@@ -199,7 +199,7 @@ open class TemplateQuery (private val query :Query) {
         throw SessionException(errorNotFoundAnnotationSequenceName(item::class.simpleName))
     }
 
-    private fun setCalcValue(idParam: Any, item :Any, sessionSetting: SessionSetting) {
+    fun setCalcValue(idParam: Any, item :Any, sessionSetting: SessionSetting) {
         for (member in item::class.declaredMembers) {
             val annotationCalc = member.findAnnotation<CalcColumnQuery>()?.query ?: continue
 

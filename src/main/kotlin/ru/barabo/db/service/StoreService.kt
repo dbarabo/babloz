@@ -70,7 +70,7 @@ abstract class StoreService<T: Any, G>(protected val orm :TemplateQuery) {
     }
 
     @Throws(SessionException::class)
-    fun save(item: T, sessionSetting: SessionSetting = SessionSetting(false)): T {
+    open fun save(item: T, sessionSetting: SessionSetting = SessionSetting(false)): T {
 
         val type = orm.save(item, sessionSetting)
 
