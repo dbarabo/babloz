@@ -6,6 +6,7 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
+import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.entity.*
 import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.babloz.db.entity.group.GroupPerson
@@ -18,6 +19,8 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 internal class PayBind : BindProperties<Pay> {
+
+    private val logger = LoggerFactory.getLogger(PayBind::class.java)
 
     override var editValue: Pay? = null
 

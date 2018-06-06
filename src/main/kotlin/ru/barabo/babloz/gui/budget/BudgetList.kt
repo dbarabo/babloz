@@ -41,7 +41,7 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
                 button ("Новая строка Бюджета", ResourcesManager.icon("new.png")).apply {
                     setOnAction { showNewBudgetRow() }
                 }
-                button ("Удалить строку Бюджета").apply {
+                button ("Удалить строку Бюджета", ResourcesManager.icon("delete.png")).apply {
                     setOnAction { deleteBudgetRow() }
                 }
                 separator {  }

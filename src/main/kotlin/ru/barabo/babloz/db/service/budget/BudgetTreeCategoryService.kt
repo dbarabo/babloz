@@ -78,7 +78,11 @@ object BudgetTreeCategoryService: StoreService<Category, GroupCategory>(BablozOr
                 from CATEGORY c
                 where c.type = 0 and
                     c.id not in (select bc.category from BUDGET_CATEGORY bc
-                     where bc.BUDGET_ROW in (select br.id from BUDGET_ROW br where br.main in (?, ?) )
+                     where bc.BUDGET_ROW in (
+                     select br.id
+                       from BUDGET_ROW br
+                           ,BUDGET_ROW br0
+                      where br0.id in (?, ?) and br.main = br0.main     )
                     )
             order by coalesce(100000*c.parent + c.id, 100000*c.id)"""
 

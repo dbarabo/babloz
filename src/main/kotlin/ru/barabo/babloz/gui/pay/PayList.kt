@@ -82,6 +82,17 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
                     disableProperty().bind(PaySaver.isDisableEdit())
                 }
 
+                separator()
+
+                button ("", ResourcesManager.icon("delete.png")).apply {
+
+                    tooltip("Удалить запись!")
+
+                    setOnAction { deletePay() }
+
+                    disableProperty().bind(PaySaver.isDisableEdit().not())
+                }
+
                 textfield().apply {
                     findTextField = this
                     maxWidth = 100.0
@@ -91,7 +102,7 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
 
                     this.setOnAction { findPay() }
 
-                    disableProperty().bind(PaySaver.isDisableEdit().not())
+                    //disableProperty().bind(PaySaver.isDisableEdit().not())
                 }
 
                 comboBoxDates(PayService::setDateFilter)
@@ -134,6 +145,13 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
     private fun savePay() {
 
         PaySaver.save()
+
+        table?.requestFocus()
+    }
+
+    private fun deletePay() {
+
+        selectPay?.let { PayService.delete(it) }
 
         table?.requestFocus()
     }

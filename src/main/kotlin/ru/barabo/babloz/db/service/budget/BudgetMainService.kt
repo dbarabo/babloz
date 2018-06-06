@@ -68,6 +68,7 @@ object BudgetMainService: StoreService<BudgetMain, List<BudgetMain>>(BablozOrm) 
     }
 
     private fun insertCopyCategories(destBudgetRow: Int)=
-            """insert into BUDGET_CATEGORY (BUDGET_ROW, CATEGORY)
-                select $destBudgetRow, CATEGORY from BUDGET_CATEGORY where BUDGET_ROW = ?"""
+            """insert into BUDGET_CATEGORY (ID, BUDGET_ROW, CATEGORY)
+                select (SELECT COALESCE(MAX(ID), 0) + 1  from BUDGET_CATEGORY) + ID,
+                $destBudgetRow, CATEGORY from BUDGET_CATEGORY where BUDGET_ROW = ?"""
 }

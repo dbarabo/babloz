@@ -45,6 +45,16 @@ data class Account (
     ) {
 
     override fun toString(): String = name?:""
+
+    override fun equals(other: Any?): Boolean {
+
+        if(this === other) return true
+
+        if(other is Account?) {
+            return (this.id == other?.id && this.name == other?.name)
+        }
+        return false
+    }
 }
 
 
