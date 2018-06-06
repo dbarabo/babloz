@@ -2,6 +2,7 @@ package ru.barabo.babloz.gui.budget
 
 import javafx.application.Platform
 import javafx.beans.property.SimpleObjectProperty
+import javafx.collections.ObservableList
 import javafx.event.EventTarget
 import javafx.geometry.Orientation
 import javafx.scene.control.*
@@ -40,6 +41,9 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
                 button ("Новая строка Бюджета", ResourcesManager.icon("new.png")).apply {
                     setOnAction { showNewBudgetRow() }
                 }
+                button ("Удалить строку Бюджета").apply {
+                    setOnAction { deleteBudgetRow() }
+                }
                 separator {  }
 
                 comboBoxBudgetTypes({newType -> BudgetMain.budgetTypePeriod = newType})
@@ -58,20 +62,16 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
     private fun showNewBudgetMain() {
         val result = CreateBudgetMain.showAndWait().orElseGet { null  }?.let { it } ?: return
 
-        val (start, end) = BudgetMain.budgetTypePeriod.getStartEndByDate(result.first)
-
-        val budgetMain = BudgetMain(name = BudgetMain.budgetTypePeriod.nameByTypeDate(start),
-                typePeriod = BudgetMain.budgetTypePeriod.dbValue, startPeriod = start, endPeriod = end)
-
-        BudgetMain.selectedBudget = budgetMain
-        BudgetMainService.save(budgetMain)
-
-        BudgetRowService.save(BudgetRow.createOthersRow(budgetMain) )
+        BudgetMainService.createNewBudget(result)
     }
 
     private fun showNewBudgetRow() {
 
         BudgetMain.selectedBudget?.let { BudgetRowService.save(BudgetRow.createNewEmptyRow(it)) }
+    }
+
+    private fun deleteBudgetRow() {
+        BudgetRow.budgetRowSelected?.let { BudgetRowService.delete(it) }
     }
 
     override fun refreshAll(elemRoot: List<BudgetMain>, refreshType: EditType) {
@@ -93,16 +93,17 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
                     BudgetMain.selectedBudget = newSelection
                 })
 
-            splitPane?.addElemByLeft(this, 0.3)
+            splitPane?.addElemByLeft(this, 0.5)
         }
 
     private fun table(rootGroup: List<BudgetMain>): TableView<BudgetMain> {
-        return TableView<BudgetMain>(rootGroup.observable()).apply {
+
+        return TableView<BudgetMain>(rootGroup as ObservableList).apply {
             column("Название", BudgetMain::name)
 
-            column("Выделено", BudgetMain::amountBudget)
+            column("Выделено", BudgetMain::amountBudgetFormat)
 
-            column("Освоено", BudgetMain::amountReal)
+            column("Освоено", BudgetMain::amountRealFormat)
 
             columns.add(progressColumn() )
 

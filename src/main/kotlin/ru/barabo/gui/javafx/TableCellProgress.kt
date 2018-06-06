@@ -66,7 +66,7 @@ class TableCellProgress<S> : TableCell<S, Double?>() {
         val color = when (percent) {
              in 0..30 -> { "lime"}
              in 31..80 -> { return@changeProgressColor }
-             in 81..100 -> {"orange"}
+             in 81..103 -> {"orange"}
              else -> {"red"}
         }
 

@@ -70,7 +70,7 @@ object BudgetTreeCategoryService: StoreService<Category, GroupCategory>(BablozOr
                        and cz.id = bc.category
                        and ( allc.id in (cz.parent, cz.id) or (allc.parent = coalesce(cz.parent, cz.id) ) )
                     )
-            order by case when c.parent is null then 100000*c.id else 100000*c.parent + c.id end"""
+            order by coalesce(100000*c.parent + c.id, 100000*c.id)"""
 
     private const val SELECT_OTHERS_ONLY =
             """select 1 IS_SELECTED,
@@ -80,24 +80,53 @@ object BudgetTreeCategoryService: StoreService<Category, GroupCategory>(BablozOr
                     c.id not in (select bc.category from BUDGET_CATEGORY bc
                      where bc.BUDGET_ROW in (select br.id from BUDGET_ROW br where br.main in (?, ?) )
                     )
-            order by case when c.parent is null then 100000*c.id else 100000*c.parent + c.id end"""
+            order by coalesce(100000*c.parent + c.id, 100000*c.id)"""
 
     private const val SELECT_NOT_SELECTED_ONLY =
             """select 0 IS_SELECTED, c.*
                 from CATEGORY c
                 where c.type = 0 and
-                c.id not in (select allc.id
+                c.id not in
+                (select cAll.id
                 from BUDGET_CATEGORY bc,
-                BUDGET_ROW br,
-                CATEGORY cz,
-                CATEGORY allc
-                where bc.BUDGET_ROW = br.ID
-                and br.MAIN = ?
-                and cz.id = bc.category
-                and ( allc.id in (cz.id) /*(cz.parent, cz.id) or (allc.parent = coalesce(cz.parent, cz.id) )*/  )
-                )
-                order by case when c.parent is null then 100000*c.id else 100000*c.parent + c.id end"""
+                     BUDGET_ROW br,
+                     CATEGORY cm,
+                     CATEGORY cAll
+                where br.main = ?
+                  and bc.BUDGET_ROW = br.ID
+                  and bc.CATEGORY = cm.id
+                  and cAll.id in (cm.id, cm.parent) )
+                order by coalesce(100000*c.parent + c.id, 100000*c.id)"""
+/*
+            """select 0 IS_SELECTED, c.*
+                from CATEGORY c
+                where c.type = 0
+                  and c.id not in
+                     (select cm.id
+                        from BUDGET_CATEGORY bc,
+                             BUDGET_ROW br,
+                             CATEGORY cm
+                        where br.main = ?
+                          and bc.BUDGET_ROW = br.ID
+                          and bc.CATEGORY = cm.id
+                          and (cm.parent is not null
 
+                          or not exists (select chi.*
+                                            from CATEGORY chi
+                                           where chi.parent = cm.id
+                                           and not exists (
+                                                select 1
+                                                   from BUDGET_CATEGORY Cbc,
+                                                         BUDGET_ROW Cbr
+                                                  where Cbr.main = br.main
+                                                    and Cbc.BUDGET_ROW = Cbr.id
+                                                    and Cbc.CATEGORY = chi.id
+                                                           )
+                                        )
+                               )
+                     )
+                order by coalesce(100000*c.parent + c.id, 100000*c.id)"""
+*/
 
     fun addCategory(groupCategory: GroupCategory) {
 

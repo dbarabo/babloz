@@ -99,7 +99,7 @@ open class TemplateQuery (private val query :Query) {
 
             val columnName = member.findAnnotation<ColumnName>()?.name?.toUpperCase()?:return@forEach
 
-            propertyByColumn.put(columnName, member)
+            propertyByColumn[columnName] = member
 
             val prefix = member.findAnnotation<ManyToOne>()?.prefixColumns?.toUpperCase()?:return@forEach
 
@@ -109,7 +109,7 @@ open class TemplateQuery (private val query :Query) {
                     .filter { it.findAnnotation<ColumnName>()?.name != null}.forEach intern@ {
                 val subColumnName =it.findAnnotation<ColumnName>()?.name?.toUpperCase()?:return@intern
 
-                propertyByColumn.put("$prefix$subColumnName", member)
+                propertyByColumn["$prefix$subColumnName"] = member
             }
         }
 
@@ -127,7 +127,7 @@ open class TemplateQuery (private val query :Query) {
 
             insert(item, sessionSetting)
 
-            setCalcValue(id, item, sessionSetting)
+            reCalcValue(id, item, sessionSetting)
 
             EditType.INSERT
 
@@ -136,6 +136,12 @@ open class TemplateQuery (private val query :Query) {
 
             EditType.EDIT
         }
+    }
+
+    @Throws(SessionException::class)
+    fun executeQuery(executeQuery: String, params: Array<Any?>?, sessionSetting: SessionSetting = SessionSetting(false)) {
+
+        query.execute(executeQuery, params, sessionSetting)
     }
 
     @Throws(SessionException::class)
@@ -182,7 +188,7 @@ open class TemplateQuery (private val query :Query) {
 
         query.execute(updateQuery, params.toTypedArray(), sessionSetting)
 
-        setCalcValue(idField.second, item, sessionSetting)
+        reCalcValue(idField.second, item, sessionSetting)
     }
 
     private fun setSequenceValue(item :Any, sessionSetting : SessionSetting = SessionSetting(false)): Any {
@@ -199,7 +205,7 @@ open class TemplateQuery (private val query :Query) {
         throw SessionException(errorNotFoundAnnotationSequenceName(item::class.simpleName))
     }
 
-    fun setCalcValue(idParam: Any, item :Any, sessionSetting: SessionSetting) {
+    fun reCalcValue(idParam: Any, item :Any, sessionSetting: SessionSetting) {
         for (member in item::class.declaredMembers) {
             val annotationCalc = member.findAnnotation<CalcColumnQuery>()?.query ?: continue
 

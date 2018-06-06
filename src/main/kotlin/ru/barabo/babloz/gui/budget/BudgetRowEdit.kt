@@ -30,7 +30,7 @@ internal object BudgetRowEdit : VBox() {
         }
     }
 
-    private fun Field.checkTreeBudgetCategory(): CheckTreeView<GroupCategory> =
+    private fun checkTreeBudgetCategory(): CheckTreeView<GroupCategory> =
             CheckTreeView<GroupCategory>(CheckBoxTreeItem<GroupCategory>(BudgetTreeCategoryService.elemRoot()) ).apply {
 
                 this.populate (itemFactory = {
@@ -57,7 +57,6 @@ internal object BudgetRowEdit : VBox() {
                  childFactory = { it.value.child })
 
                 this.isShowRoot = false
-
 
                 this.root.isExpanded = true
             }

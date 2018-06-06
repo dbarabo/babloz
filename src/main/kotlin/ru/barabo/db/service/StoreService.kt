@@ -69,6 +69,11 @@ abstract class StoreService<T: Any, G>(protected val orm :TemplateQuery) {
         processDelete(item)
     }
 
+    fun reCalcItemById(idParam: Any, item: T, sessionSetting: SessionSetting = SessionSetting(false)) {
+
+        orm.reCalcValue(idParam, item, sessionSetting)
+    }
+
     @Throws(SessionException::class)
     open fun save(item: T, sessionSetting: SessionSetting = SessionSetting(false)): T {
 

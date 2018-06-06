@@ -7,6 +7,7 @@ import ru.barabo.babloz.gui.budget.BudgetRowSaver
 import ru.barabo.babloz.gui.budget.BudgetRowTable
 import ru.barabo.db.annotation.*
 import java.math.BigDecimal
+import java.text.DecimalFormat
 
 @TableName("BUDGET_ROW")
 @SelectQuery("""select r.*, $CALC_AMOUNT_REAL from BUDGET_ROW r where r.MAIN = ? order by id""")
@@ -37,6 +38,9 @@ data class BudgetRow(
 
     : ParamsSelect {
 
+    val amountFormat: String get() = amount?.let { DecimalFormat("0").format(it) }?:""
+
+    val amountRealFormat: String get() = amountReal?.let { DecimalFormat("0").format(it) }?:""
 
     val percentAll: Double?
     get() {
@@ -92,4 +96,6 @@ data class BudgetRow(
     fun isOther(): Boolean = (name == OTHER_NAME)
 
     fun isNewName(): Boolean = (name == NEW_NAME)
-}
+
+    fun createCopy(newBudgetMain: BudgetMain)= BudgetRow(main = newBudgetMain.id, name = name, amount = amount)
+ }

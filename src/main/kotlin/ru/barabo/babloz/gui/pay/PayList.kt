@@ -2,6 +2,7 @@ package ru.barabo.babloz.gui.pay
 
 import javafx.application.Platform
 import javafx.beans.property.SimpleObjectProperty
+import javafx.collections.ObservableList
 import javafx.event.EventTarget
 import javafx.geometry.Orientation
 import javafx.scene.control.*
@@ -176,7 +177,7 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
     }
 
     private fun table(rootGroup: List<Pay>): TableView<Pay> {
-        return TableView<Pay>(rootGroup.observable()).apply {
+        return TableView<Pay>(rootGroup as ObservableList<Pay>).apply {
             column("Создан", Pay::createPay)
 
             column("Счет", Pay::fromAccountPay)

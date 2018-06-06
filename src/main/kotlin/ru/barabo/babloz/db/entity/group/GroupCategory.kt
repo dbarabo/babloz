@@ -30,7 +30,7 @@ data class GroupCategory(var category: Category = Category(),
                         lastGroupSet: (GroupCategory)->Unit = {lastParent = it}): GroupCategory {
 
             val groupCategory = category.parent
-                    ?.let { GroupCategory(category, lastGroupGet) }
+                    ?.let { addCategoryByParent(category, it, lastGroupGet, rootCategory) }
                     ?: GroupCategory(category, rootCategory).apply { lastGroupSet(this) }
 
             groupCategory.parent?.child?.add(groupCategory)
@@ -42,6 +42,12 @@ data class GroupCategory(var category: Category = Category(),
 
             return root.findByCategory(category)
         }
+
+        private fun addCategoryByParent(category: Category, parentId: Int,
+                                        lastGroupGet: GroupCategory, rootCategory: GroupCategory) =
+
+            if(parentId == lastGroupGet.category.id) GroupCategory(category, lastGroupGet)
+            else GroupCategory(category, rootCategory)
     }
 
     private fun findByCategory(findCategory: Category): GroupCategory? {

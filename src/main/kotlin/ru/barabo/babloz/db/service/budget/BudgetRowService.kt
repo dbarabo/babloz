@@ -9,7 +9,7 @@ object BudgetRowService: StoreService<BudgetRow, List<BudgetRow> >(BablozOrm) {
 
     override fun clazz(): Class<BudgetRow> = BudgetRow::class.java
 
-    override fun elemRoot(): List<BudgetRow> = dataList
+    public override fun elemRoot(): List<BudgetRow> = dataList
 
     override fun save(item: BudgetRow, sessionSetting: SessionSetting): BudgetRow {
         val result =  super.save(item, sessionSetting)
@@ -18,10 +18,14 @@ object BudgetRowService: StoreService<BudgetRow, List<BudgetRow> >(BablozOrm) {
 
         val otherItem = findOtherItem()?: return result
 
-        otherItem.id?.let { orm.setCalcValue(it, otherItem, sessionSetting) }
+        otherItem.id?.let { orm.reCalcValue(it, otherItem, sessionSetting) }
+
+        BudgetMainService.reCalcSelectedRow()
 
         return result
     }
 
     private fun findOtherItem(): BudgetRow? = dataList.firstOrNull { it.isOther() }
+
+
 }
