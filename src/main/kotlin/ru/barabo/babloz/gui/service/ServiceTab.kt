@@ -7,7 +7,9 @@ import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
 import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.importer.CssImporter
+import ru.barabo.babloz.gui.dialog.LoginDb
 import ru.barabo.babloz.main.ResourcesManager
+import ru.barabo.babloz.sync.Sync
 import tornadofx.*
 import java.io.File
 
@@ -25,6 +27,13 @@ object ServiceTab : Tab("Настройки", VBox()) {
                         importButton = this
 
                         setOnAction { importCss() }
+                    }
+                }
+
+                field("Синхронизация") {
+                    button ("Запуск Синхронизации...", ResourcesManager.icon("sync.png")).apply {
+
+                        setOnAction { syncStart() }
                     }
                 }
             }
@@ -51,6 +60,17 @@ object ServiceTab : Tab("Настройки", VBox()) {
             logger.error("importCss", e)
 
             alert(Alert.AlertType.ERROR, e.message ?: "Error")
+        }
+    }
+
+    private fun syncStart() {
+
+        if(Sync.isSuccessMailPropertySmtp()) {
+            Sync.saveDbToEMail()
+        } else {
+            LoginDb.showAndWait().ifPresent {
+                Sync.saveDbToEMail(it.first!!, it.second!!)
+            }
         }
     }
 }

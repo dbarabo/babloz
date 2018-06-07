@@ -36,6 +36,22 @@ object Sync : GetMailDb, SendMailDb {
 
     private const val BABLOZ_JAR = "babloz.jar"
 
+    fun isSuccessMailPropertySmtp(): Boolean {
+
+        val valid = mailProp?.let { it.user.isNotEmpty() && it.password.isNotEmpty()  } ?: return false
+
+        return if(valid) isCheckSmtpConnect() else false
+    }
+
+    private fun isCheckSmtpConnect(): Boolean =
+            try {
+                mailProp?.smtpSession()
+
+                true
+            } catch (e: Exception) {
+                false
+            }
+
     fun startSync(login: String, password: String, syncType: SyncTypes) {
 
         logger.error("${FileSystems.getDefault().getPath("").toAbsolutePath()}")
@@ -91,12 +107,25 @@ object Sync : GetMailDb, SendMailDb {
     }
 
     private val END_SYNC_PROCESS = mapOf<SyncTypes, (MailProperties?)->STATUS>(
-            SyncTypes.SYNC_START_SAVE_LOCAL to ::saveDbInMail,
+            SyncTypes.SYNC_START_SAVE_LOCAL to ::saveDbToMail,
             SyncTypes.SYNC_START_DEL_LOCAL to ::saveDbDelete,
             SyncTypes.NO_SYNC_LOCAL_ONLY to ::endLocalOnly
     )
 
-    private fun saveDbInMail(mailProp: MailProperties?): STATUS {
+    fun saveDbToEMail(userName: String,  pswd: String) {
+        mailProp = mailProp?.apply {
+            this.user = userName
+            this.password = pswd
+        } ?: MailProperties(user = userName, password = pswd)
+
+        saveDbToEMail()
+    }
+
+    fun saveDbToEMail() {
+        saveDbToMail(mailProp)
+    }
+
+    private fun saveDbToMail(mailProp: MailProperties?): STATUS {
         return try {
             sendDb(mailProp!!)
 
@@ -111,7 +140,7 @@ object Sync : GetMailDb, SendMailDb {
     }
 
     private fun saveDbDelete(mailProp: MailProperties?): STATUS =
-            if(saveDbInMail(mailProp) == STATUS.OK) deleteLocalDb() else questionDelete(mailProp)
+            if(saveDbToMail(mailProp) == STATUS.OK) deleteLocalDb() else questionDelete(mailProp)
 
     private fun questionDelete(mailProp: MailProperties?): STATUS {
 

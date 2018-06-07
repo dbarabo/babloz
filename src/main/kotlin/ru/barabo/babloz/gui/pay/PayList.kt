@@ -246,6 +246,4 @@ fun gotoPayListByDateCategory(start: LocalDate, end: LocalDate, categories: List
     PayService.setCategoryFilter(categories)
 
     selectPayTab()
-
-    //ru.barabo.babloz.gui.MainView.selectedTab(PayList)
 }
