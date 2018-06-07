@@ -34,6 +34,7 @@ import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
 import tornadofx.*
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
 
@@ -158,7 +159,7 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
     }
 
     private fun twinPay() {
-        PaySaver.changeSelectEditValue(selectPay!!.copy(id = null))
+        PaySaver.changeSelectEditValue(selectPay!!.copy(id = null, created = LocalDateTime.now() ))
     }
 
     private fun showNewPay() {
