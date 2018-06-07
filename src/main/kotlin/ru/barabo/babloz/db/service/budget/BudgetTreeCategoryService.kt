@@ -17,6 +17,8 @@ object BudgetTreeCategoryService: StoreService<Category, GroupCategory>(BablozOr
 
     private lateinit var lastParent: GroupCategory
 
+    fun selectedCategories(): List<Category> = rootBudgetCategory?.selectedCategoryList() ?: emptyList()
+
     public override fun elemRoot(): GroupCategory = rootBudgetCategory!!
 
     override fun clazz(): Class<Category> = Category::class.java

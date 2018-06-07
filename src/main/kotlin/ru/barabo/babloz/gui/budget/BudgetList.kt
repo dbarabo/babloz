@@ -13,9 +13,15 @@ import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.BudgetTypePeriod
 import ru.barabo.babloz.db.entity.budget.BudgetMain
 import ru.barabo.babloz.db.entity.budget.BudgetRow
+import ru.barabo.babloz.db.service.PayService
+import ru.barabo.babloz.db.service.budget.BudgetCategoryService
 import ru.barabo.babloz.db.service.budget.BudgetMainService
 import ru.barabo.babloz.db.service.budget.BudgetRowService
+import ru.barabo.babloz.db.service.budget.BudgetTreeCategoryService
 import ru.barabo.babloz.gui.account.addElemByLeft
+import ru.barabo.babloz.gui.category.CategoryList
+import ru.barabo.babloz.gui.pay.PayList
+import ru.barabo.babloz.gui.pay.gotoPayListByDateCategory
 import ru.barabo.babloz.main.ResourcesManager
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
@@ -48,6 +54,12 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
 
                 comboBoxBudgetTypes({newType -> BudgetMain.budgetTypePeriod = newType})
 
+                separator {  }
+
+                button ("В платежи->", ResourcesManager.icon("gopay.png")).apply {
+                    setOnAction { goToPay() }
+                }
+
             }
             splitpane(Orientation.HORIZONTAL).apply { splitPane = this}
         }
@@ -57,6 +69,17 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
         BudgetMainService.addListener(this)
 
         BudgetRowService.addListener(budgetRowTable!!)
+    }
+
+    private fun goToPay() {
+
+        val start = BudgetMain.selectedBudget?.startPeriod?:return
+
+        val end = BudgetMain.selectedBudget?.endPeriod?:return
+
+        val categories = BudgetTreeCategoryService.selectedCategories()
+
+        gotoPayListByDateCategory(start, end, categories)
     }
 
     private fun showNewBudgetMain() {
@@ -71,7 +94,10 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
     }
 
     private fun deleteBudgetRow() {
-        BudgetRow.budgetRowSelected?.let { BudgetRowService.delete(it) }
+
+        showAlertException {
+            BudgetRow.budgetRowSelected?.let { BudgetRowService.delete(it) }
+        }
     }
 
     override fun refreshAll(elemRoot: List<BudgetMain>, refreshType: EditType) {
@@ -135,3 +161,9 @@ fun EventTarget.comboBoxBudgetTypes(processBudjectTypePeriod: (BudgetTypePeriod)
     }
 }
 
+fun showAlertException(run: ()->Unit) {
+    try { run()
+    } catch (e: Exception) {
+        alert(Alert.AlertType.ERROR, e.message?:"")
+    }
+}

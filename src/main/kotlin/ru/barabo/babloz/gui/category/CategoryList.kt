@@ -16,6 +16,7 @@ import ru.barabo.babloz.db.service.PayService
 import ru.barabo.babloz.gui.account.addElemByLeft
 import ru.barabo.babloz.gui.pay.PayList
 import ru.barabo.babloz.gui.pay.comboBoxDates
+import ru.barabo.babloz.gui.pay.gotoPayListByDateCategory
 import ru.barabo.babloz.main.ResourcesManager
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
@@ -46,7 +47,7 @@ object CategoryList : Tab("Категории", VBox()), StoreListener<GroupCate
                     disableProperty().bind(CategorySaver.isDisableEdit())
                 }
 
-                button ("В платежи->").apply {
+                button ("В платежи->", ResourcesManager.icon("gopay.png")).apply {
                     setOnAction { goToPay() }
                 }
 
@@ -69,11 +70,7 @@ object CategoryList : Tab("Категории", VBox()), StoreListener<GroupCate
 
         val (start, end) = Category.getDatePeriod()
 
-        PayService.setDateFilter(start, end)
-
-        PayService.setCategoryFilter(items)
-
-        ru.barabo.babloz.gui.MainView.selectedTab(PayList)
+        gotoPayListByDateCategory(start, end, items)
     }
 
     private fun showNewCategory() {

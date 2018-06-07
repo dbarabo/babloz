@@ -62,6 +62,17 @@ data class GroupCategory(var category: Category = Category(),
         return null
     }
 
+    fun selectedCategoryList(): List<Category> = selectedCategoryList(ArrayList<Category>())
+
+    private fun selectedCategoryList(fillList: MutableList<Category>): List<Category> {
+
+        if(category.isSelect) fillList += category
+
+        child.forEach { it.selectedCategoryList(fillList) }
+
+        return fillList
+    }
+
     val name: String get() = category.name?.let { it } ?: ""
 
     val type: String get() = category.type.label

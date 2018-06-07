@@ -24,6 +24,7 @@ import ru.barabo.babloz.db.service.PayService
 import ru.barabo.babloz.db.service.ProjectService
 import ru.barabo.babloz.db.service.ProjectService.ALL_PROJECT
 import ru.barabo.babloz.db.service.ProjectService.projectAllList
+import ru.barabo.babloz.gui.MainView.Companion.selectPayTab
 import ru.barabo.babloz.gui.account.addElemByLeft
 import ru.barabo.babloz.gui.pay.filter.ComboxFilter
 import ru.barabo.babloz.gui.pay.filter.DateSelect
@@ -215,7 +216,6 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
     }
 }
 
-
 fun EventTarget.comboBoxDates(processDates: (LocalDate, LocalDate)->Unit): ComboBox<DateSelect> {
 
     val dateSelectProperty = SimpleObjectProperty<DateSelect>(DateSelect.ALL_PERIOD)
@@ -236,4 +236,15 @@ fun EventTarget.comboBoxDates(processDates: (LocalDate, LocalDate)->Unit): Combo
                     processDates(newSelection.start(), newSelection.end() )
                 })
     }
+}
+
+fun gotoPayListByDateCategory(start: LocalDate, end: LocalDate, categories: List<Category>) {
+
+    PayService.setDateFilter(start, end)
+
+    PayService.setCategoryFilter(categories)
+
+    selectPayTab()
+
+    //ru.barabo.babloz.gui.MainView.selectedTab(PayList)
 }

@@ -60,7 +60,7 @@ abstract class StoreService<T: Any, G>(protected val orm :TemplateQuery) {
 
 
     @Throws(SessionException::class)
-    fun delete(item: T, sessionSetting: SessionSetting = SessionSetting(false)) {
+    open fun delete(item: T, sessionSetting: SessionSetting = SessionSetting(false)) {
 
         dataList.remove(item)
 

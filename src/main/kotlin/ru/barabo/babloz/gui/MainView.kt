@@ -3,6 +3,7 @@ package ru.barabo.babloz.gui
 import javafx.geometry.Orientation
 import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
+import javafx.scene.control.ToggleButton
 import javafx.scene.control.ToggleGroup
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
@@ -70,6 +71,8 @@ class MainView: View() {
 
         private lateinit var currentMainTab: TabPane
 
+        private lateinit var payButton: ToggleButton
+
         private fun Tab.selectTab() {
             if(!currentMainTab.tabs.contains(this)) {
                 currentMainTab.tabs.add(this)
@@ -78,6 +81,13 @@ class MainView: View() {
         }
 
         fun selectedTab(tab: Tab) = tab.selectTab()
+
+        fun selectPayTab() {
+            if(!payButton.isSelected) {
+                payButton.isSelected = true
+            }
+            PayList.selectTab()
+        }
     }
 
     init {
@@ -111,6 +121,8 @@ class MainView: View() {
             }
 
             togglebutton("Платежи", toggleGroup).apply {
+
+                payButton = this
 
                 graphic = ResourcesManager.icon("pay.png")
 

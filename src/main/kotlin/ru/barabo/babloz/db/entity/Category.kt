@@ -67,6 +67,8 @@ data class Category (
         fun getDatePeriod(): Pair<LocalDate, LocalDate> = Pair(dateStart.toLocalDate(), dateEnd.toLocalDate())
     }
 
+    val isSelect get() = isSelected?.let { it != 0 } ?: false
+
     override fun toString(): String {
         return name?:""
     }
