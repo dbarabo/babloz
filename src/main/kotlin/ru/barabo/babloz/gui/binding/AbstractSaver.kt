@@ -21,7 +21,7 @@ abstract class AbstractSaver<T, out B : BindProperties<T>>(clazzBind: Class<B>,
                 else -> throw Exception("changeSelectEdit is not valid = $changeSelectEdit")
     }
 
-    override fun isDisableEdit() = editBind.isEqualsProperties(oldBind)
+    override fun isDisableEdit() = editBind.isDisableEdit(oldBind)
 
     companion object {
         private const val ALERT_ERROR_SAVE = "Ошибка при сохранении"

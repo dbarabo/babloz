@@ -24,6 +24,8 @@ internal class PayBind : BindProperties<Pay> {
 
     override var editValue: Pay? = null
 
+    val newPayProperty = SimpleStringProperty()
+
     val accountProperty = SimpleObjectProperty<Account>()
 
     val accountTransferProperty = SimpleObjectProperty<Account>()
@@ -46,7 +48,13 @@ internal class PayBind : BindProperties<Pay> {
 
     private var treeViewPerson: TreeView<GroupPerson>? = null
 
+    companion object {
+        private const val NEW_PAY = "НОВЫЙ ПЛАТЕЖ"
+    }
+
     override fun fromValue(value: Pay?) {
+
+        newPayProperty.value = value?.id?.let { "" }?: NEW_PAY
 
         accountProperty.value = value?.account
 
@@ -66,6 +74,7 @@ internal class PayBind : BindProperties<Pay> {
     }
 
     override fun toValue(value: Pay) {
+
         value.account = accountProperty.value
 
         value.accountTo = accountTransferProperty.value
@@ -86,6 +95,8 @@ internal class PayBind : BindProperties<Pay> {
     override fun copyToProperties(destination: BindProperties<Pay>) {
 
         val destPayBind = destination as PayBind
+
+        destPayBind.newPayProperty.value = this.newPayProperty.value
 
         destPayBind.accountProperty.value = this.accountProperty.value
 

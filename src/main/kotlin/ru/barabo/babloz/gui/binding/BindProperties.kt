@@ -29,4 +29,6 @@ interface BindProperties<T> {
     fun copyToProperties(destination: BindProperties<T>)
 
     fun isEqualsProperties(compare: BindProperties<T>): BooleanBinding
+
+    fun isDisableEdit(compare: BindProperties<T>) = isEqualsProperties(compare)
 }

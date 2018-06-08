@@ -4,6 +4,7 @@ import com.sun.javafx.tk.Toolkit
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
 import javafx.scene.layout.VBox
+import javafx.scene.text.Text
 import javafx.stage.Screen
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.group.GroupCategory
@@ -22,12 +23,16 @@ internal object PayEdit: VBox() {
 
     private const val CATEGORY_ROW_COUNT = 9
 
+    private lateinit var infoNewField: Text
+
      init {
 
         form {
             fieldset {
 
-                 field("Счет") {
+                text(property = PaySaver.editBind.newPayProperty).apply { infoNewField = this }
+
+                field("Счет") {
                     combobox<Account>(property = PaySaver.editBind.accountProperty, values = AccountService.accountList())
                  }
 
