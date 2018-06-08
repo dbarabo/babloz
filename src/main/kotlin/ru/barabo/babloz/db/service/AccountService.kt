@@ -56,7 +56,7 @@ object AccountService :StoreService<Account, GroupAccount>(BablozOrm), StoreList
 
     override fun refreshAll(elemRoot: List<Pay>, refreshType: EditType) {
 
-        if(refreshType in listOf(EditType.ALL, EditType.DELETE, EditType.EDIT, EditType.INSERT)) {
+        if(refreshType.isEditable()) {
             initData()
         }
     }

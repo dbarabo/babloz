@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.entity.budget.BudgetRow
 import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.babloz.db.service.budget.BudgetTreeCategoryService
+import ru.barabo.babloz.gui.pay.PayEdit.defaultRowCount
+import ru.barabo.babloz.gui.pay.PayEdit.rowHeight
 import tornadofx.*
 
 internal object BudgetRowEdit : VBox() {
@@ -59,6 +61,8 @@ internal object BudgetRowEdit : VBox() {
                 this.isShowRoot = false
 
                 this.root.isExpanded = true
+
+                prefHeight = rowHeight() * defaultRowCount(GroupCategory.countRoot())
             }
 
     private const val ERROR_CHANGE_OTHER_ROW = "Нельзя менять список у строки <Все остальные категории>"

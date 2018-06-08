@@ -67,6 +67,8 @@ abstract class StoreService<T: Any, G>(protected val orm :TemplateQuery) {
         orm.deleteById(item, sessionSetting)
 
         processDelete(item)
+
+        processStartLongTransactState(EditType.DELETE)
     }
 
     fun reCalcItemById(idParam: Any, item: T, sessionSetting: SessionSetting = SessionSetting(false)) {

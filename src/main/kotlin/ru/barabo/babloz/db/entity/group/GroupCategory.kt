@@ -26,6 +26,8 @@ data class GroupCategory(var category: Category = Category(),
             lastParent = root
         }
 
+        fun countRoot() = root.child.size
+
         fun addCategory(category: Category, rootCategory: GroupCategory = root, lastGroupGet: GroupCategory = lastParent,
                         lastGroupSet: (GroupCategory)->Unit = {lastParent = it}): GroupCategory {
 

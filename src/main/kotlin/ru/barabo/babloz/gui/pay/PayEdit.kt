@@ -6,6 +6,7 @@ import javafx.scene.control.TreeView
 import javafx.scene.layout.VBox
 import javafx.scene.text.Text
 import javafx.stage.Screen
+import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.babloz.db.entity.group.GroupPerson
@@ -14,12 +15,15 @@ import ru.barabo.babloz.db.service.AccountService
 import ru.barabo.babloz.db.service.CategoryService
 import ru.barabo.babloz.db.service.PersonService
 import ru.barabo.babloz.db.service.ProjectService
+import ru.barabo.babloz.gui.budget.BudgetRowEdit
 import ru.barabo.babloz.gui.formatter.currencyTextFormatter
 import tornadofx.*
 import kotlin.math.max
 
 
 internal object PayEdit: VBox() {
+
+    private val logger = LoggerFactory.getLogger(PayEdit::class.java)
 
     private const val CATEGORY_ROW_COUNT = 9
 
@@ -78,9 +82,9 @@ internal object PayEdit: VBox() {
 
                  field("Ремарка") {
                      textarea(PaySaver.editBind.descriptionProperty).apply {
-                         prefRowCount = if(Screen.getPrimary().visualBounds.height /
-                                 (Toolkit.getToolkit().fontLoader.getFontMetrics(this.label("").font).lineHeight.toDouble() + 7.0)
-                         >= ALL_ROW_COUNT) 3 else 2
+                         prefRowCount = 2/*if(Screen.getPrimary().visualBounds.height /
+                                 (Toolkit.getToolkit().fontLoader.getFontMetrics(this.label("").font).lineHeight.toDouble()*1.5)
+                         >= ALL_ROW_COUNT) 3 else 2*/
 
                          isWrapText = true
                      }
@@ -100,7 +104,7 @@ internal object PayEdit: VBox() {
 
             this.isShowRoot = false
 
-            prefHeight = rowHeight() * CATEGORY_ROW_COUNT
+            prefHeight = rowHeight() * calcHeight() //CATEGORY_ROW_COUNT
 
             selectionModel?.selectedItemProperty()?.addListener(
                     { _, _, newSelection ->
@@ -149,20 +153,40 @@ internal object PayEdit: VBox() {
         }
     }
 
-    private const val ALL_ROW_COUNT = 36
+    private const val ALL_ROW_COUNT = 26
 
-    private fun TreeView<*>.maxRowCount(): Int {
+    private var countProject: Int = 0
+
+    private fun TreeView<*>.calcHeight(): Int {
         val screenHeight = Screen.getPrimary().visualBounds.height
 
-        return if(screenHeight / rowHeight() >= ALL_ROW_COUNT) 6 else 5
+        //logger.error("screenHeight=$screenHeight")
+        //logger.error("rowHeight=${rowHeight()}")
+
+        var maxCountProject = 6
+        var allCount = 36
+        while ((screenHeight / rowHeight() < allCount) && maxCountProject > 3) {
+            maxCountProject--
+            allCount -= 2
+        }
+
+        var maxCategoryCount = CATEGORY_ROW_COUNT
+        while(screenHeight / rowHeight() < allCount) {
+            allCount--
+            maxCategoryCount--
+        }
+
+        countProject = maxCountProject
+
+        return maxCategoryCount
     }
 
-    private fun TreeView<*>.personRowCount()= defaultRowCount(GroupPerson.countAll() )
+    private fun TreeView<*>.personRowCount()= countProject //defaultRowCount(GroupPerson.countAll() )
 
-    private fun TreeView<*>.projectRowCount()= defaultRowCount(GroupProject.countAll() )
+    private fun TreeView<*>.projectRowCount()= countProject //defaultRowCount(GroupProject.countAll() )
 
-    private fun TreeView<*>.defaultRowCount(realCount: Int) = if (realCount < maxRowCount() ) max(realCount, 3) else maxRowCount()
+    //fun TreeView<*>.defaultRowCount(realCount: Int) = if (realCount < maxRowCount() ) max(realCount, 3) else maxRowCount()
 
-    private fun TreeView<*>.rowHeight() =
-            Toolkit.getToolkit().fontLoader.getFontMetrics(this.label("").font).lineHeight.toDouble() + 7.0
+    fun TreeView<*>.rowHeight() =
+            Toolkit.getToolkit().fontLoader.getFontMetrics(this.label("").font).lineHeight.toDouble()* 1.49
 }

@@ -7,5 +7,7 @@ enum class EditType {
     DELETE,
     FILTER,
     INIT,
-    ALL
+    ALL;
+
+    fun isEditable() = this in listOf(EditType.ALL, EditType.DELETE, EditType.EDIT, EditType.INSERT)
 }

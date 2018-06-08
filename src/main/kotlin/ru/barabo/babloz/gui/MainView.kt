@@ -52,8 +52,6 @@ class MainApp: App(MainView::class) {
 
     override fun stop() {
 
-        BablozConnection.closeAllSessions()
-
         Sync.endSync()
 
         super.stop()

@@ -58,6 +58,8 @@ internal object BudgetRowTable : StoreListener<List<BudgetRow>> {
 
         splitPane?.addChildIfPossible(BudgetRowEdit)
 
+        splitPane?.setDividerPositions(0.6)
+
         BudgetList.splitPane?.addChildIfPossible(splitPane!!)
     }
 

@@ -4,13 +4,34 @@ import javafx.scene.control.Alert
 import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
 import org.slf4j.LoggerFactory
+import ru.barabo.babloz.db.BablozConnection
+import ru.barabo.babloz.db.entity.Account
+import ru.barabo.babloz.db.entity.Currency
+import ru.barabo.babloz.db.entity.Pay
+import ru.barabo.babloz.db.entity.budget.BudgetMain
+import ru.barabo.babloz.db.entity.group.GroupAccount
+import ru.barabo.babloz.db.entity.group.GroupCategory
+import ru.barabo.babloz.db.entity.group.GroupPerson
+import ru.barabo.babloz.db.entity.group.GroupProject
+import ru.barabo.babloz.db.service.*
+import ru.barabo.babloz.db.service.budget.BudgetCategoryService
+import ru.barabo.babloz.db.service.budget.BudgetMainService
+import ru.barabo.babloz.db.service.budget.BudgetRowService
 import ru.barabo.babloz.sync.imap.GetMailDb
 import ru.barabo.babloz.sync.imap.MailProperties
 import ru.barabo.babloz.sync.smtp.SendMailDb
 import ru.barabo.cmd.Cmd
+import ru.barabo.db.EditType
+import ru.barabo.db.service.StoreListener
 import tornadofx.alert
 import java.io.File
 import java.nio.file.FileSystems
+
+class DelegateChangeData<T> : StoreListener<T> {
+    override fun refreshAll(elemRoot: T, refreshType: EditType) {
+        Sync.changeData(refreshType)
+    }
+}
 
 object Sync : GetMailDb, SendMailDb {
 
@@ -19,6 +40,14 @@ object Sync : GetMailDb, SendMailDb {
     private var mailProp: MailProperties? = null
 
     private var syncType: SyncTypes = SyncTypes.NO_SYNC_LOCAL_ONLY
+
+    private var isChangeData: Boolean = false
+
+    fun changeData(editType: EditType) {
+        if(!isChangeData && editType.isEditable()) {
+            isChangeData = true
+        }
+    }
 
     override fun subjectCriteria() = "Babloz db saved:"
 
@@ -61,6 +90,20 @@ object Sync : GetMailDb, SendMailDb {
         this.syncType = syncType
 
         START_SYNC_PROCESS[syncType]!!.invoke(mailProp!!)
+
+        initChangeData()
+    }
+
+    private fun initChangeData() {
+        AccountService.addListener( DelegateChangeData<GroupAccount>() )
+        CategoryService.addListener(DelegateChangeData<GroupCategory>())
+        PayService.addListener(DelegateChangeData<List<Pay>>())
+        PersonService.addListener(DelegateChangeData<GroupPerson>())
+        CurrencyService.addListener(DelegateChangeData<List<Currency>>())
+        ProjectService.addListener(DelegateChangeData<GroupProject>())
+        BudgetMainService.addListener(DelegateChangeData())
+        BudgetRowService.addListener(DelegateChangeData())
+        BudgetCategoryService.addListener(DelegateChangeData())
     }
 
     private val START_SYNC_PROCESS = mapOf<SyncTypes, (MailProperties)->Unit>(
@@ -88,6 +131,8 @@ object Sync : GetMailDb, SendMailDb {
 
     private fun File.replaceToMainDb() {
 
+        BablozConnection.closeAllSessions()
+
         val bablozDb = File("${currentDirectory()}/$name")
 
         if(bablozDb.exists()) {
@@ -102,6 +147,8 @@ object Sync : GetMailDb, SendMailDb {
     }
 
     fun endSync() {
+
+        BablozConnection.closeAllSessions()
 
         END_SYNC_PROCESS[syncType]!!.invoke(mailProp)
     }
@@ -122,10 +169,15 @@ object Sync : GetMailDb, SendMailDb {
     }
 
     fun saveDbToEMail() {
+        isChangeData = true
+
         saveDbToMail(mailProp)
     }
 
     private fun saveDbToMail(mailProp: MailProperties?): STATUS {
+
+        if(!isChangeData) return STATUS.OK
+
         return try {
             sendDb(mailProp!!)
 
