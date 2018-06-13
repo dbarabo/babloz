@@ -1,7 +1,5 @@
 package ru.barabo.archive
 
-import org.slf4j.LoggerFactory
-import ru.barabo.cmd.Cmd
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
@@ -14,11 +12,9 @@ import java.util.zip.ZipOutputStream
 
 object Archive {
 
-    private val logger = LoggerFactory.getLogger(Archive::class.java)
+    //private val logger = LoggerFactory.getLogger(Archive::class.java)
 
     fun tempFolder() :File = Cmd.tempFolder("a")
-
-    private fun tempArchive(ext :String = "cab") :File = File("${tempFolder().absolutePath}/temp.$ext")
 
     fun packToZip(zipFilePath: String, vararg files: File) :File {
         File(zipFilePath).let { if (it.exists()) it.delete() }

@@ -55,6 +55,8 @@ data class Account (
         }
         return false
     }
+
+    override fun hashCode(): Int = (id?:0 * 31 + (name?.hashCode()?:0)) * 31
 }
 
 

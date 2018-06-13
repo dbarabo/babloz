@@ -1,9 +1,6 @@
 package ru.barabo.babloz.db.entity
 
-import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.babloz.db.service.CategoryService
-import ru.barabo.babloz.db.service.PayService.dateEnd
-import ru.barabo.babloz.db.service.PayService.dateStart
 import ru.barabo.db.annotation.*
 import ru.barabo.db.converter.EnumConverter
 import java.math.BigDecimal
@@ -87,6 +84,8 @@ data class Category (
 
         return false
     }
+
+    override fun hashCode(): Int = (id?:0 * 31 + (name?.hashCode()?:0)) * 31
 }
 
 fun LocalDateTime.toSqlDate() = java.sql.Date(this.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())

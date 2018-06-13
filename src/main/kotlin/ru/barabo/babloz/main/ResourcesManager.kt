@@ -2,31 +2,21 @@ package ru.barabo.babloz.main
 
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
-import org.slf4j.LoggerFactory
 import java.io.InputStreamReader
 
 object ResourcesManager {
-    private val logger = LoggerFactory.getLogger(ResourcesManager::class.java)!!
-
-    private val icoHash :HashMap<String, ImageView> = HashMap()
+    //private val logger = LoggerFactory.getLogger(ResourcesManager::class.java)!!
 
     private const val ICO_PATH = "/ico/"
 
-    fun icon(icoName :String) :ImageView {
-
-        val newIco =  loadIcon(icoName)
-
-        return newIco
-    }
+    fun icon(icoName :String) :ImageView = loadIcon(icoName)
 
     fun image(icoName :String) :Image = Image(pathResource(ICO_PATH + icoName))
 
     private fun loadIcon(icoName :String) :ImageView = ImageView(pathResource(ICO_PATH + icoName))
 
-    private fun pathResource(fullPath :String) :String {
-        val path = ResourcesManager::class.java.getResource(fullPath).toURI().toString()
-        return path
-    }
+    private fun pathResource(fullPath :String)
+            = ResourcesManager::class.java.getResource(fullPath).toURI().toString()
 
     private const val DB_STRUCTURE = "/db/db.sql"
 

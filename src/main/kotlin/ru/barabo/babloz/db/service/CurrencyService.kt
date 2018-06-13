@@ -11,6 +11,4 @@ object CurrencyService : StoreService<Currency, List<Currency> >(BablozOrm) {
     override fun clazz(): Class<Currency> = Currency::class.java
 
     fun currencyList() = dataList
-
-    fun defaultCurrency() = dataList.first { it.id == 0 }
 }

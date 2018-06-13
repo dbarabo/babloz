@@ -9,18 +9,13 @@ import javafx.scene.control.*
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.util.Callback
-import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.BudgetTypePeriod
 import ru.barabo.babloz.db.entity.budget.BudgetMain
 import ru.barabo.babloz.db.entity.budget.BudgetRow
-import ru.barabo.babloz.db.service.PayService
-import ru.barabo.babloz.db.service.budget.BudgetCategoryService
 import ru.barabo.babloz.db.service.budget.BudgetMainService
 import ru.barabo.babloz.db.service.budget.BudgetRowService
 import ru.barabo.babloz.db.service.budget.BudgetTreeCategoryService
 import ru.barabo.babloz.gui.account.addElemByLeft
-import ru.barabo.babloz.gui.category.CategoryList
-import ru.barabo.babloz.gui.pay.PayList
 import ru.barabo.babloz.gui.pay.gotoPayListByDateCategory
 import ru.barabo.babloz.main.ResourcesManager
 import ru.barabo.db.EditType
@@ -30,7 +25,7 @@ import tornadofx.*
 
 object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>> {
 
-    private val logger = LoggerFactory.getLogger(BudgetList::class.java)
+    //private val logger = LoggerFactory.getLogger(BudgetList::class.java)
 
     private var tableMainBudget: TableView<BudgetMain>? = null
 
@@ -75,7 +70,7 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
 
         val start = BudgetMain.selectedBudget?.startPeriod?:return
 
-        val end = BudgetMain.selectedBudget?.endPeriod?:return
+        val end = BudgetMain.selectedBudget?.endPeriod?.minusDays(1) ?:return
 
         val categories = BudgetTreeCategoryService.selectedCategories()
 
@@ -138,7 +133,7 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
     }
 }
 
-private fun TableView<BudgetMain>.progressColumn(): TableColumn<BudgetMain, Double?> {
+private fun progressColumn(): TableColumn<BudgetMain, Double?> {
     return TableColumn<BudgetMain, Double?>("Процент").apply {
 
         cellValueFactory = Callback { observable(it.value, BudgetMain::percentAll) }

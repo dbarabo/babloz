@@ -6,7 +6,6 @@ import javafx.scene.control.TreeView
 import javafx.scene.layout.VBox
 import javafx.scene.text.Text
 import javafx.stage.Screen
-import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.babloz.db.entity.group.GroupPerson
@@ -15,15 +14,13 @@ import ru.barabo.babloz.db.service.AccountService
 import ru.barabo.babloz.db.service.CategoryService
 import ru.barabo.babloz.db.service.PersonService
 import ru.barabo.babloz.db.service.ProjectService
-import ru.barabo.babloz.gui.budget.BudgetRowEdit
 import ru.barabo.babloz.gui.formatter.currencyTextFormatter
 import tornadofx.*
-import kotlin.math.max
-
+import kotlin.math.min
 
 internal object PayEdit: VBox() {
 
-    private val logger = LoggerFactory.getLogger(PayEdit::class.java)
+    //private val logger = LoggerFactory.getLogger(PayEdit::class.java)
 
     private const val CATEGORY_ROW_COUNT = 9
 
@@ -153,19 +150,21 @@ internal object PayEdit: VBox() {
         }
     }
 
-    private const val ALL_ROW_COUNT = 26
+    private const val ALL_ROW_COUNT_MAX = 36
 
-    private var countProject: Int = 0
+    private const val MAX_PROJECT_ROW_COUNT = 6
+
+    private const val MIN_PROJECT_ROW_COUNT = 3
+
+    var countProject: Int = 0
+    private set
 
     private fun TreeView<*>.calcHeight(): Int {
         val screenHeight = Screen.getPrimary().visualBounds.height
 
-        //logger.error("screenHeight=$screenHeight")
-        //logger.error("rowHeight=${rowHeight()}")
-
-        var maxCountProject = 6
-        var allCount = 36
-        while ((screenHeight / rowHeight() < allCount) && maxCountProject > 3) {
+        var maxCountProject = MAX_PROJECT_ROW_COUNT
+        var allCount = ALL_ROW_COUNT_MAX
+        while ((screenHeight / rowHeight() < allCount) && maxCountProject > MIN_PROJECT_ROW_COUNT) {
             maxCountProject--
             allCount -= 2
         }
@@ -181,12 +180,12 @@ internal object PayEdit: VBox() {
         return maxCategoryCount
     }
 
-    private fun TreeView<*>.personRowCount()= countProject //defaultRowCount(GroupPerson.countAll() )
+    private fun personRowCount()= countProject //defaultRowCount(GroupPerson.countAll() )
 
-    private fun TreeView<*>.projectRowCount()= countProject //defaultRowCount(GroupProject.countAll() )
-
-    //fun TreeView<*>.defaultRowCount(realCount: Int) = if (realCount < maxRowCount() ) max(realCount, 3) else maxRowCount()
+    private fun projectRowCount()= countProject //defaultRowCount(GroupProject.countAll() )
 
     fun TreeView<*>.rowHeight() =
             Toolkit.getToolkit().fontLoader.getFontMetrics(this.label("").font).lineHeight.toDouble()* 1.49
 }
+
+fun defaultRowCount(realCount: Int) = min(realCount , PayEdit.countProject )

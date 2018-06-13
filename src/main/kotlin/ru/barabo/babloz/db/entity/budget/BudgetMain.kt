@@ -99,8 +99,4 @@ data class BudgetMain (
         }
 
     override fun selectParams(): Array<Any?>? = arrayOf(budgetTypePeriod.dbValue)
-
-    fun copyBudgetRowTo(destination: BudgetMain) {
-        BudgetRowService
-    }
 }

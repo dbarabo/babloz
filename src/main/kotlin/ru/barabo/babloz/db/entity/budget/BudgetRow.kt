@@ -1,10 +1,8 @@
 package ru.barabo.babloz.db.entity.budget
 
-import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.entity.budget.BudgetRow.Companion.CALC_AMOUNT_REAL
 import ru.barabo.babloz.db.service.budget.BudgetTreeCategoryService
 import ru.barabo.babloz.gui.budget.BudgetRowSaver
-import ru.barabo.babloz.gui.budget.BudgetRowTable
 import ru.barabo.db.annotation.*
 import java.math.BigDecimal
 import java.text.DecimalFormat
@@ -52,7 +50,7 @@ data class BudgetRow(
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(BudgetRow::class.java)
+       // private val logger = LoggerFactory.getLogger(BudgetRow::class.java)
 
         internal const val OTHER_NAME = "Все остальные категории"
 
@@ -94,8 +92,6 @@ data class BudgetRow(
     override fun selectParams(): Array<Any?>? =  arrayOf(BudgetMain.selectedBudget?.id?:Int::class)
 
     fun isOther(): Boolean = (name == OTHER_NAME)
-
-    fun isNewName(): Boolean = (name == NEW_NAME)
 
     fun createCopy(newBudgetMain: BudgetMain)= BudgetRow(main = newBudgetMain.id, name = name, amount = amount)
  }

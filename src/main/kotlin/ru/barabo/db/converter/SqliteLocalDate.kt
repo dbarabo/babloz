@@ -12,9 +12,9 @@ import java.util.*
 object SqliteLocalDate : ConverterValue {
     override fun convertFromBase(value: Any, javaType: Class<*>): Any? {
 
-        val milliseconds = when {
-            value is Number -> value.toLong()
-            value is Date -> value.time
+        val milliseconds = when (value) {
+            is Number -> value.toLong()
+            is Date -> value.time
             else -> throw Exception("unknown class of value $value")
         }
 

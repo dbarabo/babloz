@@ -111,7 +111,7 @@ interface GetMailDb {
 
             if(!Part.ATTACHMENT.equals(mimePart.disposition, true)) continue
 
-            if(bablozAttachName().equals(mimePart.fileName)) return mimePart
+            if(bablozAttachName() == mimePart.fileName) return mimePart
         }
         return null
     }

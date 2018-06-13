@@ -237,15 +237,8 @@ object CssImporter : Importer {
 
     private fun parseDescription(description: String?): String? = description
 
-    private fun parseProject(projectName: String?): Project? {
-        val project = projectName?.let { GroupProject.findByDescription(it)?.project }
-
-        //logger.error("projectName=$projectName")
-       // logger.error("project=$project")
-
-        return project
-    }
-
+    private fun parseProject(projectName: String?): Project? =
+            projectName?.let { GroupProject.findByDescription(it)?.project }
 
     private fun parseAmount(amount: String?): BigDecimal? = amount?.let{ decimalFormater().parse(it) as BigDecimal }
 
@@ -264,9 +257,9 @@ object CssImporter : Importer {
     private fun parseAccount(accountName: String?) :Account?
             = accountName?.let { GroupAccount.findByAccountName(accountName)?.account }
 
-    private const val SEPARATOR = ";"
+    //private const val SEPARATOR = ";"
 
-    private const val CSV_QUOTE = "(\"([^\"]*)\"|[^${SEPARATOR}]*)(${SEPARATOR}|$)"
+    private const val CSV_QUOTE = "(\"([^\"]*)\"|[^;]*)(;|$)"
 
     private val PATTERN_CSV_QUOTE = Pattern.compile(CSV_QUOTE)
 

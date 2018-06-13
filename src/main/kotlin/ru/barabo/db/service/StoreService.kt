@@ -6,7 +6,7 @@ import ru.barabo.db.SessionSetting
 import ru.barabo.db.TemplateQuery
 import tornadofx.observable
 
-abstract class StoreService<T: Any, G>(protected val orm :TemplateQuery) {
+abstract class StoreService<T: Any, out G>(protected val orm :TemplateQuery) {
 
     private val listenerList = ArrayList<StoreListener<G>>()
 

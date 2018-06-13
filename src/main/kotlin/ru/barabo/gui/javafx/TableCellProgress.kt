@@ -6,7 +6,6 @@ import javafx.scene.control.TableColumn
 import javafx.scene.layout.StackPane
 import javafx.scene.text.Text
 import javafx.util.Callback
-import org.slf4j.LoggerFactory
 import tornadofx.box
 import tornadofx.c
 import tornadofx.style
@@ -20,7 +19,7 @@ class TableCellProgress<S> : TableCell<S, Double?>() {
     private val stackPane: StackPane = StackPane()
 
     companion object {
-        private val logger = LoggerFactory.getLogger(TableCellProgress::class.java)
+        //private val logger = LoggerFactory.getLogger(TableCellProgress::class.java)
     }
 
     init {
@@ -83,4 +82,4 @@ class TableCellProgress<S> : TableCell<S, Double?>() {
     }
 }
 
-fun <S> tableCellProgressCallback(): Callback<TableColumn<S, Double?>, TableCell<S, Double?>> = Callback{ TableCellProgress<S>() }
+fun <S> tableCellProgressCallback(): Callback<TableColumn<S, Double?>, TableCell<S, Double?>> = Callback{ TableCellProgress() }

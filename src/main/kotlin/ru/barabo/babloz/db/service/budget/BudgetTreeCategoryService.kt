@@ -1,6 +1,5 @@
 package ru.barabo.babloz.db.service.budget
 
-import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.BablozOrm
 import ru.barabo.babloz.db.entity.Category
 import ru.barabo.babloz.db.entity.budget.BudgetCategory
@@ -11,7 +10,7 @@ import ru.barabo.db.service.StoreService
 
 object BudgetTreeCategoryService: StoreService<Category, GroupCategory>(BablozOrm) {
 
-    private val logger = LoggerFactory.getLogger(BudgetTreeCategoryService::class.java)
+    //private val logger = LoggerFactory.getLogger(BudgetTreeCategoryService::class.java)
 
     private var rootBudgetCategory: GroupCategory? = null
 

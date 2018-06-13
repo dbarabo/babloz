@@ -57,14 +57,13 @@ data class GroupCategory(var category: Category = Category(),
         if(findCategory.id == category.id) return this
 
         for (group in child) {
-            val find = group.findByCategory(findCategory)?:continue
 
-            return find
+            return group.findByCategory(findCategory)?:continue
         }
         return null
     }
 
-    fun selectedCategoryList(): List<Category> = selectedCategoryList(ArrayList<Category>())
+    fun selectedCategoryList(): List<Category> = selectedCategoryList(ArrayList())
 
     private fun selectedCategoryList(fillList: MutableList<Category>): List<Category> {
 
@@ -91,4 +90,6 @@ data class GroupCategory(var category: Category = Category(),
 
         return (this.category == other.category)
     }
+
+    override fun hashCode(): Int = category.hashCode()
 }

@@ -1,4 +1,4 @@
-package ru.barabo.cmd
+package ru.barabo.archive
 
 import java.io.BufferedReader
 import java.io.InputStream

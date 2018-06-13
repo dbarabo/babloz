@@ -18,7 +18,6 @@ abstract class AbstractSaver<T, out B : BindProperties<T>>(clazzBind: Class<B>,
                 ChangeSelectEdit.SAVE -> ::save
                 ChangeSelectEdit.CANCEL -> ::cancel
                 ChangeSelectEdit.CONFIRM -> ::confirmSave
-                else -> throw Exception("changeSelectEdit is not valid = $changeSelectEdit")
     }
 
     override fun isDisableEdit() = editBind.isDisableEdit(oldBind)

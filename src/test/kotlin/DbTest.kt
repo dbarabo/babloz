@@ -3,7 +3,7 @@ import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.BablozOrm
 import ru.barabo.babloz.db.BablozQuery
 import ru.barabo.babloz.db.entity.Account
-import ru.barabo.cmd.Cmd.JAR_FOLDER
+import ru.barabo.archive.Cmd.JAR_FOLDER
 import ru.barabo.db.SessionSetting
 import java.math.BigDecimal
 import java.nio.file.FileSystems

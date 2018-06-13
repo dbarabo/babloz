@@ -1,7 +1,6 @@
 package ru.barabo.babloz.db.entity.group
 
 import ru.barabo.babloz.db.entity.Project
-import ru.barabo.babloz.db.service.ProjectService
 import tornadofx.observable
 
 data class GroupProject(var project: Project = Project(),
@@ -15,8 +14,6 @@ data class GroupProject(var project: Project = Project(),
         fun rootClear() {
             synchronized(root.child) { root.child.clear() }
         }
-
-        fun countAll() = root.child.map { it.child.size + 1 }.sum()
 
         fun addProject(project: Project): GroupProject {
 

@@ -12,9 +12,7 @@ import ru.barabo.babloz.db.entity.Category
 import ru.barabo.babloz.db.entity.Category.Companion.setDatePeriod
 import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.babloz.db.service.CategoryService
-import ru.barabo.babloz.db.service.PayService
 import ru.barabo.babloz.gui.account.addElemByLeft
-import ru.barabo.babloz.gui.pay.PayList
 import ru.barabo.babloz.gui.pay.comboBoxDates
 import ru.barabo.babloz.gui.pay.gotoPayListByDateCategory
 import ru.barabo.babloz.main.ResourcesManager

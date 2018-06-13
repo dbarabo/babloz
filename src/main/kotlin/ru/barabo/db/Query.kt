@@ -2,7 +2,6 @@ package ru.barabo.db
 
 import org.slf4j.LoggerFactory
 import java.sql.*
-import java.util.concurrent.atomic.AtomicLong
 
 open class Query (private val dbConnection :DbConnection) {
 
@@ -13,8 +12,6 @@ open class Query (private val dbConnection :DbConnection) {
 
         private const val ERROR_RESULTSET_NULL = "ResultSet is null"
     }
-
-    private var uniqueSession : AtomicLong = AtomicLong(1L)
 
     fun uniqueSession() :SessionSetting =
             SessionSetting(false,  TransactType.NO_ACTION, null/*uniqueSession.incrementAndGet()*/)
@@ -32,7 +29,7 @@ open class Query (private val dbConnection :DbConnection) {
     fun select(query :String, params :Array<Any?>? = null,
                        sessionSetting : SessionSetting = SessionSetting(false) ) :List<Array<Any?>> {
 
-        logger.info("select=" + query)
+        logger.info("select=$query")
 
         val (session, statement, resultSet) = prepareSelect(query, params, sessionSetting)
 
@@ -56,7 +53,7 @@ open class Query (private val dbConnection :DbConnection) {
                sessionSetting : SessionSetting = SessionSetting(false),
                callBack :(isNewRow :Boolean, value :Any?, column :String?)->Unit) {
 
-        logger.info("select=" + query)
+        logger.info("select=$query")
 
         val (session, statement, resultSet) = prepareSelect(query, params, sessionSetting)
 

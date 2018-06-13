@@ -4,17 +4,16 @@ import javafx.scene.control.Alert
 import javafx.scene.control.CheckBoxTreeItem
 import javafx.scene.layout.VBox
 import org.controlsfx.control.CheckTreeView
-import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.entity.budget.BudgetRow
 import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.babloz.db.service.budget.BudgetTreeCategoryService
-import ru.barabo.babloz.gui.pay.PayEdit.defaultRowCount
 import ru.barabo.babloz.gui.pay.PayEdit.rowHeight
+import ru.barabo.babloz.gui.pay.defaultRowCount
 import tornadofx.*
 
 internal object BudgetRowEdit : VBox() {
 
-    private val logger = LoggerFactory.getLogger(BudgetRowEdit::class.java)
+    //private val logger = LoggerFactory.getLogger(BudgetRowEdit::class.java)
 
     init {
         form {
@@ -36,7 +35,7 @@ internal object BudgetRowEdit : VBox() {
             CheckTreeView<GroupCategory>(CheckBoxTreeItem<GroupCategory>(BudgetTreeCategoryService.elemRoot()) ).apply {
 
                 this.populate (itemFactory = {
-                    CheckBoxTreeItem(it, null, it.category.isSelected?.toInt()?:0 != 0).apply {
+                    CheckBoxTreeItem(it, null, it.category.isSelected ?:0 != 0).apply {
 
                         selectedProperty().addListener { _, _, newValue ->
 
@@ -67,3 +66,4 @@ internal object BudgetRowEdit : VBox() {
 
     private const val ERROR_CHANGE_OTHER_ROW = "Нельзя менять список у строки <Все остальные категории>"
 }
+

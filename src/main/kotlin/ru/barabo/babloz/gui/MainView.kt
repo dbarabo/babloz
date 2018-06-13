@@ -9,14 +9,11 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.stage.Screen
 import javafx.stage.Stage
-import ru.barabo.babloz.db.BablozConnection
 import ru.barabo.babloz.gui.account.AccountList
 import ru.barabo.babloz.gui.budget.BudgetList
 import ru.barabo.babloz.gui.category.CategoryList
 import ru.barabo.babloz.gui.dialog.LoginDb
 import ru.barabo.babloz.gui.pay.PayList
-import ru.barabo.babloz.gui.pay.filter.DateSelect
-import ru.barabo.babloz.gui.pay.filter.ModalDateSelect
 import ru.barabo.babloz.gui.person.PersonList
 import ru.barabo.babloz.gui.project.ProjectList
 import ru.barabo.babloz.gui.service.ServiceTab
@@ -77,8 +74,6 @@ class MainView: View() {
             }
             currentMainTab.selectionModel.select(this)
         }
-
-        fun selectedTab(tab: Tab) = tab.selectTab()
 
         fun selectPayTab() {
             if(!payButton.isSelected) {

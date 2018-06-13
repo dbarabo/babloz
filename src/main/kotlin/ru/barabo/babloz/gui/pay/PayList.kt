@@ -9,7 +9,6 @@ import javafx.scene.control.*
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import org.controlsfx.control.CheckComboBox
-import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.Category
 import ru.barabo.babloz.db.entity.Pay
@@ -38,7 +37,7 @@ import java.time.LocalDateTime
 
 object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
 
-    private val logger = LoggerFactory.getLogger(PayList::class.java)!!
+    //private val logger = LoggerFactory.getLogger(PayList::class.java)!!
 
     private var splitPane: SplitPane? = null
 
@@ -240,6 +239,10 @@ fun EventTarget.comboBoxDates(processDates: (LocalDate, LocalDate)->Unit): Combo
 }
 
 fun gotoPayListByDateCategory(start: LocalDate, end: LocalDate, categories: List<Category>) {
+
+    PayService.setAccountFilter(listOf(ALL_ACCOUNT))
+
+    PayService.setCriteria("")
 
     PayService.setDateFilter(start, end)
 

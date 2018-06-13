@@ -9,18 +9,19 @@ import javafx.scene.control.TableView
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.util.Callback
-import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.entity.budget.BudgetRow
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
-import ru.barabo.gui.javafx.TableCellProgress
 import ru.barabo.gui.javafx.tableCellProgressCallback
-import tornadofx.*
+import tornadofx.addChildIfPossible
+import tornadofx.column
+import tornadofx.observable
+import tornadofx.resizeColumnsToFitContent
 
 
 internal object BudgetRowTable : StoreListener<List<BudgetRow>> {
 
-    private val logger = LoggerFactory.getLogger(BudgetRowTable::class.java)
+   // private val logger = LoggerFactory.getLogger(BudgetRowTable::class.java)
 
     private var tableRowBudget: TableView<BudgetRow>? = null
 
