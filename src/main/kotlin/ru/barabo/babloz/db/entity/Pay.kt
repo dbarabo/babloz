@@ -1,5 +1,7 @@
 package ru.barabo.babloz.db.entity
 
+import org.slf4j.LoggerFactory
+import ru.barabo.babloz.db.importer.CssImporter
 import ru.barabo.db.annotation.*
 import ru.barabo.db.converter.SqliteLocalDate
 import java.math.BigDecimal
@@ -82,7 +84,15 @@ data class Pay(
 
         val personPay: String get() = person?.name?:""
 
-        private fun fromToAmount() = if(amount?.toDouble()?:0.0 > 0.0) "на " else "с "
+        private val logger = LoggerFactory.getLogger(Pay::class.java)!!
+
+        private fun fromToAmount(): String {
+             val text =   if(amount?.toDouble()?:0.0 > 0.0) "с " else "на "
+
+             logger.error("amount=$amount text=$text" )
+
+             return text
+        }
 
         private fun accountToExists() :String = accountTo?.let { "${fromToAmount()}${it.name}" }?:""
 }

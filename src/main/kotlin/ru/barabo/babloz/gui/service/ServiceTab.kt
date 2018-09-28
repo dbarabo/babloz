@@ -10,6 +10,7 @@ import ru.barabo.babloz.db.importer.CssImporter
 import ru.barabo.babloz.gui.dialog.LoginDb
 import ru.barabo.babloz.main.ResourcesManager
 import ru.barabo.babloz.sync.Sync
+import ru.barabo.babloz.sync.SyncSaver
 import tornadofx.*
 import java.io.File
 
@@ -34,6 +35,13 @@ object ServiceTab : Tab("Настройки", VBox()) {
                     button ("Запуск Синхронизации...", ResourcesManager.icon("sync.png")).apply {
 
                         setOnAction { syncStart() }
+                    }
+                }
+
+                field("Бэкап") {
+                    button ("Сделать бэкап").apply {
+
+                        setOnAction { SyncSaver.toZipBackup() }
                     }
                 }
             }

@@ -1,9 +1,7 @@
 package ru.barabo.db.service
 
-import ru.barabo.db.EditType
-import ru.barabo.db.SessionException
-import ru.barabo.db.SessionSetting
-import ru.barabo.db.TemplateQuery
+import ru.barabo.db.*
+import ru.barabo.db.annotation.ParamsSelect
 import tornadofx.observable
 
 abstract class StoreService<T: Any, out G>(protected val orm :TemplateQuery) {
@@ -56,6 +54,19 @@ abstract class StoreService<T: Any, out G>(protected val orm :TemplateQuery) {
         orm.select(clazz(), ::callBackSelectData)
 
         sentRefreshAllListener(EditType.INIT)
+    }
+
+    fun getBackupData(): String {
+
+        val columnsTable = getColumnsTable(clazz())
+
+        if(columnsTable.isEmpty()) return ""
+
+        val header = orm.getBackupTableHeader(clazz(), columnsTable)
+
+        val data = orm.selectTableRows(clazz(), columnsTable)
+
+        return header + data.joinToString("\n") { it.joinToString("\b") } + "\n"
     }
 
 

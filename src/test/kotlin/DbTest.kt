@@ -1,15 +1,20 @@
 
+import org.junit.Test
 import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.BablozOrm
 import ru.barabo.babloz.db.BablozQuery
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.archive.Cmd.JAR_FOLDER
+import ru.barabo.babloz.db.entity.Pay
 import ru.barabo.db.SessionSetting
 import java.math.BigDecimal
 import java.nio.file.FileSystems
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.time.format.DateTimeFormatter
+import kotlin.reflect.full.createInstance
+import kotlin.reflect.full.instanceParameter
+import kotlin.reflect.full.memberFunctions
 
 class DbTest {
 
@@ -88,5 +93,49 @@ class DbTest {
 
 
     }
+
+    //@Test
+    fun testReturnFor() {
+
+        val list = 1..10
+
+        list.forEach {
+            logger.error("start $it")
+
+            if(it > 0) return@forEach
+
+            logger.error("end $it")
+        }
+    }
+
+    //@Test
+    fun testInstance() {
+        val clazz = TestObject::class
+
+        val obj1 = clazz.createInstance()
+
+        val obj2 = clazz.createInstance()
+
+        logger.error("obj1= $obj1")
+
+        logger.error("obj2= $obj2")
+    }
+
+    //@Test
+    fun copyReflectionTest() {
+        val account = Pay(description = "test")
+
+        val copyMethod = account::class.memberFunctions.first { it.name == "copy" }
+
+        val instanceParam = copyMethod.instanceParameter!!
+
+        val result = copyMethod.callBy(mapOf(instanceParam to account))
+
+        logger.error("copy=$result")
+    }
+
+}
+
+private object TestObject {
 
 }

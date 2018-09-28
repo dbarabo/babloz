@@ -3,6 +3,7 @@ package ru.barabo.archive
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
+import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.zip.ZipEntry
@@ -30,6 +31,23 @@ object Archive {
                         origin.copyTo(out)
                     }
                 }
+            }
+        }
+
+        return File(zipFilePath)
+    }
+
+    fun packToZipStream(zipFilePath: String = "babloz.zip", dataFileName: String = "babloz.bak", inputStream: InputStream): File {
+        File(zipFilePath).let { if (it.exists()) it.delete() }
+
+        val zipFile = Files.createFile(Paths.get(zipFilePath))
+
+        val zipEntry = ZipEntry(dataFileName)
+
+        ZipOutputStream(Files.newOutputStream(zipFile)).use { out ->
+            inputStream.use { origin ->
+                out.putNextEntry(zipEntry)
+                origin.copyTo(out)
             }
         }
 

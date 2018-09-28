@@ -30,6 +30,8 @@ open class TemplateQuery (private val query :Query) {
 
         private fun deleteTemplate(table :String) = "delete from $table where id = ?"
 
+        private fun selectTableTemplate(columns: String, table :String) = "select $columns from $table"
+
         private fun errorSequenceReturnNull(sequence :String) = "Sequence expression return NULL $sequence"
 
         private const val ID_COLUMN = "ID"
@@ -49,6 +51,14 @@ open class TemplateQuery (private val query :Query) {
     fun select(select: String, params: Array<in Any?>? = null): List<Array<Any?>> = query.select(select, params)
 
     @Throws(SessionException::class)
+    fun selectTableRows(row :Class<*>, columns: List<String>): List<Array<Any?>> {
+
+        val selectTable = selectTableTemplate( columns.joinToString(), getTableName(row) )
+
+        return query.select(selectTable)
+    }
+
+    @Throws(SessionException::class)
     fun <T> select(select: String, params: Array<Any?>?, row :Class<T>, callBack :(row :T)->Unit) {
         var item :T? = null
 
@@ -60,7 +70,7 @@ open class TemplateQuery (private val query :Query) {
             if(isNewRow) {
                 val newItem = row.newInstance()
 
-                item?.let(callBack)
+                item?.let { callBack(it) }
 
                 item = newItem
 
@@ -78,7 +88,8 @@ open class TemplateQuery (private val query :Query) {
             member.setter.call(item, javaValue)
         }
 
-        item?.let(callBack)
+        //item?.let(callBack)
+        item?.let { callBack(it) }
     }
 
     @Throws(SessionException::class)
@@ -168,6 +179,10 @@ open class TemplateQuery (private val query :Query) {
         insert(tableName, fieldsData, sessionSetting)
     }
 
+    fun getBackupTableHeader(row: Class<*>, columns: List<String>, prefix: String = "@@@", separColumns: String = "\b"): String =
+        "$prefix${getTableName(row)}\n${columns.joinToString(separColumns)}\n"
+
+
     @Throws(SessionException::class)
     private fun updateById(item :Any, sessionSetting: SessionSetting = SessionSetting(false)) {
         val tableName = getTableName(item)
@@ -241,6 +256,10 @@ open class TemplateQuery (private val query :Query) {
     @Throws(SessionException::class)
     private fun getTableName(item :Any) :String = item::class.findAnnotation<TableName>()?.name
             ?: throw SessionException(errorNotFoundAnnotationTableName(item::class.simpleName))
+
+    @Throws(SessionException::class)
+    private fun getTableName(row: Class<*>): String = row.kotlin.findAnnotation<TableName>()?.name
+            ?: throw SessionException(errorNotFoundAnnotationTableName(row.simpleName))
 
 
     @Throws(SessionException::class)
