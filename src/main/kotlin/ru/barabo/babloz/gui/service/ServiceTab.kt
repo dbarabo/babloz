@@ -10,6 +10,7 @@ import ru.barabo.babloz.db.importer.CssImporter
 import ru.barabo.babloz.gui.dialog.LoginDb
 import ru.barabo.babloz.main.ResourcesManager
 import ru.barabo.babloz.sync.Sync
+import ru.barabo.babloz.sync.SyncLoader
 import ru.barabo.babloz.sync.SyncSaver
 import tornadofx.*
 import java.io.File
@@ -42,6 +43,13 @@ object ServiceTab : Tab("Настройки", VBox()) {
                     button ("Сделать бэкап").apply {
 
                         setOnAction { SyncSaver.toZipBackup() }
+                    }
+                }
+
+                field("Из Бэкапа") {
+                    button ("Восстановить из Бэкапа").apply {
+
+                        setOnAction { SyncLoader.fromZipBackup() }
                     }
                 }
             }

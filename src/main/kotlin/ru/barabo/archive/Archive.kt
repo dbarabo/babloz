@@ -54,6 +54,22 @@ object Archive {
         return File(zipFilePath)
     }
 
+    fun unpackFromZipToString(zipFilePath: String = "babloz.zip"): String {
+
+        var text: String = ""
+
+        ZipFile(zipFilePath).use { zip ->
+            zip.entries().asSequence().forEach { entry ->
+                zip.getInputStream(entry).use { input ->
+
+                    text += input.bufferedReader().use { it.readText() }
+                }
+            }
+        }
+
+        return text
+    }
+
     fun upPackFromZip(zipFilePath: String) {
 
         val zipFile = File(zipFilePath).parentFile
