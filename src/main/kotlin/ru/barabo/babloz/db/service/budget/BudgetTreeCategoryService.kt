@@ -8,7 +8,7 @@ import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreService
 
-object BudgetTreeCategoryService: StoreService<Category, GroupCategory>(BablozOrm) {
+object BudgetTreeCategoryService: StoreService<Category, GroupCategory>(BablozOrm, Category::class.java) {
 
     //private val logger = LoggerFactory.getLogger(BudgetTreeCategoryService::class.java)
 
@@ -20,8 +20,6 @@ object BudgetTreeCategoryService: StoreService<Category, GroupCategory>(BablozOr
 
     public override fun elemRoot(): GroupCategory = rootBudgetCategory!!
 
-    override fun clazz(): Class<Category> = Category::class.java
-
     override fun initData() {
 
         dataList.clear()
@@ -30,11 +28,11 @@ object BudgetTreeCategoryService: StoreService<Category, GroupCategory>(BablozOr
 
         val params: Array<Any?>? = arrayOf(BudgetRow.budgetRowSelected?.id, BudgetRow.budgetRowSelected?.id)
 
-        orm.select(selectCategories(), params, clazz(), ::callBackSelectData)
+        orm.select(selectCategories(), params, clazz, ::callBackSelectData)
 
         val advancedParams: Array<Any?> = arrayOf(BudgetRow.budgetRowSelected?.main)
 
-        advancedSelect()?.let{ orm.select(it, advancedParams, clazz(), ::callBackSelectData) }
+        advancedSelect()?.let{ orm.select(it, advancedParams, clazz, ::callBackSelectData) }
 
         sentRefreshAllListener(EditType.INIT)
     }

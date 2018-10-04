@@ -5,9 +5,7 @@ import ru.barabo.babloz.db.entity.Category
 import ru.barabo.babloz.db.entity.budget.BudgetCategory
 import ru.barabo.db.service.StoreService
 
-object BudgetCategoryService : StoreService<BudgetCategory, List<BudgetCategory>>(BablozOrm) {
-
-    override fun clazz(): Class<BudgetCategory> = BudgetCategory::class.java
+object BudgetCategoryService : StoreService<BudgetCategory, List<BudgetCategory>>(BablozOrm, BudgetCategory::class.java) {
 
     override fun elemRoot(): List<BudgetCategory> = dataList
 

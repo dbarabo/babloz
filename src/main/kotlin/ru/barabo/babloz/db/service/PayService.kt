@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
-object PayService : StoreService<Pay, List<Pay>>(BablozOrm), FilterPay {
+object PayService : StoreService<Pay, List<Pay>>(BablozOrm, Pay::class.java), FilterPay {
 
     override var dateStart: LocalDateTime = LocalDateTime.MIN
 
@@ -23,8 +23,6 @@ object PayService : StoreService<Pay, List<Pay>>(BablozOrm), FilterPay {
     override val projectFilter: MutableList<Int> = ArrayList()
 
     override fun elemRoot(): List<Pay> = dataList
-
-    override fun clazz(): Class<Pay> = Pay::class.java
 
     override var allData: MutableList<Pay>? = null
 

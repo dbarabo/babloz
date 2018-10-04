@@ -1,5 +1,6 @@
 package ru.barabo.db
 
+import org.slf4j.LoggerFactory
 import ru.barabo.db.annotation.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
@@ -8,16 +9,35 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.instanceParameter
 import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.jvm.javaType
-import ru.barabo.db.annotation.Transient
+
+private val logger = LoggerFactory.getLogger(MemberConverter::class.java)
 
 internal data class MemberConverter(private val member: KMutableProperty<*>,
-                                    private val converter: ConverterValue?, private val manyToOnePrefix: String?) {
+                                    private val converter: ConverterValue?,
+                                    private val manyToOnePrefix: String?) {
 
     fun setJavaValueToField(newObject: Any, sqlValue: Any, row: Array<Any?>, columnNames: Array<String>): Any? {
 
         val javaValue = sqlValueToJava(newObject, sqlValue, row, columnNames)
 
         member.setter.call(newObject, javaValue)
+
+        return javaValue
+    }
+
+    fun setJavaValueToFieldShort(entity: Any, sqlValue: Any): Any? {
+        val javaValue = sqlValueToJava(entity, sqlValue)
+
+        member.setter.call(entity, javaValue)
+
+        return javaValue
+    }
+
+    fun setJavaValueFieldFromString(entity: Any, value: String): Any? {
+
+        val javaValue = stringValueToJava(entity, value)
+
+        member.setter.call(entity, javaValue)
 
         return javaValue
     }
@@ -47,7 +67,7 @@ internal data class MemberConverter(private val member: KMutableProperty<*>,
         return subMember.javaValueToSql(javaValue)
     }
 
-    private fun sqlValueToJava(newObject: Any, sqlValue: Any, row: Array<Any?>, columnNames: Array<String>): Any? {
+    private fun sqlValueToJava(newObject: Any, sqlValue: Any, row: Array<Any?>? = null, columnNames: Array<String>? = null): Any? {
 
         return when {
             manyToOnePrefix != null -> manyToOneJavaObject(newObject, sqlValue, row, columnNames)
@@ -56,7 +76,26 @@ internal data class MemberConverter(private val member: KMutableProperty<*>,
         }
     }
 
-    private fun manyToOneJavaObject(parentItem: Any, value: Any, row: Array<Any?>, columnNames: Array<String>): Any? {
+    private fun stringValueToJava(entity: Any, value: String): Any? {
+        return when {
+            manyToOnePrefix != null -> manyToOneJavaObjectStringValue(entity, value)
+            converter != null -> converter.convertFromStringToJava(value, member.returnType.javaType as Class<*>)
+            else -> member.valueStringToJava(value)
+        }
+    }
+
+    private fun manyToOneJavaObjectStringValue(parentEntity: Any, value: String): Any? {
+
+        val javaType: Class<*> = member.returnType.javaType as Class<*>
+
+        val objectEntity = member.getter.call(parentEntity) ?: javaType.newInstance()
+
+        setIdByString(javaType, objectEntity, value)
+
+        return objectEntity
+    }
+
+    private fun manyToOneJavaObject(parentItem: Any, value: Any, row: Array<Any?>? = null, columnNames: Array<String>? = null): Any {
 
         val javaType: Class<*> = member.returnType.javaType as Class<*>
 
@@ -64,7 +103,7 @@ internal data class MemberConverter(private val member: KMutableProperty<*>,
 
         setId(javaType, objectItem, value)
 
-        return fillManyToOneColumns(objectItem, columnNames, row)
+        return columnNames?.let { fillManyToOneColumns(objectItem, columnNames, row!!) } ?: objectItem
     }
 
     private fun fillManyToOneColumns(objectItem: Any, columnNames: Array<String>, row: Array<Any?>): Any {
@@ -87,6 +126,15 @@ internal data class MemberConverter(private val member: KMutableProperty<*>,
         return objectItem
     }
 
+    private fun setIdByString(javaType: Class<*>, objectEntity: Any, value: String) {
+
+        val memberId = getIdMember(javaType) ?: return
+
+        val javaValue = memberId.valueStringToJava(value) ?: return
+
+        memberId.setter.call(objectEntity, javaValue)
+    }
+
     private fun setId(javaType: Class<*>, objectItem: Any, sqlValue: Any) {
 
         val memberId = getIdMember(javaType) ?: return
@@ -105,7 +153,6 @@ internal data class MemberConverter(private val member: KMutableProperty<*>,
         memberCol.setter.call(objectItem, javaValue)
     }
 }
-
 
 
 fun getIdPair(entityItem: Any): Pair<String, Any?>? {
@@ -167,7 +214,7 @@ fun <T: Any> T.copyByReflection(): T {
 
 internal fun getColumnsAnnotation(row: Class<*>): Map<String, MemberConverter> = getColumnsAnnotationByFilter(row)
 
-private fun getColumnsInsertAnnotation(row: Class<*>): Map<String, MemberConverter> =
+internal fun getColumnsInsertAnnotation(row: Class<*>): Map<String, MemberConverter> =
         getColumnsAnnotationByFilter(row) { it.findAnnotation<ColumnName>()?.name != null &&
                 it.findAnnotation<ReadOnly>() == null
         }
@@ -202,10 +249,12 @@ private fun getColumnsAnnotationByFilter(row: Class<*>,
     return columnsAnnotation
 }
 
-fun getColumnsTable(row: Class<*>) = getColumnsByFilter(row) {
+fun getBackupColumnsTable(row: Class<*>) = getColumnsByFilter(row) {
     it.findAnnotation<ReadOnly>() == null &&
     it.findAnnotation<Transient>() == null
 }
+
+fun getTransientColumns(row: Class<*>) = getColumnsByFilter(row) { it.findAnnotation<ReadOnly>() == null && it.findAnnotation<Transient>() != null }
 
 private fun getColumnsByFilter(row: Class<*>, filtered: (KMutableProperty<*>)->Boolean): List<String> =
     row.kotlin.declaredMemberProperties.filterIsInstance<KMutableProperty<*>>()
@@ -231,10 +280,23 @@ private fun KMutableProperty<*>.getMemberConvertor(): MemberConverter? {
     return MemberConverter(this, converter as? ConverterValue, manyToOnePrefix)
 }
 
+internal fun setMemberFieldValueFromString(entity: Any, columnName: String, value: String) {
+
+    val member = getMemberByColumn(entity::class.java, columnName) ?: return
+}
+
+private fun getMemberByColumn(javaType: Class<*>, columnName: String): KMutableProperty<*>? =
+    javaType.kotlin.declaredMemberProperties.filterIsInstance<KMutableProperty<*>>()
+    .firstOrNull {it.findAnnotation<ColumnName>()?.name == columnName}
+
+
 private fun KClass<*>.instanceCreateOrGet() = this.objectInstance ?: this.java.newInstance()
 
-private fun getIdMember(javaType: Class<*>): KMutableProperty<*>? = javaType.kotlin.declaredMemberProperties
+internal fun getIdMember(javaType: Class<*>): KMutableProperty<*>? = javaType.kotlin.declaredMemberProperties
         .filterIsInstance<KMutableProperty<*>>().firstOrNull { it.findAnnotation<SequenceName>() != null }
+
+internal fun getMemberEntityFields(entityClass: Class<*>): List<KMutableProperty<*>>? = entityClass.kotlin.declaredMemberProperties
+        .filterIsInstance<KMutableProperty<*>>().filter { it.findAnnotation<ManyToOne>() != null }
 
 private fun getMemberByColumnName(javaType: Class<*>, columnName: String) = javaType.kotlin.declaredMemberProperties
         .filterIsInstance<KMutableProperty<*>>().firstOrNull {
@@ -248,8 +310,155 @@ private fun KMutableProperty<*>.valueToJava(sqlValue: Any): Any? {
     return Type.convertValueToJavaTypeByClass(sqlValue, javaType) //SqliteType.sqlValueConvertToJavaValueByJavaType(sqlValue, javaType)
 }
 
+private fun KMutableProperty<*>.valueStringToJava(value: String): Any? {
+    val javaType :Class<*> = returnType.javaType as Class<*>
+
+    logger.error("valueStringToJava javaType=$javaType")
+
+    return Type.convertStringValueToJavaByClass(value, javaType)
+}
+
 private fun KMutableProperty<*>.javaValueToSql(javaValue: Any): Any? =
         findAnnotation<ColumnType>()?.type?.let { getSqlValueBySqlType(it, javaValue) } ?: javaValue
 
 private fun getSqlValueBySqlType(sqlType: Int, javaValue: Any): Any? =
         Type.convertToSqlBySqlType(sqlType, javaValue)
+
+
+fun getPropertyByColumn(row :Class<*>) :Map<String, KMutableProperty<*>> {
+    val propertyByColumn = HashMap<String, KMutableProperty<*>>()
+
+    row.kotlin.declaredMemberProperties.filterIsInstance<KMutableProperty<*>>()
+            .filter { it.findAnnotation<ColumnName>()?.name != null}.forEach { member ->
+
+                val columnName = member.findAnnotation<ColumnName>()?.name?.toUpperCase()?:return@forEach
+
+                propertyByColumn[columnName] = member
+
+                val prefix = member.findAnnotation<ManyToOne>()?.prefixColumns?.toUpperCase()?:return@forEach
+
+                val subMemberType :Class<*> = member.returnType.javaType as Class<*>
+
+                subMemberType.kotlin.declaredMemberProperties.filterIsInstance<KMutableProperty<*>>()
+                        .filter { it.findAnnotation<ColumnName>()?.name != null}.forEach intern@ {
+                            val subColumnName =it.findAnnotation<ColumnName>()?.name?.toUpperCase()?:return@intern
+
+                            propertyByColumn["$prefix$subColumnName"] = member
+                        }
+            }
+
+    return propertyByColumn
+}
+
+@Throws(SessionException::class)
+internal fun valueToJava(entity: Any, value: Any, member: KMutableProperty<*>, columnName :String) :Any? {
+
+    val javaType :Class<*> = member.returnType.javaType as Class<*>
+
+    val converterClass = member.findAnnotation<Converter>()?.converterClazz
+
+    if(converterClass != null) {
+        val instance = converterClass.objectInstance ?: converterClass.java.newInstance()
+
+        return (instance as ConverterValue).convertFromBase(value, javaType)
+    }
+
+    if(Type.isConverterExists(javaType)) {
+        return Type.convertValueToJavaTypeByClass(value, javaType)
+    }
+
+    val manyToOneClass =member.findAnnotation<ManyToOne>()
+
+    if(manyToOneClass != null) {
+
+        return manyToOneValue(entity, member, columnName, value)
+    }
+
+    return value
+}
+
+internal fun <T: Any> getEntityFromSql(entity: T, columnsAnnotation: Map<String, MemberConverter>, row: Array<Any?>, columns: List<String>): T {
+
+    for ((index, column) in columns.withIndex()) {
+
+        if(row[index] == null) continue
+
+        val memberConverter = columnsAnnotation[column] ?: continue
+
+        memberConverter.setJavaValueToFieldShort(entity, row[index]!!)
+    }
+
+    return entity
+}
+
+internal fun <T: Any> getEntityFromString(entity: T, columnsAnnotation: Map<String, MemberConverter>, row: List<String>, columns: List<String>): T {
+    for ((index, column) in columns.withIndex()) {
+
+        if(row[index].isEmpty() || row[index] == NULL) continue
+
+        val memberConverter = columnsAnnotation[column] ?: continue
+
+        memberConverter.setJavaValueFieldFromString(entity, row[index])
+    }
+
+    return entity
+}
+
+private const val NULL = "null"
+
+
+@Throws(SessionException::class)
+internal fun getTableName(row: Class<*>): String = row.kotlin.findAnnotation<TableName>()?.name
+        ?: throw SessionException(errorNotFoundAnnotationTableName(row.simpleName))
+
+@Throws(SessionException::class)
+internal fun getTableName(entity :Any) :String = entity::class.findAnnotation<TableName>()?.name
+        ?: throw SessionException(errorNotFoundAnnotationTableName(entity::class.simpleName))
+
+private fun errorNotFoundAnnotationTableName(className :String?) = "Annotation @TableName not found for class $className"
+
+private fun manyToOneValue(parentItem :Any, member :KMutableProperty<*>, columnName :String, value :Any) :Any? {
+
+    val javaType :Class<*> = member.returnType.javaType as Class<*>
+
+    var objectValue = member.getter.call(parentItem)
+
+    val prefix = member.findAnnotation<ManyToOne>()?.prefixColumns
+
+    val column =
+            if(objectValue == null) {
+                objectValue = javaType.newInstance()
+
+                ID_COLUMN
+            } else {
+                columnName.substring(prefix?.length?:0)
+            }
+
+    setMemberValue(javaType, objectValue!!, value, column)
+
+    return objectValue
+}
+
+private fun setMemberValue(clazz :Class<*>, objectMember :Any, value :Any, columnName :String) {
+
+    val member = clazz.kotlin.declaredMemberProperties.filterIsInstance<KMutableProperty<*>>().firstOrNull {
+        it.findAnnotation<ColumnName>()?.name?.toUpperCase() == columnName.toUpperCase()
+    } ?: return
+
+    val javaValue = valueToJava(objectMember, value, member, columnName) ?: return
+
+    member.setter.call(objectMember, javaValue)
+}
+
+internal const val ID_COLUMN = "ID"
+
+internal fun getSqlParamsFromEntity(entity: Any, memberColumns: Collection<MemberConverter>): Array<Any?> {
+
+    val params: Array<Any?> = arrayOfNulls(memberColumns.size)
+
+    for ((index, member) in memberColumns.withIndex()) {
+        params[index] = member.getSqlValueFromJavaObject(entity)
+    }
+
+    return params
+}

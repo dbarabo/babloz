@@ -1,10 +1,12 @@
 package ru.barabo.db.service
 
 import ru.barabo.db.*
-import ru.barabo.db.annotation.ParamsSelect
+import ru.barabo.db.sync.Sync
+import ru.barabo.db.sync.SyncReload
 import tornadofx.observable
 
-abstract class StoreService<T: Any, out G>(protected val orm :TemplateQuery) {
+abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, protected val clazz: Class<T>)
+    : Sync<T> by SyncReload<T>(orm, clazz) {
 
     private val listenerList = ArrayList<StoreListener<G>>()
 
@@ -18,8 +20,6 @@ abstract class StoreService<T: Any, out G>(protected val orm :TemplateQuery) {
     }
 
     protected abstract fun elemRoot(): G
-
-    protected abstract fun clazz(): Class<T>
 
     protected open fun processDelete(item: T) {}
 
@@ -51,24 +51,10 @@ abstract class StoreService<T: Any, out G>(protected val orm :TemplateQuery) {
 
         beforeRead()
 
-        orm.select(clazz(), ::callBackSelectData)
+        orm.select(clazz, ::callBackSelectData)
 
         sentRefreshAllListener(EditType.INIT)
     }
-
-    fun getBackupData(): String {
-
-        val columnsTable = getColumnsTable(clazz())
-
-        if(columnsTable.isEmpty()) return ""
-
-        val header = orm.getBackupTableHeader(clazz(), columnsTable)
-
-        val data = orm.selectTableRows(clazz(), columnsTable)
-
-        return header + data.joinToString("\n") { it.joinToString("\b") } + "\n"
-    }
-
 
     @Throws(SessionException::class)
     open fun delete(item: T, sessionSetting: SessionSetting = SessionSetting(false)) {

@@ -10,11 +10,19 @@ import java.util.*
 
 
 object SqliteLocalDate : ConverterValue {
+
+    override fun convertFromStringToJava(value: String, javaType: Class<*>): Any? {
+        if(value.isEmpty()) return null
+
+        return convertFromBase(value, javaType)
+    }
+
     override fun convertFromBase(value: Any, javaType: Class<*>): Any? {
 
         val milliseconds = when (value) {
             is Number -> value.toLong()
             is Date -> value.time
+            is String -> value.toLong()
             else -> throw Exception("unknown class of value $value")
         }
 

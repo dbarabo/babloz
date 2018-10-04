@@ -29,7 +29,7 @@ data class BudgetMain (
 
         @ColumnName("TYPE_PERIOD")
         @ColumnType(java.sql.Types.INTEGER)
-        var typePeriod :Int = BudgetTypePeriod.MONTH.dbValue,
+        var typePeriod :Int? = BudgetTypePeriod.MONTH.dbValue,
 
         @ColumnName("START_PERIOD")
         @ColumnType(java.sql.Types.DATE)
