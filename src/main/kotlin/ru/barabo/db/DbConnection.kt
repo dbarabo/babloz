@@ -140,6 +140,7 @@ open class DbConnection(private val dbSetting: DbSetting) {
             java.sql.DriverManager.getConnection(dbSetting.url, dbSetting.user, dbSetting.password)
 
         } catch (e :SQLException) {
+            logger.error("dbSetting.url=${dbSetting.url} dbSetting.user=${dbSetting.user} dbSetting.password=${dbSetting.password}")
             logger.error("addSession", e)
             throw SessionException(e.message as String)
         }
