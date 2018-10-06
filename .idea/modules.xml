@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/babloz.iml" filepath="$PROJECT_DIR$/.idea/babloz.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/babloz_main.iml" filepath="$PROJECT_DIR$/.idea/modules/babloz_main.iml" group="babloz" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/babloz_test.iml" filepath="$PROJECT_DIR$/.idea/modules/babloz_test.iml" group="babloz" />
+    </modules>
+  </component>
+</project>
