@@ -280,11 +280,6 @@ private fun KMutableProperty<*>.getMemberConvertor(): MemberConverter? {
     return MemberConverter(this, converter as? ConverterValue, manyToOnePrefix)
 }
 
-internal fun setMemberFieldValueFromString(entity: Any, columnName: String, value: String) {
-
-    val member = getMemberByColumn(entity::class.java, columnName) ?: return
-}
-
 private fun getMemberByColumn(javaType: Class<*>, columnName: String): KMutableProperty<*>? =
     javaType.kotlin.declaredMemberProperties.filterIsInstance<KMutableProperty<*>>()
     .firstOrNull {it.findAnnotation<ColumnName>()?.name == columnName}
