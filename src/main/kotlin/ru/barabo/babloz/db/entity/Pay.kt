@@ -1,7 +1,5 @@
 package ru.barabo.babloz.db.entity
 
-import org.slf4j.LoggerFactory
-import ru.barabo.babloz.db.importer.CssImporter
 import ru.barabo.db.annotation.*
 import ru.barabo.db.converter.SqliteLocalDate
 import java.math.BigDecimal
@@ -12,7 +10,7 @@ import java.time.format.DateTimeFormatter
 @TableName("PAY")
 @SelectQuery("select p.id, p.account, a.name ACC_NAME, a.type ACC_TYPE, p.created, " +
         "p.category, c.name CAT_NAME, p.ACCOUNT_TO, ato.name ACCTO_NAME, p.person, per.name PERS_NAME, " +
-        "p.project, prj.name PROJ_NAME, p.AMOUNT, p.description, p.amount_to " +
+        "p.project, prj.name PROJ_NAME, p.AMOUNT, p.description, p.amount_to, p.SYNC " +
         "from pay p " +
         "left join account a on p.account = a.id " +
         "left join category c on p.category = c.id " +
@@ -66,7 +64,13 @@ data class Pay(
 
         @ColumnName("AMOUNT_TO")
         @ColumnType(java.sql.Types.NUMERIC)
-        var amountTo : BigDecimal? = null
+        var amountTo : BigDecimal? = null,
+
+        @ColumnName("SYNC")
+        @ColumnType(java.sql.Types.INTEGER)
+        @Transient
+        var sync :Int? = null
+
         ) {
 
         val createPay: String get() = created?.let { DateTimeFormatter.ofPattern("yy.MM.dd HH:mm").format(it) } ?: ""
@@ -84,15 +88,7 @@ data class Pay(
 
         val personPay: String get() = person?.name?:""
 
-        private val logger = LoggerFactory.getLogger(Pay::class.java)!!
-
-        private fun fromToAmount(): String {
-             val text =   if(amount?.toDouble()?:0.0 > 0.0) "с " else "на "
-
-             logger.error("amount=$amount text=$text" )
-
-             return text
-        }
+        private fun fromToAmount(): String = if(amount?.toDouble()?:0.0 > 0.0) "с " else "на "
 
         private fun accountToExists() :String = accountTo?.let { "${fromToAmount()}${it.name}" }?:""
 }

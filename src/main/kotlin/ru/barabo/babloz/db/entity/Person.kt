@@ -1,6 +1,7 @@
 package ru.barabo.babloz.db.entity
 
 import ru.barabo.db.annotation.*
+import kotlin.jvm.Transient
 
 @TableName("PERSON")
 @SelectQuery("select * from PERSON order by case when parent is null then 100000*id else 100000*parent + id end")
@@ -20,7 +21,12 @@ data class Person (
 
     @ColumnName("DESCRIPTION")
     @ColumnType(java.sql.Types.VARCHAR)
-    var description :String? = null
+    var description :String? = null,
+
+    @ColumnName("SYNC")
+    @ColumnType(java.sql.Types.INTEGER)
+    @Transient
+    var sync :Int? = null
 ) {
     override fun toString(): String = name?:""
 }

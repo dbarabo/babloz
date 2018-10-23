@@ -6,6 +6,7 @@ import ru.barabo.babloz.gui.budget.BudgetRowSaver
 import ru.barabo.db.annotation.*
 import java.math.BigDecimal
 import java.text.DecimalFormat
+import kotlin.jvm.Transient
 
 @TableName("BUDGET_ROW")
 @SelectQuery("""select r.*, $CALC_AMOUNT_REAL from BUDGET_ROW r where r.MAIN = ? order by id""")
@@ -31,7 +32,12 @@ data class BudgetRow(
         @ColumnType(java.sql.Types.NUMERIC)
         @CalcColumnQuery("select $CALC_AMOUNT_REAL from BUDGET_ROW r where r.id = ?")
         @ReadOnly
-        var amountReal: BigDecimal? = null
+        var amountReal: BigDecimal? = null,
+
+        @ColumnName("SYNC")
+        @ColumnType(java.sql.Types.INTEGER)
+        @Transient
+        var sync :Int? = null
 )
 
     : ParamsSelect {

@@ -8,6 +8,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import kotlin.jvm.Transient
 
 @TableName("CATEGORY")
 @SelectQuery("select c.*, " +
@@ -41,7 +42,12 @@ data class Category (
     @ColumnName("IS_SELECTED")
     @ColumnType(java.sql.Types.INTEGER)
     @ReadOnly
-    var isSelected : Int? = null
+    var isSelected : Int? = null,
+
+    @ColumnName("SYNC")
+    @ColumnType(java.sql.Types.INTEGER)
+    @Transient
+    var sync :Int? = null
 
 ) : ParamsSelect {
 

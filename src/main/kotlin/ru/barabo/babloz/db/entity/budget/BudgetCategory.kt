@@ -1,6 +1,7 @@
 package ru.barabo.babloz.db.entity.budget
 
 import ru.barabo.db.annotation.*
+import kotlin.jvm.Transient
 
 
 @TableName("BUDGET_CATEGORY")
@@ -17,7 +18,13 @@ data class BudgetCategory(
 
         @ColumnName("CATEGORY")
         @ColumnType(java.sql.Types.INTEGER)
-        var category :Int? = null) : ParamsSelect {
+        var category :Int? = null,
+
+        @ColumnName("SYNC")
+        @ColumnType(java.sql.Types.INTEGER)
+        @Transient
+        var sync :Int? = null
+) : ParamsSelect {
 
     override fun selectParams(): Array<Any?>? = arrayOf(BudgetMain.selectedBudget?.id?:Int::class)
 

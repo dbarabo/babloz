@@ -1,10 +1,13 @@
 package ru.barabo.db.sync
 
+import org.slf4j.LoggerFactory
 import ru.barabo.db.*
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.jvm.javaType
 
 class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClass: Class<T>) : Sync<T> {
+
+    private val logger = LoggerFactory.getLogger(SyncReload::class.java)
 
     private var insertData: List<T> = emptyList()
 
@@ -215,9 +218,13 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
 
         var posSelected = positionLine
 
+        logger.error("columns= $columns")
+
         while (posSelected < lines.size && lines[posSelected].indexOf(PREFIX_TABLE) != 0) {
 
             val values = splitLines(lines[posSelected])
+
+            logger.error("values= $values")
 
             values?.let { backupData += getEntityFromString(entityClass.newInstance(), columnsAnnotation, it, columns) }
 
@@ -272,7 +279,7 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
 
         val data = selectTableRows(columnsTable)
 
-        return header + data.joinToString("\n") { it.joinToString(COLUMN_SEPARATOR) }
+        return header + data.joinToString("\n") { it.joinToString(COLUMN_SEPARATOR).replace("\n".toRegex(), "") }
     }
 
     @Throws(SessionException::class)

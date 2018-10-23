@@ -14,7 +14,19 @@ object SyncLoader {
 
     private val logger = LoggerFactory.getLogger(SyncLoader::class.java)
 
-    fun fromZipBackup() {
+    fun loadSyncBackup() {
+        val services = serviceHashByTableName.values.map { Pair(it.clazz, it.prepareFillNewData()) }.toMap()
+
+        fromZipBackup()
+
+        serviceHashByTableName.values.forEach { it.linkNewIdReference(services) }
+
+        serviceHashByTableName.values.reversed().forEach { it.clearAllDataDb() }
+
+        serviceHashByTableName.values.forEach { it.saveDataToDb() }
+    }
+
+    private fun fromZipBackup() {
         val text = Archive.unpackFromZipToString()
 
         val lines = text.lines()
@@ -69,9 +81,9 @@ object SyncLoader {
             PersonService.tableName.toUpperCase() to  PersonService,
             ProjectService.tableName.toUpperCase() to  ProjectService,
             PayService.tableName.toUpperCase() to  PayService,
-            BudgetMainService.tableName.toUpperCase() to  BudgetMainService,
             BudgetRowService.tableName.toUpperCase() to  BudgetRowService,
-            BudgetCategoryService.tableName.toUpperCase() to  BudgetCategoryService
+            BudgetCategoryService.tableName.toUpperCase() to  BudgetCategoryService,
+            BudgetMainService.tableName.toUpperCase() to  BudgetMainService
     )
 }
 

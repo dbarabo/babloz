@@ -49,7 +49,7 @@ object ServiceTab : Tab("Настройки", VBox()) {
                 field("Из Бэкапа") {
                     button ("Восстановить из Бэкапа").apply {
 
-                        setOnAction { SyncLoader.fromZipBackup() }
+                        setOnAction { SyncLoader.loadSyncBackup() }
                     }
                 }
             }

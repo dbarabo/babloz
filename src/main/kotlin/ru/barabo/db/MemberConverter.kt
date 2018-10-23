@@ -308,7 +308,7 @@ private fun KMutableProperty<*>.valueToJava(sqlValue: Any): Any? {
 private fun KMutableProperty<*>.valueStringToJava(value: String): Any? {
     val javaType :Class<*> = returnType.javaType as Class<*>
 
-    logger.error("valueStringToJava javaType=$javaType")
+    //logger.error("valueStringToJava javaType=$javaType")
 
     return Type.convertStringValueToJavaByClass(value, javaType)
 }

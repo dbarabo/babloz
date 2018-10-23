@@ -5,7 +5,7 @@ import ru.barabo.db.sync.Sync
 import ru.barabo.db.sync.SyncReload
 import tornadofx.observable
 
-abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, protected val clazz: Class<T>)
+abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val clazz: Class<T>)
     : Sync<T> by SyncReload<T>(orm, clazz) {
 
     private val listenerList = ArrayList<StoreListener<G>>()

@@ -11,6 +11,7 @@ import ru.barabo.db.converter.SqliteLocalDate
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.time.LocalDate
+import kotlin.jvm.Transient
 
 @TableName("BUDGET_MAIN")
 @SelectQuery("select m.*, " +
@@ -51,7 +52,14 @@ data class BudgetMain (
         @ColumnType(java.sql.Types.NUMERIC)
         @CalcColumnQuery("select $AMOUNT_REAL from BUDGET_MAIN m where m.id = ?")
         @ReadOnly
-        var amountReal : BigDecimal? = null      ) : ParamsSelect {
+        var amountReal : BigDecimal? = null,
+
+        @ColumnName("SYNC")
+        @ColumnType(java.sql.Types.INTEGER)
+        @Transient
+        var sync :Int? = null
+
+) : ParamsSelect {
 
     companion object {
 

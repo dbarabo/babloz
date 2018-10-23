@@ -77,11 +77,11 @@ enum class Type(val clazz: Class<*>, val sqlType: Int,
 
         fun convertStringValueToJavaByClass(value: String, clazz: Class<*>) :Any? {
 
-            logger.error("clazz=$clazz")
+           // logger.error("clazz=$clazz")
 
             val fun_ = HASH_CLASS_STRING_CONVERTER[clazz]
 
-            logger.error("fun_=$fun_")
+          //  logger.error("fun_=$fun_")
 
             return fun_?.invoke(value)
         }
