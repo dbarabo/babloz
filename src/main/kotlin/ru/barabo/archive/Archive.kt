@@ -54,7 +54,7 @@ object Archive {
         return File(zipFilePath)
     }
 
-    fun unpackFromZipToString(zipFilePath: String = "babloz.zip"): String {
+    fun unpackFromZipToString(zipFilePath: File): String {
 
         var text: String = ""
 

@@ -11,13 +11,13 @@ import ru.barabo.db.converter.SqliteLocalDate
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.time.LocalDate
-import kotlin.jvm.Transient
 
 @TableName("BUDGET_MAIN")
-@SelectQuery("select m.*, " +
-        "$AMOUNT_BUDGET, " +
-        "$AMOUNT_REAL " +
-        "from BUDGET_MAIN m where m.TYPE_PERIOD = ? order by id")
+@SelectQuery(
+        """select m.*,
+$AMOUNT_BUDGET,
+$AMOUNT_REAL
+from BUDGET_MAIN m where COALESCE(m.SYNC, 0) != 2 and m.TYPE_PERIOD = ? order by id""")
 data class BudgetMain (
         @ColumnName("ID")
         @SequenceName("SELECT COALESCE(MAX(ID), 0) + 1  from BUDGET_MAIN")

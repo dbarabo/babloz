@@ -36,7 +36,12 @@ interface Sync<T> {
     fun getBackupData(): String
 
     /**
-     * название таблицы сервиса
+     * table name of service
      */
     val tableName: String
+
+    /**
+     * check exists new data or update data or delete data for sync
+     */
+    fun isExistsUpdateSyncData(): Boolean
 }

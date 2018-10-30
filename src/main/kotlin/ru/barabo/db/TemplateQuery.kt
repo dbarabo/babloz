@@ -13,8 +13,6 @@ import kotlin.reflect.jvm.javaType
 
 open class TemplateQuery (private val query :Query) {
 
-    //private val logger = LoggerFactory.getLogger(TemplateQuery::class.java)
-
     companion object {
 
         private fun errorNotFoundAnnotationSelectQuery(className :String?) = "Annotation @SelectQuery not found for class $className"
@@ -42,6 +40,9 @@ open class TemplateQuery (private val query :Query) {
 
     @Throws(SessionException::class)
     fun select(select: String, params: Array<in Any?>? = null): List<Array<Any?>> = query.select(select, params)
+
+    @Throws(SessionException::class)
+    fun selectValue(select: String, params: Array<in Any?>? = null): Any? = query.selectValue(select, params)
 
     @Throws(SessionException::class)
     fun <T> select(select: String, params: Array<Any?>?, row: Class<T>, callBack: (row :T)->Unit) {
@@ -263,7 +264,6 @@ open class TemplateQuery (private val query :Query) {
 
         return fieldsData
     }
-
 
     /**
      * преобразует значение value к типу type

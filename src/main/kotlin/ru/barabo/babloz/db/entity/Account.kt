@@ -4,13 +4,12 @@ import ru.barabo.db.annotation.*
 import ru.barabo.db.converter.EnumConverter
 import java.math.BigDecimal
 import java.time.LocalDate
-import kotlin.jvm.Transient
 
 @TableName("ACCOUNT")
 @SelectQuery("select a.ID, a.NAME, a.DESCRIPTION, a.TYPE, a.CLOSED, a.CURRENCY, c.name CUR_NAME, c.EXT CUR_EXT, " +
         "(select COALESCE(sum(case when a.ID = p.ACCOUNT then p.AMOUNT else COALESCE(p.amount_to, -1*p.AMOUNT) end), 0) from PAY p where a.ID in (p.ACCOUNT, p.ACCOUNT_TO) ) REST, a.SYNC " +
         "from ACCOUNT a, CURRENCY c " +
-        "where a.CURRENCY = c.ID and (CLOSED IS NULL OR CLOSED > CURRENT_DATE) order by a.TYPE")
+        "where a.CURRENCY = c.ID and (CLOSED IS NULL OR CLOSED > CURRENT_DATE) and COALESCE(a.SYNC, 0) != 2 order by a.TYPE")
 data class Account (
     @ColumnName("ID")
     @SequenceName("SELECT COALESCE(MIN(ID), 0) - 1  from ACCOUNT")

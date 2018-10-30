@@ -19,6 +19,7 @@ import ru.barabo.babloz.gui.project.ProjectList
 import ru.barabo.babloz.gui.service.ServiceTab
 import ru.barabo.babloz.main.ResourcesManager
 import ru.barabo.babloz.sync.Sync
+import ru.barabo.babloz.sync.SyncZip
 import tornadofx.*
 
 fun startLaunch(args :Array<String>) = launch<MainApp>(args)
@@ -30,7 +31,8 @@ class MainApp: App(MainView::class) {
         val result = LoginDb.showAndWait()
         if(result.isPresent) {
 
-            Sync.startSync(result.get().first!!, result.get().second!!, result.get().third)
+            SyncZip.startSync(result.get().first!!, result.get().second!!, result.get().third)
+            //Sync.startSync(result.get().first!!, result.get().second!!, result.get().third)
         }
 
         super.start(stage)
@@ -49,7 +51,7 @@ class MainApp: App(MainView::class) {
 
     override fun stop() {
 
-        Sync.endSync()
+        SyncZip.endSync()
 
         super.stop()
     }

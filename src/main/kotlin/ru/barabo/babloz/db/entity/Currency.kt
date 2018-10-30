@@ -1,10 +1,9 @@
 package ru.barabo.babloz.db.entity
 
 import ru.barabo.db.annotation.*
-import kotlin.jvm.Transient
 
 @TableName("CURRENCY")
-@SelectQuery("select * from CURRENCY order by ID")
+@SelectQuery("select * from CURRENCY where COALESCE(SYNC, 0) != 2 order by ID")
 data class Currency (
         @ColumnName("ID")
         @SequenceName("SELECT COALESCE(MIN(*), 0) - 1  from CURRENCY")

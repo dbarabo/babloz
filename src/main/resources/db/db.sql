@@ -39,7 +39,6 @@ DESCRIPTION varchar(1024),
 SYNC INT
 );
 
-
 /* 5. Проекты */
 create table PROJECT (
 ID INT NOT NULL CONSTRAINT PROJECT_PK PRIMARY KEY,
@@ -109,4 +108,13 @@ PROJECT INT REFERENCES PROJECT(ID),
 AMOUNT NUMERIC(12, 2) NOT NULL,
 NUMBER_OF INT,
 SYNC INT
+);
+
+/* 11. Профиль */
+create table PROFILE (
+ID INT NOT NULL PRIMARY KEY,
+MAIL varchar(100),
+PSWD_HASH varchar(100),
+SYNC_TYPE INT NOT NULL DEFAULT 0,
+MSG_UID_SYNC INT /*последний загруженый/отправленный месседж*/
 )

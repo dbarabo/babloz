@@ -154,6 +154,8 @@ internal data class MemberConverter(private val member: KMutableProperty<*>,
     }
 }
 
+internal fun isNullIdItem(entityItem: Any): Boolean =
+        getIdMember(entityItem::class.java)?.getter?.call(entityItem) == null ?: true
 
 fun getIdPair(entityItem: Any): Pair<String, Any?>? {
 
@@ -249,9 +251,19 @@ private fun getColumnsAnnotationByFilter(row: Class<*>,
     return columnsAnnotation
 }
 
+internal fun setSyncValue(entityItem: Any, syncValue: Any?) {
+    val member = entityItem::class.java.kotlin.declaredMemberProperties.filterIsInstance<KMutableProperty<*>>().firstOrNull {
+        it.findAnnotation<Transient>() != null &&
+        it.findAnnotation<ReadOnly>() == null &&
+        it.findAnnotation<ColumnName>() != null &&
+        it.findAnnotation<ColumnType>()?.type == java.sql.Types.INTEGER
+    } ?: return
+
+    member.setter.call(entityItem, syncValue)
+}
+
 fun getBackupColumnsTable(row: Class<*>) = getColumnsByFilter(row) {
-    it.findAnnotation<ReadOnly>() == null &&
-    it.findAnnotation<Transient>() == null
+    it.findAnnotation<ReadOnly>() == null && it.findAnnotation<Transient>() == null
 }
 
 fun getTransientColumns(row: Class<*>) = getColumnsByFilter(row) { it.findAnnotation<ReadOnly>() == null && it.findAnnotation<Transient>() != null }
@@ -280,11 +292,6 @@ private fun KMutableProperty<*>.getMemberConvertor(): MemberConverter? {
     return MemberConverter(this, converter as? ConverterValue, manyToOnePrefix)
 }
 
-private fun getMemberByColumn(javaType: Class<*>, columnName: String): KMutableProperty<*>? =
-    javaType.kotlin.declaredMemberProperties.filterIsInstance<KMutableProperty<*>>()
-    .firstOrNull {it.findAnnotation<ColumnName>()?.name == columnName}
-
-
 private fun KClass<*>.instanceCreateOrGet() = this.objectInstance ?: this.java.newInstance()
 
 internal fun getIdMember(javaType: Class<*>): KMutableProperty<*>? = javaType.kotlin.declaredMemberProperties
@@ -307,8 +314,6 @@ private fun KMutableProperty<*>.valueToJava(sqlValue: Any): Any? {
 
 private fun KMutableProperty<*>.valueStringToJava(value: String): Any? {
     val javaType :Class<*> = returnType.javaType as Class<*>
-
-    //logger.error("valueStringToJava javaType=$javaType")
 
     return Type.convertStringValueToJavaByClass(value, javaType)
 }

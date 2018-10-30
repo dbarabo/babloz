@@ -1,6 +1,5 @@
 package ru.barabo.babloz.sync
 
-import org.slf4j.LoggerFactory
 import ru.barabo.archive.Archive
 import ru.barabo.babloz.db.service.*
 import ru.barabo.babloz.db.service.budget.BudgetCategoryService
@@ -9,25 +8,40 @@ import ru.barabo.babloz.db.service.budget.BudgetRowService
 import ru.barabo.db.service.StoreService
 import ru.barabo.db.sync.PREFIX_TABLE
 import ru.barabo.db.sync.splitLines
+import java.io.File
 
 object SyncLoader {
 
-    private val logger = LoggerFactory.getLogger(SyncLoader::class.java)
+    //private val logger = LoggerFactory.getLogger(SyncLoader::class.java)
 
-    fun loadSyncBackup() {
-        val services = serviceHashByTableName.values.map { Pair(it.clazz, it.prepareFillNewData()) }.toMap()
+    /**
+     * return true, if exists update new or delete data for sync else false
+     */
+    fun loadSyncBackup(backupZip: File): Boolean {
+        val services =
+                serviceHashByTableName.values.map { Pair(it.clazz, it.prepareFillNewData()) }.toMap()
 
-        fromZipBackup()
+        val isExistUpdate =
+                serviceHashByTableName.values.firstOrNull { it.isExistsUpdateSyncData() }
+
+        fromZipBackup(backupZip)
 
         serviceHashByTableName.values.forEach { it.linkNewIdReference(services) }
 
         serviceHashByTableName.values.reversed().forEach { it.clearAllDataDb() }
 
         serviceHashByTableName.values.forEach { it.saveDataToDb() }
+
+        serviceHashByTableName.values.forEach { it.initData() }
+
+        return isExistUpdate != null
     }
 
-    private fun fromZipBackup() {
-        val text = Archive.unpackFromZipToString()
+    fun isExistsUpdateSyncData()
+            = serviceHashByTableName.values.firstOrNull { it.isExistsUpdateSyncData() } != null
+
+    private fun fromZipBackup(backupZip: File) {
+        val text = Archive.unpackFromZipToString(backupZip)
 
         val lines = text.lines()
 

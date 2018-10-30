@@ -15,6 +15,8 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
 
     private var updateData: List<T> = emptyList()
 
+    private var isPrepareFillNewData: Boolean = false
+
     private val backupData = ArrayList<T>()
 
     private val idMember = getIdMember(entityClass)
@@ -37,11 +39,31 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
      *                   ВАЖЕН ПОРЯДОК Сервисов - от Независимых к зависимым т.е. т.е. от CURRENCY к PAY allServices.sort().forEach{ it.INSERT_DATA }
      */
 
+
+
+    override fun isExistsUpdateSyncData(): Boolean =
+            if(isPrepareFillNewData) isExistsFilledNewData() else checkNewDataByQuery()
+
+    private fun isExistsFilledNewData() = insertData.isNotEmpty() || updateData.isNotEmpty() || deleteData.isNotEmpty()
+
     override fun clearAllDataDb() {
+
+        isPrepareFillNewData = false
 
         val deleteAll = templateDeleteAllSql(tableName)
 
         orm.executeQuery(deleteAll, null)
+    }
+
+    private fun checkNewDataByQuery(): Boolean {
+
+        val syncColumn = getTransientColumns(entityClass).firstOrNull() ?: return false
+
+        val query = selectTableWhereTemplate("COUNT(*)", tableName, "$syncColumn not null")
+
+        val isExists = orm.selectValue(query) as? Number
+
+        return isExists?.toInt() ?: 0 != 0
     }
 
     override fun prepareFillNewData(): List<T> {
@@ -54,6 +76,8 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
         deleteData = selectNewRecords?.let { getSelectNewData(it, SyncTypes.DELETE) } ?: emptyList()
 
         updateData = selectNewRecords?.let { getSelectNewData(it, SyncTypes.UPDATE) } ?: emptyList()
+
+        isPrepareFillNewData = true
 
         return insertData
     }
@@ -110,6 +134,10 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
             saveData(insertSql, memberColumns.values, insertData, session)
         } catch (e: Exception) {
             orm.rollbackLongTransaction(session)
+
+            logger.error("saveAllData", e)
+
+            throw Exception(e.message)
         }
         orm.commitLongTransaction(session)
     }
@@ -218,13 +246,9 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
 
         var posSelected = positionLine
 
-        logger.error("columns= $columns")
-
         while (posSelected < lines.size && lines[posSelected].indexOf(PREFIX_TABLE) != 0) {
 
             val values = splitLines(lines[posSelected])
-
-            logger.error("values= $values")
 
             values?.let { backupData += getEntityFromString(entityClass.newInstance(), columnsAnnotation, it, columns) }
 

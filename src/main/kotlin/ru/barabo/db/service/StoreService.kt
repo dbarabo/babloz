@@ -3,6 +3,7 @@ package ru.barabo.db.service
 import ru.barabo.db.*
 import ru.barabo.db.sync.Sync
 import ru.barabo.db.sync.SyncReload
+import ru.barabo.db.sync.SyncTypes
 import tornadofx.observable
 
 abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val clazz: Class<T>)
@@ -61,7 +62,9 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
 
         dataList.remove(item)
 
-        orm.deleteById(item, sessionSetting)
+        setDeleteSyncValue(item)
+        orm.save(item, sessionSetting)
+        //orm.deleteById(item, sessionSetting)
 
         processDelete(item)
 
@@ -75,6 +78,8 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
 
     @Throws(SessionException::class)
     open fun save(item: T, sessionSetting: SessionSetting = SessionSetting(false)): T {
+
+        setSaveSyncValue(item)
 
         val type = orm.save(item, sessionSetting)
 
@@ -93,6 +98,17 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
         processStartLongTransactState(type)
 
         return item
+    }
+
+    private fun setDeleteSyncValue(item: T) {
+        setSyncValue(item, SyncTypes.DELETE.ordinal)
+    }
+
+    private fun setSaveSyncValue(item: T) {
+
+        val syncValue = if(isNullIdItem(item)) SyncTypes.INSERT.ordinal else SyncTypes.UPDATE.ordinal
+
+        setSyncValue(item, syncValue)
     }
 
     private fun processStartLongTransactState(type: EditType) {

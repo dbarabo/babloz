@@ -93,8 +93,10 @@ interface GetMailDb {
             }
         }
 
-        messagesAttachList.sortedWith (compareByDescending({it.receivedDate?.time?:Long.MIN_VALUE}))
-                .drop(saveLastCountMessage).forEach {it.setFlag(Flags.Flag.DELETED, true) }
+        messagesAttachList.asSequence()
+                .sortedWith ( compareByDescending {it.receivedDate?.time ?: Long.MIN_VALUE} )
+                .drop(saveLastCountMessage).toList()
+                .forEach { it.setFlag(Flags.Flag.DELETED, true) }
 
         return lastPart
     }

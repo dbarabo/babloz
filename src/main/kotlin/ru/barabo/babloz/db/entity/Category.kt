@@ -8,13 +8,13 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
-import kotlin.jvm.Transient
 
 @TableName("CATEGORY")
-@SelectQuery("select c.*, " +
-        "(select COALESCE(sum(p.AMOUNT), 0) from PAY p, category chi where c.ID in (chi.id, chi.parent) and p.CATEGORY = chi.ID and p.CREATED >= ? and p.CREATED < ?) TURN " +
-        " from category c " +
-        "order by case when c.parent is null then 100000*c.id else 100000*c.parent + c.id end")
+@SelectQuery(
+"""select c.*,
+(select COALESCE(sum(p.AMOUNT), 0) from PAY p, category chi where c.ID in (chi.id, chi.parent) and p.CATEGORY = chi.ID and p.CREATED >= ? and p.CREATED < ?) TURN
+from category c where COALESCE(c.SYNC, 0) != 2
+order by case when c.parent is null then 100000*c.id else 100000*c.parent + c.id end""")
 data class Category (
     @ColumnName("ID")
     @SequenceName("SELECT COALESCE(MAX(ID), 0) + 1  from CATEGORY")

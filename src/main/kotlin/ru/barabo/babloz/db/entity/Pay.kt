@@ -8,16 +8,18 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @TableName("PAY")
-@SelectQuery("select p.id, p.account, a.name ACC_NAME, a.type ACC_TYPE, p.created, " +
-        "p.category, c.name CAT_NAME, p.ACCOUNT_TO, ato.name ACCTO_NAME, p.person, per.name PERS_NAME, " +
-        "p.project, prj.name PROJ_NAME, p.AMOUNT, p.description, p.amount_to, p.SYNC " +
-        "from pay p " +
-        "left join account a on p.account = a.id " +
-        "left join category c on p.category = c.id " +
-        "left join account ato on p.account_to = ato.id " +
-        "left join person per on p.person = per.id " +
-        "left join project prj on p.project = prj.id " +
-        "order by p.created")
+@SelectQuery(
+"""select p.id, p.account, a.name ACC_NAME, a.type ACC_TYPE, p.created,
+p.category, c.name CAT_NAME, p.ACCOUNT_TO, ato.name ACCTO_NAME, p.person, per.name PERS_NAME,
+p.project, prj.name PROJ_NAME, p.AMOUNT, p.description, p.amount_to, p.SYNC
+from pay p
+left join account a on p.account = a.id
+left join category c on p.category = c.id
+left join account ato on p.account_to = ato.id
+left join person per on p.person = per.id
+left join project prj on p.project = prj.id
+where COALESCE(p.SYNC, 0) != 2
+order by p.created""")
 data class Pay(
         @ColumnName("ID")
         @SequenceName("SELECT COALESCE(MIN(ID), 0) - 1  from PAY")
