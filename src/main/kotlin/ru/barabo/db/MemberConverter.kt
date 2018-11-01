@@ -154,8 +154,19 @@ internal data class MemberConverter(private val member: KMutableProperty<*>,
     }
 }
 
-internal fun isNullIdItem(entityItem: Any): Boolean =
-        getIdMember(entityItem::class.java)?.getter?.call(entityItem) == null ?: true
+internal fun isNullIdItem(entityItem: Any): Boolean {
+
+    val member = getIdMember(entityItem::class.java)
+
+//    logger.error("member=$member")
+//    logger.error("entityItem=$entityItem")
+
+    val getValue = member?.getter?.call(entityItem)
+//    logger.error("getValue=$getValue")
+
+    return getValue == null
+}
+
 
 fun getIdPair(entityItem: Any): Pair<String, Any?>? {
 

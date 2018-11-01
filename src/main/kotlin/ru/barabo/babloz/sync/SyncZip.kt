@@ -76,7 +76,7 @@ object SyncZip : GetMailDb, SendMailDb {
 
     private fun downloadSyncFile(): Boolean {
 
-        if(!isCheckSmtpConnect()) return false
+        if(!isSuccessMailPropertySmtp()) return false
 
         val file = downloadFile() ?: return false
 
@@ -104,7 +104,7 @@ object SyncZip : GetMailDb, SendMailDb {
 
     private fun zipFileFullPathName() = "${bablozFilePath()}/${bablozAttachName()}"
 
-    private fun backupFileFullPathName() = "${bablozFilePath()}/$BACKUP_FILE_NAME"
+    private fun backupFileFullPathName() = BACKUP_FILE_NAME
 
     private fun sendBackup(): Boolean {
 

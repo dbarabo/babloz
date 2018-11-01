@@ -77,6 +77,10 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
 
         updateData = selectNewRecords?.let { getSelectNewData(it, SyncTypes.UPDATE) } ?: emptyList()
 
+//        logger.error("insertData=$insertData")
+//        logger.error("deleteData=$deleteData")
+//        logger.error("updateData=$updateData")
+
         isPrepareFillNewData = true
 
         return insertData

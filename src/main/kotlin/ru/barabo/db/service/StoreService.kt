@@ -1,5 +1,6 @@
 package ru.barabo.db.service
 
+import org.slf4j.LoggerFactory
 import ru.barabo.db.*
 import ru.barabo.db.sync.Sync
 import ru.barabo.db.sync.SyncReload
@@ -10,6 +11,8 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
     : Sync<T> by SyncReload<T>(orm, clazz) {
 
     private val listenerList = ArrayList<StoreListener<G>>()
+
+    private val logger = LoggerFactory.getLogger(StoreService::class.java)
 
     protected val dataList = ArrayList<T>().observable()
 
@@ -81,6 +84,8 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
 
         setSaveSyncValue(item)
 
+//        logger.error("save item=$item")
+
         val type = orm.save(item, sessionSetting)
 
         when (type) {
@@ -106,9 +111,12 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
 
     private fun setSaveSyncValue(item: T) {
 
-        val syncValue = if(isNullIdItem(item)) SyncTypes.INSERT.ordinal else SyncTypes.UPDATE.ordinal
+        val syncValue = if(isNullIdItem(item)) SyncTypes.INSERT else SyncTypes.UPDATE
 
-        setSyncValue(item, syncValue)
+//        logger.error("syncValue=$syncValue")
+//        logger.error("syncValue.ordinal=${syncValue.ordinal}")
+
+        setSyncValue(item, syncValue.ordinal)
     }
 
     private fun processStartLongTransactState(type: EditType) {
