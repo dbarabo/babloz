@@ -270,7 +270,9 @@ internal fun setSyncValue(entityItem: Any, syncValue: Any?) {
         it.findAnnotation<ColumnType>()?.type == java.sql.Types.INTEGER
     } ?: return
 
-    member.setter.call(entityItem, syncValue)
+    if(member.getter.call(entityItem) == null) {
+        member.setter.call(entityItem, syncValue)
+    }
 }
 
 fun getBackupColumnsTable(row: Class<*>) = getColumnsByFilter(row) {
