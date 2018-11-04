@@ -21,6 +21,8 @@ data class MailProperties(
         internal const val SMTP_PROTOCOL = "smtp"
 
         const val INBOX = "INBOX"
+
+        const val SENT = "[Gmail]/Отправленные"
     }
 
     private fun imapProperties(): Properties = Properties().apply {

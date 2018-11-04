@@ -7,8 +7,9 @@ import javax.mail.*
 import javax.mail.internet.MimeBodyPart
 import javax.mail.search.*
 
-interface GetMailDb {
 
+
+interface GetMailDb {
 
     fun subjectCriteria(): String
 
@@ -21,11 +22,15 @@ interface GetMailDb {
 
         val store = mailProp.connectImapStore()
 
+//        senfFolder(store)
+
         val file = try {
 
-            val folder = store.getFolder(MailProperties.INBOX)
+            val folder = store.getFolder(MailProperties.SENT/*INBOX*/)
 
-            folder.findLastMessageDbDownload(mailProp, saveLastCountMessage)
+            folder.findLastMessageDbDownload(mailProp, saveLastCountMessage).apply {
+                dropAllInboxFolder(store, mailProp)
+            }
 
         } catch (e: Exception) {
             LoggerFactory.getLogger(GetMailDb::class.java).error("getDbInMail", e)
@@ -40,8 +45,36 @@ interface GetMailDb {
         return file
     }
 
+    private fun senfFolder(store: Store) {
+
+        store.getDefaultFolder().list("*")?.forEach {
+
+            LoggerFactory.getLogger(GetMailDb::class.java).error("folder = ${it.name}")
+            LoggerFactory.getLogger(GetMailDb::class.java).error("urlName = ${it.urlName}")
+            LoggerFactory.getLogger(GetMailDb::class.java).error("folderFull = ${it.fullName}")
+            LoggerFactory.getLogger(GetMailDb::class.java).error("parent = ${it.parent?.fullName}")
+        }
+    }
+
+
+    private fun dropAllInboxFolder(store: Store, mailProp: MailProperties) {
+        val folder = store.getFolder(MailProperties.INBOX)
+
+        folder?.dropAllBackup(mailProp)
+    }
+
+    private fun Folder.dropAllBackup(mailProp: MailProperties) {
+        open(Folder.READ_WRITE)
+
+        val searchTerm = getSearchTerm(mailProp)
+
+        use {
+            search(searchTerm)?.forEach { msg -> msg.setFlag(Flags.Flag.DELETED, true) }
+        }
+    }
+
     private fun Folder.findLastMessageDbDownload(mailProp: MailProperties, saveLastCountMessage: Int): File? {
-        open(Folder.READ_WRITE /*Folder.READ_ONLY*/)
+        open(Folder.READ_WRITE)
 
         val searchTerm = getSearchTerm(mailProp)
 
