@@ -5,11 +5,9 @@ import ru.barabo.babloz.db.entity.Category
 import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.db.service.StoreService
 
-object CategoryService: StoreService<Category, GroupCategory>(BablozOrm) {
+object CategoryService: StoreService<Category, GroupCategory>(BablozOrm, Category::class.java) {
 
     override fun elemRoot(): GroupCategory = GroupCategory.root
-
-    override fun clazz(): Class<Category> = Category::class.java
 
     override fun beforeRead() {
         GroupCategory.rootClear()

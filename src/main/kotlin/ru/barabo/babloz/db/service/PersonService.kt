@@ -5,9 +5,7 @@ import ru.barabo.babloz.db.entity.Person
 import ru.barabo.babloz.db.entity.group.GroupPerson
 import ru.barabo.db.service.StoreService
 
-object PersonService : StoreService<Person, GroupPerson>(BablozOrm) {
-
-    override fun clazz(): Class<Person> = Person::class.java
+object PersonService : StoreService<Person, GroupPerson>(BablozOrm, Person::class.java) {
 
     public override fun elemRoot(): GroupPerson = GroupPerson.root
 

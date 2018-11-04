@@ -4,7 +4,6 @@ import ru.barabo.db.annotation.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.collections.HashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.full.declaredMemberProperties
@@ -14,13 +13,9 @@ import kotlin.reflect.jvm.javaType
 
 open class TemplateQuery (private val query :Query) {
 
-    //private val logger = LoggerFactory.getLogger(TemplateQuery::class.java)
-
     companion object {
 
         private fun errorNotFoundAnnotationSelectQuery(className :String?) = "Annotation @SelectQuery not found for class $className"
-
-        private fun errorNotFoundAnnotationTableName(className :String?) = "Annotation @TableName not found for class $className"
 
         private fun errorNotFoundAnnotationColumnName(className :String?) = "Annotation @ColumnName not found for class $className"
 
@@ -31,8 +26,6 @@ open class TemplateQuery (private val query :Query) {
         private fun deleteTemplate(table :String) = "delete from $table where id = ?"
 
         private fun errorSequenceReturnNull(sequence :String) = "Sequence expression return NULL $sequence"
-
-        private const val ID_COLUMN = "ID"
     }
 
     fun startLongTransation(): SessionSetting = query.uniqueSession()
@@ -49,7 +42,10 @@ open class TemplateQuery (private val query :Query) {
     fun select(select: String, params: Array<in Any?>? = null): List<Array<Any?>> = query.select(select, params)
 
     @Throws(SessionException::class)
-    fun <T> select(select: String, params: Array<Any?>?, row :Class<T>, callBack :(row :T)->Unit) {
+    fun selectValue(select: String, params: Array<in Any?>? = null): Any? = query.selectValue(select, params)
+
+    @Throws(SessionException::class)
+    fun <T> select(select: String, params: Array<Any?>?, row: Class<T>, callBack: (row :T)->Unit) {
         var item :T? = null
 
         val propertyByColumn = getPropertyByColumn(row)
@@ -60,7 +56,7 @@ open class TemplateQuery (private val query :Query) {
             if(isNewRow) {
                 val newItem = row.newInstance()
 
-                item?.let(callBack)
+                item?.let { callBack(it) }
 
                 item = newItem
 
@@ -78,7 +74,7 @@ open class TemplateQuery (private val query :Query) {
             member.setter.call(item, javaValue)
         }
 
-        item?.let(callBack)
+        item?.let { callBack(it) }
     }
 
     @Throws(SessionException::class)
@@ -89,31 +85,6 @@ open class TemplateQuery (private val query :Query) {
             (row.newInstance() as ParamsSelect).selectParams() } else null
 
         select(selectQuery, params, row, callBack)
-    }
-
-    private fun getPropertyByColumn(row :Class<*>) :Map<String, KMutableProperty<*>> {
-        val propertyByColumn = HashMap<String, KMutableProperty<*>>()
-
-        row.kotlin.declaredMemberProperties.filterIsInstance<KMutableProperty<*>>()
-                .filter { it.findAnnotation<ColumnName>()?.name != null}.forEach { member ->
-
-            val columnName = member.findAnnotation<ColumnName>()?.name?.toUpperCase()?:return@forEach
-
-            propertyByColumn[columnName] = member
-
-            val prefix = member.findAnnotation<ManyToOne>()?.prefixColumns?.toUpperCase()?:return@forEach
-
-            val subMemberType :Class<*> = member.returnType.javaType as Class<*>
-
-            subMemberType.kotlin.declaredMemberProperties.filterIsInstance<KMutableProperty<*>>()
-                    .filter { it.findAnnotation<ColumnName>()?.name != null}.forEach intern@ {
-                val subColumnName =it.findAnnotation<ColumnName>()?.name?.toUpperCase()?:return@intern
-
-                propertyByColumn["$prefix$subColumnName"] = member
-            }
-        }
-
-        return propertyByColumn
     }
 
     @Throws(SessionException::class)
@@ -151,7 +122,7 @@ open class TemplateQuery (private val query :Query) {
 
         val idField = getFieldData(item, ID_COLUMN)
 
-        query.execute(deleteTemplate(tableName), Array(1, {idField.second}), sessionSetting)
+        query.execute(deleteTemplate(tableName), Array(1) {idField.second}, sessionSetting)
     }
 
     @Throws(SessionException::class)
@@ -181,7 +152,7 @@ open class TemplateQuery (private val query :Query) {
 
         val updateColumns = updateFields.joinToString(" = ?, ",  "", " = ?"){it.first}
 
-        val params = updateFields.map { it.second }.toMutableList()
+        val params = updateFields.asSequence().map { it.second }.toMutableList()
         params.add(idField.second)
 
         val updateQuery = updateTemplate(tableName, updateColumns, idField.first)
@@ -228,7 +199,6 @@ open class TemplateQuery (private val query :Query) {
 
     private fun updateTemplate(table :String, valueColumns :String, idColumn :String) = "update $table set $valueColumns where $idColumn = ?"
 
-
     private fun getInsertQuery(table :String, fields :List<FieldData>) :String {
 
         val columnNames = fields.joinToString(", ") {it.first}
@@ -237,11 +207,6 @@ open class TemplateQuery (private val query :Query) {
 
         return "insert into $table ( $columnNames ) values ( $questions )"
     }
-
-    @Throws(SessionException::class)
-    private fun getTableName(item :Any) :String = item::class.findAnnotation<TableName>()?.name
-            ?: throw SessionException(errorNotFoundAnnotationTableName(item::class.simpleName))
-
 
     @Throws(SessionException::class)
     private fun insert(table :String, fields :List<FieldData>, sessionSetting : SessionSetting = SessionSetting(false)) {
@@ -298,67 +263,6 @@ open class TemplateQuery (private val query :Query) {
         if(fieldsData.size == 0) throw SessionException(errorNotFoundAnnotationColumnName(item::class.simpleName))
 
         return fieldsData
-    }
-
-    private fun setMemberValue(clazz :Class<*>, objectMember :Any, value :Any, columnName :String) {
-
-        val member = clazz.kotlin.declaredMemberProperties.filterIsInstance<KMutableProperty<*>>().firstOrNull {
-            it.findAnnotation<ColumnName>()?.name?.toUpperCase() == columnName.toUpperCase()
-        } ?: return
-
-        val javaValue = valueToJava(objectMember, value, member, columnName) ?: return
-
-        member.setter.call(objectMember, javaValue)
-    }
-
-    private fun manyToOneValue(parentItem :Any, member :KMutableProperty<*>, columnName :String, value :Any) :Any? {
-
-        val javaType :Class<*> = member.returnType.javaType as Class<*>
-
-        var objectValue = member.getter.call(parentItem)
-
-        val prefix = member.findAnnotation<ManyToOne>()?.prefixColumns
-
-        val column =
-                if(objectValue == null) {
-                    objectValue = javaType.newInstance()
-
-                    ID_COLUMN
-                } else {
-                    columnName.substring(prefix?.length?:0)
-                }
-
-        setMemberValue(javaType, objectValue!!, value, column)
-
-        return objectValue
-    }
-
-    @Throws(SessionException::class)
-    private fun valueToJava(item :Any, value :Any, member :KMutableProperty<*>, columnName :String) :Any? {
-
-        val javaType :Class<*> = member.returnType.javaType as Class<*>
-
-        val converterClass = member.findAnnotation<Converter>()?.converterClazz
-
-        if(converterClass != null) {
-            val instance = converterClass.objectInstance ?: converterClass.java.newInstance()
-
-            return (instance as ConverterValue).convertFromBase(value, javaType)
-        }
-
-        if(Type.isConverterExists(javaType)) {
-            return Type.convertValueToJavaTypeByClass(value, javaType)
-        }
-
-        val manyToOneClass =member.findAnnotation<ManyToOne>()
-
-        if(manyToOneClass != null) {
-
-            return manyToOneValue(item, member, columnName, value)
-        }
-
-
-        return value
     }
 
     /**

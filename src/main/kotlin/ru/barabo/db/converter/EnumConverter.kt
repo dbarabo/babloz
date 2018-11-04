@@ -4,6 +4,12 @@ import ru.barabo.db.ConverterValue
 
 object EnumConverter : ConverterValue {
 
+    override fun convertFromStringToJava(value: String, javaType: Class<*>): Any? {
+        if(value.isEmpty()) return null
+
+        return convertFromBase(value.toInt(), javaType)
+    }
+
     @Suppress("UNCHECKED_CAST")
     override fun convertFromBase(value: Any, javaType: Class<*>): Any? {
         val valNumber = (value as Number).toInt()

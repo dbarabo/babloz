@@ -6,9 +6,7 @@ import ru.barabo.db.SessionException
 import ru.barabo.db.SessionSetting
 import ru.barabo.db.service.StoreService
 
-object BudgetRowService: StoreService<BudgetRow, List<BudgetRow> >(BablozOrm) {
-
-    override fun clazz(): Class<BudgetRow> = BudgetRow::class.java
+object BudgetRowService: StoreService<BudgetRow, List<BudgetRow> >(BablozOrm, BudgetRow::class.java) {
 
     public override fun elemRoot(): List<BudgetRow> = dataList
 

@@ -36,6 +36,20 @@ object ServiceTab : Tab("Настройки", VBox()) {
                         setOnAction { syncStart() }
                     }
                 }
+
+                field("Бэкап") {
+                    button ("Сделать бэкап").apply {
+
+                        //setOnAction { SyncSaver.toZipBackup() }
+                    }
+                }
+
+                field("Из Бэкапа") {
+                    button ("Восстановить из Бэкапа").apply {
+
+                       // setOnAction { SyncLoader.loadSyncBackup() }
+                    }
+                }
             }
         }
     }

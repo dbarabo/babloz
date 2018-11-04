@@ -13,10 +13,11 @@ import java.text.DecimalFormat
 import java.time.LocalDate
 
 @TableName("BUDGET_MAIN")
-@SelectQuery("select m.*, " +
-        "$AMOUNT_BUDGET, " +
-        "$AMOUNT_REAL " +
-        "from BUDGET_MAIN m where m.TYPE_PERIOD = ? order by id")
+@SelectQuery(
+        """select m.*,
+$AMOUNT_BUDGET,
+$AMOUNT_REAL
+from BUDGET_MAIN m where COALESCE(m.SYNC, 0) != 2 and m.TYPE_PERIOD = ? order by id""")
 data class BudgetMain (
         @ColumnName("ID")
         @SequenceName("SELECT COALESCE(MAX(ID), 0) + 1  from BUDGET_MAIN")
@@ -29,7 +30,7 @@ data class BudgetMain (
 
         @ColumnName("TYPE_PERIOD")
         @ColumnType(java.sql.Types.INTEGER)
-        var typePeriod :Int = BudgetTypePeriod.MONTH.dbValue,
+        var typePeriod :Int? = BudgetTypePeriod.MONTH.dbValue,
 
         @ColumnName("START_PERIOD")
         @ColumnType(java.sql.Types.DATE)
@@ -51,7 +52,14 @@ data class BudgetMain (
         @ColumnType(java.sql.Types.NUMERIC)
         @CalcColumnQuery("select $AMOUNT_REAL from BUDGET_MAIN m where m.id = ?")
         @ReadOnly
-        var amountReal : BigDecimal? = null      ) : ParamsSelect {
+        var amountReal : BigDecimal? = null,
+
+        @ColumnName("SYNC")
+        @ColumnType(java.sql.Types.INTEGER)
+        @Transient
+        var sync :Int? = null
+
+) : ParamsSelect {
 
     companion object {
 

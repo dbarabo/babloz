@@ -8,15 +8,13 @@ import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
 import ru.barabo.db.service.StoreService
 
-object AccountService :StoreService<Account, GroupAccount>(BablozOrm), StoreListener<List<Pay>> {
+object AccountService :StoreService<Account, GroupAccount>(BablozOrm, Account::class.java), StoreListener<List<Pay>> {
 
     init {
         PayService.addListener(this)
     }
 
     override fun elemRoot(): GroupAccount = GroupAccount.root
-
-    override fun clazz(): Class<Account> = Account::class.java
 
     override fun beforeRead() {
         GroupAccount.rootClear()

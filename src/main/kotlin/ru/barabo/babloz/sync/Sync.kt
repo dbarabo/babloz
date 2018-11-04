@@ -33,6 +33,7 @@ object Sync : GetMailDb, SendMailDb {
 
     private var syncType: SyncTypes = SyncTypes.NO_SYNC_LOCAL_ONLY
 
+    @Volatile
     private var isChangeData: Boolean = false
 
     fun changeData(editType: EditType) {
@@ -74,8 +75,6 @@ object Sync : GetMailDb, SendMailDb {
             }
 
     fun startSync(login: String, password: String, syncType: SyncTypes) {
-
-        //logger.error("${FileSystems.getDefault().getPath("").toAbsolutePath()}")
 
         mailProp = MailProperties(user = login, password = password)
 
@@ -142,7 +141,7 @@ object Sync : GetMailDb, SendMailDb {
 
         BablozConnection.closeAllSessions()
 
-        END_SYNC_PROCESS[syncType]!!.invoke()
+        //END_SYNC_PROCESS[syncType]!!.invoke()
     }
 
     private val END_SYNC_PROCESS = mapOf<SyncTypes, ()->STATUS>(

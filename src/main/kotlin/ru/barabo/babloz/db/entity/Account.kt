@@ -7,9 +7,9 @@ import java.time.LocalDate
 
 @TableName("ACCOUNT")
 @SelectQuery("select a.ID, a.NAME, a.DESCRIPTION, a.TYPE, a.CLOSED, a.CURRENCY, c.name CUR_NAME, c.EXT CUR_EXT, " +
-        "(select COALESCE(sum(case when a.ID = p.ACCOUNT then p.AMOUNT else COALESCE(p.amount_to, -1*p.AMOUNT) end), 0) from PAY p where a.ID in (p.ACCOUNT, p.ACCOUNT_TO) ) REST " +
+        "(select COALESCE(sum(case when a.ID = p.ACCOUNT then p.AMOUNT else COALESCE(p.amount_to, -1*p.AMOUNT) end), 0) from PAY p where a.ID in (p.ACCOUNT, p.ACCOUNT_TO) ) REST, a.SYNC " +
         "from ACCOUNT a, CURRENCY c " +
-        "where a.CURRENCY = c.ID and (CLOSED IS NULL OR CLOSED > CURRENT_DATE) order by a.TYPE")
+        "where a.CURRENCY = c.ID and (CLOSED IS NULL OR CLOSED > CURRENT_DATE) and COALESCE(a.SYNC, 0) != 2 order by a.TYPE")
 data class Account (
     @ColumnName("ID")
     @SequenceName("SELECT COALESCE(MIN(ID), 0) - 1  from ACCOUNT")
@@ -41,7 +41,12 @@ data class Account (
     @ColumnName("REST")
     @ColumnType(java.sql.Types.NUMERIC)
     @ReadOnly
-    var rest :BigDecimal? = null
+    var rest :BigDecimal? = null,
+
+    @ColumnName("SYNC")
+    @ColumnType(java.sql.Types.INTEGER)
+    @Transient
+    var sync :Int? = null
     ) {
 
     override fun toString(): String = name?:""

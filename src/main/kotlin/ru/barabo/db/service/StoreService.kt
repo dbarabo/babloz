@@ -1,14 +1,18 @@
 package ru.barabo.db.service
 
-import ru.barabo.db.EditType
-import ru.barabo.db.SessionException
-import ru.barabo.db.SessionSetting
-import ru.barabo.db.TemplateQuery
+import org.slf4j.LoggerFactory
+import ru.barabo.db.*
+import ru.barabo.db.sync.Sync
+import ru.barabo.db.sync.SyncReload
+import ru.barabo.db.sync.SyncTypes
 import tornadofx.observable
 
-abstract class StoreService<T: Any, out G>(protected val orm :TemplateQuery) {
+abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val clazz: Class<T>)
+    : Sync<T> by SyncReload<T>(orm, clazz) {
 
     private val listenerList = ArrayList<StoreListener<G>>()
+
+    private val logger = LoggerFactory.getLogger(StoreService::class.java)
 
     protected val dataList = ArrayList<T>().observable()
 
@@ -20,8 +24,6 @@ abstract class StoreService<T: Any, out G>(protected val orm :TemplateQuery) {
     }
 
     protected abstract fun elemRoot(): G
-
-    protected abstract fun clazz(): Class<T>
 
     protected open fun processDelete(item: T) {}
 
@@ -53,18 +55,19 @@ abstract class StoreService<T: Any, out G>(protected val orm :TemplateQuery) {
 
         beforeRead()
 
-        orm.select(clazz(), ::callBackSelectData)
+        orm.select(clazz, ::callBackSelectData)
 
         sentRefreshAllListener(EditType.INIT)
     }
-
 
     @Throws(SessionException::class)
     open fun delete(item: T, sessionSetting: SessionSetting = SessionSetting(false)) {
 
         dataList.remove(item)
 
-        orm.deleteById(item, sessionSetting)
+        setDeleteSyncValue(item)
+        orm.save(item, sessionSetting)
+        //orm.deleteById(item, sessionSetting)
 
         processDelete(item)
 
@@ -78,6 +81,10 @@ abstract class StoreService<T: Any, out G>(protected val orm :TemplateQuery) {
 
     @Throws(SessionException::class)
     open fun save(item: T, sessionSetting: SessionSetting = SessionSetting(false)): T {
+
+        setSaveSyncValue(item)
+
+//        logger.error("save item=$item")
 
         val type = orm.save(item, sessionSetting)
 
@@ -96,6 +103,20 @@ abstract class StoreService<T: Any, out G>(protected val orm :TemplateQuery) {
         processStartLongTransactState(type)
 
         return item
+    }
+
+    private fun setDeleteSyncValue(item: T) {
+        setSyncValue(item, SyncTypes.DELETE.ordinal)
+    }
+
+    private fun setSaveSyncValue(item: T) {
+
+        val syncValue = if(isNullIdItem(item)) SyncTypes.INSERT else SyncTypes.UPDATE
+
+//        logger.error("syncValue=$syncValue")
+//        logger.error("syncValue.ordinal=${syncValue.ordinal}")
+
+        setSyncValue(item, syncValue.ordinal)
     }
 
     private fun processStartLongTransactState(type: EditType) {

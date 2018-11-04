@@ -8,7 +8,7 @@ import java.math.BigDecimal
 import java.text.DecimalFormat
 
 @TableName("BUDGET_ROW")
-@SelectQuery("""select r.*, $CALC_AMOUNT_REAL from BUDGET_ROW r where r.MAIN = ? order by id""")
+@SelectQuery("select r.*, $CALC_AMOUNT_REAL from BUDGET_ROW r where COALESCE(r.SYNC, 0) != 2 and r.MAIN = ? order by id")
 data class BudgetRow(
         @ColumnName("ID")
         @SequenceName("SELECT COALESCE(MAX(ID), 0) + 1  from BUDGET_ROW")
@@ -31,9 +31,13 @@ data class BudgetRow(
         @ColumnType(java.sql.Types.NUMERIC)
         @CalcColumnQuery("select $CALC_AMOUNT_REAL from BUDGET_ROW r where r.id = ?")
         @ReadOnly
-        var amountReal: BigDecimal? = null
-)
+        var amountReal: BigDecimal? = null,
 
+        @ColumnName("SYNC")
+        @ColumnType(java.sql.Types.INTEGER)
+        @Transient
+        var sync :Int? = null
+)
     : ParamsSelect {
 
     val amountFormat: String get() = amount?.let { DecimalFormat("0").format(it) }?:""
@@ -50,7 +54,6 @@ data class BudgetRow(
     }
 
     companion object {
-       // private val logger = LoggerFactory.getLogger(BudgetRow::class.java)
 
         internal const val OTHER_NAME = "Все остальные категории"
 

@@ -7,9 +7,7 @@ import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreService
 import java.time.LocalDate
 
-object BudgetMainService: StoreService<BudgetMain, List<BudgetMain>>(BablozOrm) {
-
-    override fun clazz(): Class<BudgetMain> = BudgetMain::class.java
+object BudgetMainService: StoreService<BudgetMain, List<BudgetMain>>(BablozOrm, BudgetMain::class.java) {
 
     override fun elemRoot(): List<BudgetMain> = dataList
 

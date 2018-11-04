@@ -10,10 +10,11 @@ import java.time.LocalTime
 import java.time.ZoneId
 
 @TableName("CATEGORY")
-@SelectQuery("select c.*, " +
-        "(select COALESCE(sum(p.AMOUNT), 0) from PAY p, category chi where c.ID in (chi.id, chi.parent) and p.CATEGORY = chi.ID and p.CREATED >= ? and p.CREATED < ?) TURN " +
-        " from category c " +
-        "order by case when c.parent is null then 100000*c.id else 100000*c.parent + c.id end")
+@SelectQuery(
+"""select c.*,
+(select COALESCE(sum(p.AMOUNT), 0) from PAY p, category chi where c.ID in (chi.id, chi.parent) and p.CATEGORY = chi.ID and p.CREATED >= ? and p.CREATED < ?) TURN
+from category c where COALESCE(c.SYNC, 0) != 2
+order by case when c.parent is null then 100000*c.id else 100000*c.parent + c.id end""")
 data class Category (
     @ColumnName("ID")
     @SequenceName("SELECT COALESCE(MAX(ID), 0) + 1  from CATEGORY")
@@ -41,7 +42,12 @@ data class Category (
     @ColumnName("IS_SELECTED")
     @ColumnType(java.sql.Types.INTEGER)
     @ReadOnly
-    var isSelected : Int? = null
+    var isSelected : Int? = null,
+
+    @ColumnName("SYNC")
+    @ColumnType(java.sql.Types.INTEGER)
+    @Transient
+    var sync :Int? = null
 
 ) : ParamsSelect {
 
