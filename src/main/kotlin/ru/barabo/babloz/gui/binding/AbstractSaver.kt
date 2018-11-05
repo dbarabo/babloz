@@ -7,7 +7,7 @@ import ru.barabo.babloz.gui.custom.ChangeSelectEdit
 import tornadofx.alert
 
 abstract class AbstractSaver<T, out B : BindProperties<T>>(clazzBind: Class<B>,
-                     changeSelectEdit: ChangeSelectEdit = ChangeSelectEdit.SAVE) : Saver<T> {
+                     changeSelectEdit: ChangeSelectEdit = ChangeSelectEdit.CANCEL) : Saver<T> {
 
     val editBind: B = clazzBind.newInstance()
 
