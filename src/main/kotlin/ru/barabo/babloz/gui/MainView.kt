@@ -1,5 +1,6 @@
 package ru.barabo.babloz.gui
 
+import javafx.application.Platform
 import javafx.geometry.Orientation
 import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
@@ -9,6 +10,7 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.stage.Screen
 import javafx.stage.Stage
+import ru.barabo.babloz.db.service.ProfileService
 import ru.barabo.babloz.gui.account.AccountList
 import ru.barabo.babloz.gui.budget.BudgetList
 import ru.barabo.babloz.gui.category.CategoryList
@@ -18,7 +20,7 @@ import ru.barabo.babloz.gui.person.PersonList
 import ru.barabo.babloz.gui.project.ProjectList
 import ru.barabo.babloz.gui.service.ServiceTab
 import ru.barabo.babloz.main.ResourcesManager
-import ru.barabo.babloz.sync.Sync
+import ru.barabo.babloz.sync.SyncTypes
 import ru.barabo.babloz.sync.SyncZip
 import tornadofx.*
 
@@ -28,12 +30,7 @@ class MainApp: App(MainView::class) {
 
     override fun start(stage: Stage) {
 
-        val result = LoginDb.showAndWait()
-        if(result.isPresent) {
-
-            SyncZip.startSync(result.get().first!!, result.get().second!!, result.get().third)
-            //Sync.startSync(result.get().first!!, result.get().second!!, result.get().third)
-        }
+        startLogin()
 
         super.start(stage)
 
@@ -47,6 +44,26 @@ class MainApp: App(MainView::class) {
         stage.width = screen.visualBounds.width / 3 * 2
 
         stage.height = screen.visualBounds.height
+    }
+
+    private fun startLogin() {
+
+        val profile = ProfileService.dataProfile()
+
+        val response = LoginDb.showWait(profile)
+
+        if(!response.isSuccess) {
+            exitApplication()
+        }
+
+        profile.msgUidSync = SyncZip.startSync(response)
+
+        ProfileService.save(profile)
+    }
+
+    private fun exitApplication() {
+        Platform.exit()
+        System.exit(0)
     }
 
     override fun stop() {

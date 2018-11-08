@@ -5,12 +5,15 @@ import org.slf4j.LoggerFactory
 import ru.barabo.archive.Archive
 import ru.barabo.archive.Cmd
 import ru.barabo.babloz.db.BablozConnection
+import ru.barabo.babloz.db.service.ProfileService
 import ru.barabo.babloz.sync.imap.GetMailDb
 import ru.barabo.babloz.sync.imap.MailProperties
+import ru.barabo.babloz.sync.imap.ResponseFile
 import ru.barabo.babloz.sync.smtp.SendMailDb
 import tornadofx.alert
 import java.io.File
 import java.nio.file.FileSystems
+import javax.mail.Store
 
 object SyncZip : GetMailDb, SendMailDb {
 
@@ -32,24 +35,71 @@ object SyncZip : GetMailDb, SendMailDb {
         return false
     }
 
-    /**
-     * load file from email
-     */
-    fun startSync(login: String, password: String, syncType: SyncTypes) {
-        mailProp = MailProperties(user = login, password = password)
+    fun getImapConnect(login: String?, password: String?, syncType: SyncTypes, lastUid: Long = 0): ResponseImap {
 
         this.syncType = syncType
 
-        START_SYNC_PROCESS[syncType]!!.invoke()
+        if(syncType == SyncTypes.NO_SYNC_LOCAL_ONLY) return ResponseImap.RESPONSE_IMAP_LOCAL
+
+        if(login.isNullOrEmpty() || password.isNullOrEmpty() ) return ResponseImap.RESPONSE_IMAP_CANCEL
+
+        mailProp = MailProperties(user = login!!, password = password!!)
+
+        val store = getImapConnect(mailProp!!)
+
+        return ResponseImap(isSuccess = store != null, imapConnect = store, lastUidSaved = lastUid)
+    }
+
+    private fun getImapConnect(mailProp: MailProperties): Store? {
+        return try {
+            getConnectImap(mailProp)
+        } catch (e: Exception) {
+
+            logger.error("getImapConnect", e)
+
+            alertError(e.message!!)
+
+            null
+        }
+    }
+
+    /**
+     * load file from email
+     * return last uid message
+     */
+    fun startSync(responseImap: ResponseImap): Long {
+
+        if(syncType == SyncTypes.NO_SYNC_LOCAL_ONLY) return responseImap.lastUidSaved.apply { responseImap.imapConnect?.close() }
+
+        return responseImap.imapConnect?.let { downloadSyncFile(it, responseImap.lastUidSaved) } ?: responseImap.lastUidSaved
     }
 
     fun endSync() {
 
         if(SyncLoader.isExistsUpdateSyncData()) {
-            START_SYNC_PROCESS[syncType]?.invoke()
+
+            saveEndBackup()
         }
 
         BablozConnection.closeAllSessions()
+    }
+
+    private fun saveEndBackup() {
+        if(syncType == SyncTypes.NO_SYNC_LOCAL_ONLY) return
+
+        val profile = ProfileService.dataProfile()
+
+        val oldUID = profile.msgUidSync?:0L
+
+        val store = getImapConnect(mailProp!!) ?: return
+
+        val downloadUID = store.use { downloadSyncFile(it, oldUID) }
+
+        profile.msgUidSync = if(downloadUID == oldUID) sendBackup(oldUID) else downloadUID
+
+        ProfileService.save(profile)
+
+        SyncLoader.resetDataAfterSend()
     }
 
     private fun currentDirectory(): String {
@@ -64,41 +114,29 @@ object SyncZip : GetMailDb, SendMailDb {
 
     private const val BACKUP_FILE_NAME = "babloz.bak"
 
-    private const val NOT_EXISTS_FILE = "_NOT_EXISTS_"
+    private fun downloadSyncFile(imapConnect: Store, lastUidSaved: Long): Long {
 
-    private const val DB_IN_EMAIL_NOTFOUND = "База данных в эл. почте не найдена"
+        val responseFile = downloadFile(imapConnect, lastUidSaved)
 
-    private val START_SYNC_PROCESS = mapOf<SyncTypes, ()->Boolean>(
-            SyncTypes.SYNC_START_SAVE_LOCAL to ::downloadSyncFile,
-            SyncTypes.SYNC_START_DEL_LOCAL to ::downloadSyncFile,
-            SyncTypes.NO_SYNC_LOCAL_ONLY to ::startLocalOnly
-    )
+        if(!responseFile.isSuccess || responseFile.file == null) return lastUidSaved
 
-    private fun downloadSyncFile(): Boolean {
+        val isExistsNewData = SyncLoader.loadSyncBackup(responseFile.file)
 
-        if(!isSuccessMailPropertySmtp()) return false
-
-        val file = downloadFile() ?: return false
-
-        val isExistsNewData = if(file.name == bablozAttachName()) SyncLoader.loadSyncBackup(file) else true
-
-        return if(isExistsNewData) sendBackup() else true
+        return if(isExistsNewData) sendBackup(responseFile.uidMessage) else responseFile.uidMessage
     }
 
-    private fun downloadFile(): File? {
+    private fun downloadFile(imapConnect: Store, lastUidSaved: Long): ResponseFile {
         return try {
-            val db = this.getDbInMail(mailProp!!)
 
-            logger.error("db=$db")
+            downloadFileMail(imapConnect, lastUidSaved)
 
-            db?.let { it } ?: alertEmailNotFound()
         } catch (e: Exception) {
 
             logger.error("downloadSyncFile", e)
 
             alertError(e.message!!)
 
-            null
+            ResponseFile.RESPONSE_FAIL
         }
     }
 
@@ -106,54 +144,20 @@ object SyncZip : GetMailDb, SendMailDb {
 
     private fun backupFileFullPathName() = BACKUP_FILE_NAME
 
-    private fun sendBackup(): Boolean {
+    private fun sendBackup(oldUID: Long): Long {
 
         SyncSaver.toZipBackup(zipFileFullPathName(), backupFileFullPathName())
-
-        logger.error("toZipBackup ok")
 
         return try {
             sendDb(mailProp!!)
 
-            logger.error("sendDb true")
-
-            true
+            getLastUIDSent(mailProp!!) ?: oldUID
         } catch (e: Exception) {
             logger.error("sendBackup", e)
 
             alertError(e.message!!)
 
-            false
-        }
-    }
-
-    private fun alertEmailNotFound(): File {
-        alertError(DB_IN_EMAIL_NOTFOUND)
-
-        return File(NOT_EXISTS_FILE)
-    }
-
-    private fun startLocalOnly(): Boolean = true
-
-    private fun isSuccessMailPropertySmtp(): Boolean {
-
-        val valid = mailProp?.let { it.user.isNotEmpty() && it.password.isNotEmpty()  } ?: return false
-
-        return if(valid) isCheckSmtpConnect() else false
-    }
-
-    private fun isCheckSmtpConnect(): Boolean {
-        return try {
-            mailProp?.smtpSession()
-
-            true
-        } catch (e: Exception) {
-
-            logger.error("isCheckSmtpConnect", e)
-
-            alertError(e.message!!)
-
-            false
+            oldUID
         }
     }
 }

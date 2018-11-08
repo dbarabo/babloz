@@ -79,12 +79,12 @@ object ServiceTab : Tab("Настройки", VBox()) {
 
     private fun syncStart() {
 
-        if(Sync.isSuccessMailPropertySmtp()) {
-            Sync.saveDbToEMail()
-        } else {
-            LoginDb.showAndWait().ifPresent {
-                Sync.saveDbToEMail(it.first!!, it.second!!)
-            }
-        }
+//        if(Sync.isSuccessMailPropertySmtp()) {
+//            Sync.saveDbToEMail()
+//        } else {
+//            LoginDb.showAndWait().ifPresent {
+//                Sync.saveDbToEMail(it.first!!, it.second!!)
+//            }
+//        }
     }
 }

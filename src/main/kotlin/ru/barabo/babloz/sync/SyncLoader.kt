@@ -40,6 +40,10 @@ object SyncLoader {
     fun isExistsUpdateSyncData()
             = serviceHashByTableName.values.firstOrNull { it.isExistsUpdateSyncData() } != null
 
+    fun resetDataAfterSend() {
+        serviceHashByTableName.values.forEach { it.resetNewSyncData() }
+    }
+
     private fun fromZipBackup(backupZip: File) {
         val text = Archive.unpackFromZipToString(backupZip)
 

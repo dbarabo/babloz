@@ -1,6 +1,6 @@
 package ru.barabo.db.sync
 
-enum class SyncTypes {
+enum class SyncEditTypes {
     INSERT,
     UPDATE,
     DELETE

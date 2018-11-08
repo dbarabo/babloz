@@ -8,5 +8,9 @@ enum class SyncTypes(val label: String) {
 
     NO_SYNC_LOCAL_ONLY("Только локальная БД - без синхронизации");
 
-    override fun toString(): String = label
+    override fun toString(): String = label;
+
+    companion object {
+        val DEFAULT_SYNC_TYPE = SyncTypes.values()[0]
+    }
 }

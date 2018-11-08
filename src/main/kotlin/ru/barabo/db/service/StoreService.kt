@@ -4,7 +4,7 @@ import org.slf4j.LoggerFactory
 import ru.barabo.db.*
 import ru.barabo.db.sync.Sync
 import ru.barabo.db.sync.SyncReload
-import ru.barabo.db.sync.SyncTypes
+import ru.barabo.db.sync.SyncEditTypes
 import tornadofx.observable
 
 abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val clazz: Class<T>)
@@ -106,12 +106,12 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
     }
 
     private fun setDeleteSyncValue(item: T) {
-        setSyncValue(item, SyncTypes.DELETE.ordinal)
+        setSyncValue(item, SyncEditTypes.DELETE.ordinal)
     }
 
     private fun setSaveSyncValue(item: T) {
 
-        val syncValue = if(isNullIdItem(item)) SyncTypes.INSERT else SyncTypes.UPDATE
+        val syncValue = if(isNullIdItem(item)) SyncEditTypes.INSERT else SyncEditTypes.UPDATE
 
 //        logger.error("syncValue=$syncValue")
 //        logger.error("syncValue.ordinal=${syncValue.ordinal}")

@@ -69,13 +69,13 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
     override fun prepareFillNewData(): List<T> {
         val selectNewRecords = getSelectNewRecords()
 
-        insertData = selectNewRecords?.let { getSelectNewData(it, SyncTypes.INSERT) } ?: emptyList()
+        insertData = selectNewRecords?.let { getSelectNewData(it, SyncEditTypes.INSERT) } ?: emptyList()
 
         insertData = insertData.sortedWith( compareBy { idMember!!.getter.call(it) as Comparable<*> } )
 
-        deleteData = selectNewRecords?.let { getSelectNewData(it, SyncTypes.DELETE) } ?: emptyList()
+        deleteData = selectNewRecords?.let { getSelectNewData(it, SyncEditTypes.DELETE) } ?: emptyList()
 
-        updateData = selectNewRecords?.let { getSelectNewData(it, SyncTypes.UPDATE) } ?: emptyList()
+        updateData = selectNewRecords?.let { getSelectNewData(it, SyncEditTypes.UPDATE) } ?: emptyList()
 
 //        logger.error("insertData=$insertData")
 //        logger.error("deleteData=$deleteData")
@@ -158,7 +158,7 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
     private fun getInsertSql(columns: Set<String>): String {
         val columnNames = columns.joinToString(", ")
 
-        val questions = columns.joinToString(", ") { _ -> "?" }
+        val questions = columns.joinToString(", ") { "?" }
 
         return templateInsertSql(tableName, columnNames, questions)
     }
@@ -262,7 +262,7 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
         return posSelected
     }
 
-    private fun getSelectNewData(selectRecords: Triple<String, Int, List<String>>, syncType: SyncTypes): List<T> {
+    private fun getSelectNewData(selectRecords: Triple<String, Int, List<String>>, syncType: SyncEditTypes): List<T> {
 
         val params: Array<Any?>? = Array(selectRecords.second)  { syncType.ordinal }
 
@@ -309,6 +309,22 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
 
         return header + data.joinToString("\n") { it.joinToString(COLUMN_SEPARATOR).replace("\n".toRegex(), "") }
     }
+
+    override fun resetNewSyncData() {
+
+        val transient = getTransientColumns(entityClass)
+
+        if(transient.isEmpty()) return
+
+        val query = updateSyncQuery(transient)
+
+        orm.executeQuery(query, null)
+    }
+
+    private fun updateSyncQuery(syncColumns: List<String>) =
+            updateSyncTemplate(tableName, syncColumns.joinToString(separator = " = null, ", postfix = " = null"))
+
+    private fun updateSyncTemplate(table: String, syncColumns: String) = "update $table set $syncColumns"
 
     @Throws(SessionException::class)
     private fun selectTableRows(columns: List<String>): List<Array<Any?>> {

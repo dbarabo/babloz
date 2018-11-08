@@ -107,15 +107,15 @@ object Sync : GetMailDb, SendMailDb {
 
     private fun downloadSyncFile() {
 
-        val file = try {
-           this.getDbInMail(mailProp!!)
-        } catch (e: Exception) {
-            alert(Alert.AlertType.ERROR, e.message!!)
-
-            return
-        }
-
-        file?.replaceToMainDb()?: alert(Alert.AlertType.ERROR, DB_IN_EMAIL_NOTFOUND)
+//        val file = try {
+//           this.getDbInMail(mailProp!!)
+//        } catch (e: Exception) {
+//            alert(Alert.AlertType.ERROR, e.message!!)
+//
+//            return
+//        }
+//
+//        file?.replaceToMainDb()?: alert(Alert.AlertType.ERROR, DB_IN_EMAIL_NOTFOUND)
     }
 
     private const val DB_IN_EMAIL_NOTFOUND = "База данных в эл. почте не найдена"

@@ -36,6 +36,11 @@ interface Sync<T> {
     fun getBackupData(): String
 
     /**
+     * reset new sync data after sent backup
+     */
+    fun resetNewSyncData()
+
+    /**
      * table name of service
      */
     val tableName: String
