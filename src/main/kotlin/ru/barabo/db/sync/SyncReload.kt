@@ -303,9 +303,11 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
     override fun getBackupData(): String {
         if(columnsTable.isEmpty()) return ""
 
+        val transientColumns = getTransientColumns(entityClass)
+
         val header = getBackupTableHeader(tableName, columnsTable)
 
-        val data = selectTableRows(columnsTable)
+        val data = selectTableRows(columnsTable, transientColumns)
 
         return header + data.joinToString("\n") { it.joinToString(COLUMN_SEPARATOR).replace("\n".toRegex(), "") }
     }
@@ -316,9 +318,30 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
 
         if(transient.isEmpty()) return
 
+        resetDeleteSyncData(transient)
+
+        resetUpdateSyncData(transient)
+    }
+
+    private fun resetDeleteSyncData(transient: List<String>) {
+
+        val query = deleteSyncQuery(transient)
+
+        orm.executeQuery(query, null)
+    }
+
+    private fun resetUpdateSyncData(transient: List<String>) {
         val query = updateSyncQuery(transient)
 
         orm.executeQuery(query, null)
+    }
+
+    private fun deleteSyncQuery(syncColumns: List<String>): String {
+
+        val whereColumn = syncColumns.joinToString(separator = " = ${SyncEditTypes.DELETE.ordinal} and ",
+                    postfix = " = ${SyncEditTypes.DELETE.ordinal}")
+
+        return templateDeleteSync( tableName, whereColumn)
     }
 
     private fun updateSyncQuery(syncColumns: List<String>) =
@@ -326,15 +349,21 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
 
     private fun updateSyncTemplate(table: String, syncColumns: String) = "update $table set $syncColumns"
 
-    @Throws(SessionException::class)
-    private fun selectTableRows(columns: List<String>): List<Array<Any?>> {
+    private fun templateDeleteSync(table: String, syncColumns: String) = "delete from $table where $syncColumns"
 
-        val selectTable = selectTableTemplate( columns.joinToString(), tableName )
+    @Throws(SessionException::class)
+    private fun selectTableRows(columns: List<String>, whereColumns: List<String>): List<Array<Any?>> {
+
+        val whereColumn = if(whereColumns.isEmpty())"" else
+            " where coalesce(${whereColumns[0]}, -1) <> ${SyncEditTypes.DELETE.ordinal}"
+
+        val selectTable = selectTableTemplate( columns.joinToString(), tableName, whereColumn)
 
         return orm.select(selectTable)
     }
 
-    private fun selectTableTemplate(columns: String, table :String) = "select $columns from $table"
+    private fun selectTableTemplate(columns: String, table: String, whereColumns: String)
+            = "select $columns from $table $whereColumns"
 }
 
 const val PREFIX_TABLE = "@@@"

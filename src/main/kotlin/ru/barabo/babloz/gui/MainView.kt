@@ -20,13 +20,15 @@ import ru.barabo.babloz.gui.person.PersonList
 import ru.barabo.babloz.gui.project.ProjectList
 import ru.barabo.babloz.gui.service.ServiceTab
 import ru.barabo.babloz.main.ResourcesManager
-import ru.barabo.babloz.sync.SyncTypes
 import ru.barabo.babloz.sync.SyncZip
 import tornadofx.*
 
 fun startLaunch(args :Array<String>) = launch<MainApp>(args)
 
 class MainApp: App(MainView::class) {
+
+    @Volatile
+    private var isExit = false
 
     override fun start(stage: Stage) {
 
@@ -46,19 +48,11 @@ class MainApp: App(MainView::class) {
         stage.height = screen.visualBounds.height
     }
 
-    private fun startLogin() {
-
-        val profile = ProfileService.dataProfile()
-
-        val response = LoginDb.showWait(profile)
-
-        if(!response.isSuccess) {
+    private fun startLogin() = LoginDb.startSyncDialog {
+        if(!it.isSuccess) {
+            isExit = true
             exitApplication()
         }
-
-        profile.msgUidSync = SyncZip.startSync(response)
-
-        ProfileService.save(profile)
     }
 
     private fun exitApplication() {
@@ -68,7 +62,9 @@ class MainApp: App(MainView::class) {
 
     override fun stop() {
 
-        SyncZip.endSync()
+        if(!isExit) {
+            SyncZip.endSync()
+        }
 
         super.stop()
     }

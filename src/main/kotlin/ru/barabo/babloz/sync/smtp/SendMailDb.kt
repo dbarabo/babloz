@@ -16,15 +16,17 @@ interface SendMailDb {
 
     fun bablozFilePath(): String
 
-    fun sendDb(mailProp: MailProperties) {
+    fun sendDb(mailProp: MailProperties): File {
 
         val smtpSession = mailProp.smtpSession()
 
         val message = smtpSession.createMessage(mailProp.user)
 
-        message.addMultiPartWithAttachmentDb()
+        val attachment = message.addMultiPartWithAttachmentDb()
 
         smtpSession.messageSend(message, mailProp)
+
+        return attachment
     }
 
     private fun charsetSubject() = "UTF-8"
@@ -54,18 +56,20 @@ interface SendMailDb {
         transport.close()
     }
 
-    private fun MimeMessage.addMultiPartWithAttachmentDb() {
+    private fun MimeMessage.addMultiPartWithAttachmentDb(): File {
 
         val multipart = MimeMultipart("mixed")
 
         multipart.addEmptyTextPart()
 
-        multipart.addAttachmentBabloz()
+        val result = multipart.addAttachmentBabloz()
 
         setContent(multipart)
+
+        return result
     }
 
-    private fun MimeMultipart.addAttachmentBabloz() {
+    private fun MimeMultipart.addAttachmentBabloz(): File {
 
         val bablozFile = File("${bablozFilePath()}/${bablozAttachName()}")
 
@@ -82,6 +86,8 @@ interface SendMailDb {
                 "attachment; filename=" + MimeUtility.encodeText(bablozFile.name, "utf-8", "Q"))
 
         addBodyPart(attachPart)
+
+        return bablozFile
     }
 
     private fun MimeMultipart.addEmptyTextPart() {

@@ -76,15 +76,14 @@ object SyncZip : GetMailDb, SendMailDb {
 
     fun endSync() {
 
-        if(SyncLoader.isExistsUpdateSyncData()) {
-
+        if(SyncLoader.isExistsUpdateSyncData() ) {
             saveEndBackup()
         }
 
         BablozConnection.closeAllSessions()
     }
 
-    private fun saveEndBackup() {
+    internal fun saveEndBackup() {
         if(syncType == SyncTypes.NO_SYNC_LOCAL_ONLY) return
 
         val profile = ProfileService.dataProfile()
@@ -118,7 +117,7 @@ object SyncZip : GetMailDb, SendMailDb {
 
         val responseFile = downloadFile(imapConnect, lastUidSaved)
 
-        if(!responseFile.isSuccess || responseFile.file == null) return lastUidSaved
+        if((!responseFile.isSuccess) || responseFile.file == null) return lastUidSaved
 
         val isExistsNewData = SyncLoader.loadSyncBackup(responseFile.file)
 
@@ -142,14 +141,14 @@ object SyncZip : GetMailDb, SendMailDb {
 
     private fun zipFileFullPathName() = "${bablozFilePath()}/${bablozAttachName()}"
 
-    private fun backupFileFullPathName() = BACKUP_FILE_NAME
-
     private fun sendBackup(oldUID: Long): Long {
 
-        SyncSaver.toZipBackup(zipFileFullPathName(), backupFileFullPathName())
+        SyncSaver.toZipBackup(zipFileFullPathName(), BACKUP_FILE_NAME)
 
         return try {
-            sendDb(mailProp!!)
+            val attachment = sendDb(mailProp!!)
+
+            //attachment.delete()
 
             getLastUIDSent(mailProp!!) ?: oldUID
         } catch (e: Exception) {

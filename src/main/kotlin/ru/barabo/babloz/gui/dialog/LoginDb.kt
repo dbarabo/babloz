@@ -16,7 +16,7 @@ import tornadofx.*
 
 object LoginDb : Dialog<ResponseImap>() {
 
-    //private val logger = LoggerFactory.getLogger(LoginDb::class.java)!!
+   // private val logger = LoggerFactory.getLogger(LoginDb::class.java)!!
 
     private val mailAccount = SimpleStringProperty("")
 
@@ -24,7 +24,7 @@ object LoginDb : Dialog<ResponseImap>() {
 
     private val passwordAccount = SimpleStringProperty("")
 
-    private val syncType = SimpleObjectProperty<SyncTypes>(SyncTypes.values()[0])
+    private val syncType = SimpleObjectProperty<SyncTypes>(SyncTypes.SYNC_START_SAVE_LOCAL)
 
     private var profile = ProfileService.dataProfile()
 
@@ -59,7 +59,33 @@ object LoginDb : Dialog<ResponseImap>() {
         this.setResultConverter { processResult(it.buttonData.isCancelButton) }
     }
 
-    fun showWait(profile: Profile): ResponseImap {
+    fun startSyncDialog(processResponse: (ResponseImap)->Unit) {
+        val profile = ProfileService.dataProfile()
+
+        val response = showWait(profile)
+
+        processResponse(response)
+
+        if(response.isSuccess) {
+            profile.msgUidSync = SyncZip.startSync(response)
+
+            ProfileService.save(profile)
+        }
+    }
+
+    fun sendSyncBackupDialog() {
+        val profile = ProfileService.dataProfile()
+
+        val response = showWait(profile)
+
+        response.imapConnect?.close()
+
+        if(response.isSuccess) {
+            SyncZip.saveEndBackup()
+        }
+    }
+
+    private fun showWait(profile: Profile): ResponseImap {
         this.profile = profile
 
         fromProfile()
@@ -101,7 +127,7 @@ object LoginDb : Dialog<ResponseImap>() {
 
         profile.mail = mailAccount.value
 
-        profile.syncType = syncType.value?:SyncTypes.values()[0]
+        profile.syncType = syncType.value?:SyncTypes.NO_SYNC_LOCAL_ONLY
 
         profile.pswdHash = hashPassword
 
@@ -119,6 +145,6 @@ object LoginDb : Dialog<ResponseImap>() {
 
         passwordAccount.value = ""
 
-        syncType.value = profile.syncType ?: SyncTypes.values()[0]
+        syncType.value = profile.syncType ?: SyncTypes.NO_SYNC_LOCAL_ONLY
     }
 }

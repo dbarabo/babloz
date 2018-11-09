@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.importer.CssImporter
 import ru.barabo.babloz.gui.dialog.LoginDb
 import ru.barabo.babloz.main.ResourcesManager
-import ru.barabo.babloz.sync.Sync
 import tornadofx.*
 import java.io.File
 
@@ -37,19 +36,19 @@ object ServiceTab : Tab("Настройки", VBox()) {
                     }
                 }
 
-                field("Бэкап") {
-                    button ("Сделать бэкап").apply {
-
-                        //setOnAction { SyncSaver.toZipBackup() }
-                    }
-                }
-
-                field("Из Бэкапа") {
-                    button ("Восстановить из Бэкапа").apply {
-
-                       // setOnAction { SyncLoader.loadSyncBackup() }
-                    }
-                }
+//                field("Бэкап") {
+//                    button ("Сделать бэкап").apply {
+//
+//                        //setOnAction { SyncSaver.toZipBackup() }
+//                    }
+//                }
+//
+//                field("Из Бэкапа") {
+//                    button ("Восстановить из Бэкапа").apply {
+//
+//                       // setOnAction { SyncLoader.loadSyncBackup() }
+//                    }
+//                }
             }
         }
     }
@@ -77,14 +76,5 @@ object ServiceTab : Tab("Настройки", VBox()) {
         }
     }
 
-    private fun syncStart() {
-
-//        if(Sync.isSuccessMailPropertySmtp()) {
-//            Sync.saveDbToEMail()
-//        } else {
-//            LoginDb.showAndWait().ifPresent {
-//                Sync.saveDbToEMail(it.first!!, it.second!!)
-//            }
-//        }
-    }
+    private fun syncStart() = LoginDb.sendSyncBackupDialog()
 }

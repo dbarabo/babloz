@@ -34,6 +34,8 @@ object SyncLoader {
 
         serviceHashByTableName.values.forEach { it.initData() }
 
+        backupZip.delete()
+
         return isExistUpdate != null
     }
 
