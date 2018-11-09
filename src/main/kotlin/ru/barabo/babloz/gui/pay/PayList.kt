@@ -169,11 +169,11 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
     override fun refreshAll(elemRoot: List<Pay>, refreshType: EditType) {
 
         table?.let {
-            Platform.runLater({ run {it.refresh()} })
+            Platform.runLater { run {it.refresh()} }
             return
         }
 
-        Platform.runLater({
+        Platform.runLater {
             run {
                 table?.let { splitPane?.items?.remove(it) }
 
@@ -181,18 +181,17 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
                     table = table(elemRoot)
                 }
 
-                table?.selectionModel?.selectedItemProperty()?.addListener(
-                        { _, _, newSelection ->
+                table?.selectionModel?.selectedItemProperty()?.addListener { _, _, newSelection ->
                             selectPay = newSelection
 
                             selectPay?.let { PaySaver.changeSelectEditValue(it) }
 
                             table?.requestFocus()
-                        })
+                        }
 
                 splitPane?.addElemByLeft(table!!, 0.5)
              }
-        })
+        }
     }
 
     private fun table(rootGroup: List<Pay>): TableView<Pay> {
@@ -222,8 +221,7 @@ fun EventTarget.comboBoxDates(processDates: (LocalDate, LocalDate)->Unit): Combo
 
     return combobox<DateSelect>(property = dateSelectProperty, values = DateSelect.values().toList()).apply {
 
-        selectionModel?.selectedItemProperty()?.addListener(
-                { _, _, newSelection ->
+        selectionModel?.selectedItemProperty()?.addListener { _, _, newSelection ->
 
                     if(newSelection === DateSelect.DATE_PERIOD) {
                         val result = ModalDateSelect.showAndWait()
@@ -234,7 +232,7 @@ fun EventTarget.comboBoxDates(processDates: (LocalDate, LocalDate)->Unit): Combo
                     }
 
                     processDates(newSelection.start(), newSelection.end() )
-                })
+                }
     }
 }
 

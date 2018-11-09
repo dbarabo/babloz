@@ -6,9 +6,5 @@ enum class PayField(val label :String) {
     CATEGORY("CATEGORY"),
     AMOUNT("AMOUNT"),
     DESCRIPTION("NOTE"),
-    PROJECT("PROJECT");
-
-    companion object {
-
-    }
+    PROJECT("PROJECT")
 }

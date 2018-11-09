@@ -71,11 +71,11 @@ object AccountList : Tab("Счета", VBox()), StoreListener<GroupAccount> {
     override fun refreshAll(elemRoot: GroupAccount, refreshType: EditType) {
 
         treeTable?.let {
-            Platform.runLater({ run {it.refresh()} })
+            Platform.runLater { run {it.refresh()} }
             return
         }
 
-        Platform.runLater({
+        Platform.runLater{
             run {
                 treeTable?.let { splitPane?.items?.remove(it) }
 
@@ -85,15 +85,14 @@ object AccountList : Tab("Счета", VBox()), StoreListener<GroupAccount> {
 
                 treeTable?.root?.children?.forEach { it.expandedProperty().set(true) }
 
-                treeTable?.selectionModel?.selectedItemProperty()?.addListener(
-                        { _, _, newSelection ->
+                treeTable?.selectionModel?.selectedItemProperty()?.addListener { _, _, newSelection ->
                             AccountSaver.changeSelectEditValue(
                                     if(newSelection?.value?.parent !== GroupAccount.root)newSelection?.value?.account else null)
-                        })
+                        }
 
                 splitPane?.addElemByLeft(treeTable!!, 0.45)
             }
-        })
+        }
     }
 
 

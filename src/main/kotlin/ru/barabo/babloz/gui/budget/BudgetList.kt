@@ -47,7 +47,7 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
                 }
                 separator {  }
 
-                comboBoxBudgetTypes({newType -> BudgetMain.budgetTypePeriod = newType})
+                comboBoxBudgetTypes {newType -> BudgetMain.budgetTypePeriod = newType}
 
                 separator {  }
 
@@ -97,22 +97,21 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
 
     override fun refreshAll(elemRoot: List<BudgetMain>, refreshType: EditType) {
 
-        Platform.runLater({
+        Platform.runLater{
             run {
 
                 tableMainBudget?.refresh() ?: run { tableMainBudget = createTableMainBudget(elemRoot) }
 
                 BudgetMain.selectedBudget = if (elemRoot.isEmpty()) null else tableMainBudget?.selectionModel?.selectedItem
             }
-        })
+        }
     }
 
     private fun createTableMainBudget(elemRoot: List<BudgetMain>) = table(elemRoot).apply {
 
-            selectionModel?.selectedItemProperty()?.addListener(
-                { _, _, newSelection ->
+            selectionModel?.selectedItemProperty()?.addListener { _, _, newSelection ->
                     BudgetMain.selectedBudget = newSelection
-                })
+                }
 
             splitPane?.addElemByLeft(this, 0.5)
         }
@@ -148,11 +147,10 @@ fun EventTarget.comboBoxBudgetTypes(processBudjectTypePeriod: (BudgetTypePeriod)
 
     return combobox<BudgetTypePeriod>(property = budgetTypePeriodProperty, values = BudgetTypePeriod.values().toList()).apply {
 
-        selectionModel?.selectedItemProperty()?.addListener(
-                { _, _, newSelection ->
+        selectionModel?.selectedItemProperty()?.addListener { _, _, newSelection ->
 
                     processBudjectTypePeriod(newSelection)
-                })
+                }
     }
 }
 

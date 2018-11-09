@@ -145,9 +145,9 @@ open class Query (private val dbConnection :DbConnection) {
                        sessionSetting : SessionSetting = SessionSetting(false),
                        outParamTypes :IntArray? = null) :List<Any?>? {
 
-        logger.error(query)
+        logger.info(query)
 
-        params?.forEach { logger.error(it.toString()) }
+        params?.forEach { logger.info(it.toString()) }
 
         val session = dbConnection.getSession(sessionSetting)
 
@@ -200,7 +200,7 @@ open class Query (private val dbConnection :DbConnection) {
     @Throws(SessionException::class)
     private fun fetchData(resultSet : ResultSet, callBack :(isNewRow :Boolean, value :Any?, column :String?)->Unit) {
 
-        val columns = Array(resultSet.metaData.columnCount, {""})
+        val columns = Array(resultSet.metaData.columnCount) {""}
 
         for (index in 1 .. resultSet.metaData.columnCount) {
             columns[index - 1] = resultSet.metaData.getColumnName(index)?.toUpperCase()!!
@@ -221,7 +221,7 @@ open class Query (private val dbConnection :DbConnection) {
         val data = ArrayList<Array<Any?>>()
 
         while(resultSet.next()) {
-            val row = Array<Any?>(resultSet.metaData.columnCount, {null})
+            val row =  arrayOfNulls<Any?>(resultSet.metaData.columnCount)
 
             for (index in 1 .. resultSet.metaData.columnCount) {
                 row[index - 1] = resultSet.getObject(index)

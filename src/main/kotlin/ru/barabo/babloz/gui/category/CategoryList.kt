@@ -93,24 +93,23 @@ object CategoryList : Tab("Категории", VBox()), StoreListener<GroupCate
     override fun refreshAll(elemRoot: GroupCategory, refreshType: EditType) {
 
         treeTable?.let {
-            Platform.runLater({ run {it.refresh()} })
+            Platform.runLater { run {it.refresh()} }
             return
         }
 
-        Platform.runLater({
+        Platform.runLater {
             run {
                 synchronized(elemRoot) {
                     treeTable = treeTable(elemRoot)
                 }
 
-                treeTable?.selectionModel?.selectedItemProperty()?.addListener(
-                        { _, _, newSelection ->
+                treeTable?.selectionModel?.selectedItemProperty()?.addListener { _, _, newSelection ->
                             CategorySaver.changeSelectEditValue(newSelection?.value?.category)
-                        })
+                        }
 
                 splitPane?.addElemByLeft(treeTable!!, 0.45)
             }
-        })
+        }
     }
 
     private fun treeTable(rootGroup: GroupCategory): TreeTableView<GroupCategory> {

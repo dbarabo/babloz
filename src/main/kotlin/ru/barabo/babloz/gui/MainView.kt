@@ -10,7 +10,6 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.stage.Screen
 import javafx.stage.Stage
-import ru.barabo.babloz.db.service.ProfileService
 import ru.barabo.babloz.gui.account.AccountList
 import ru.barabo.babloz.gui.budget.BudgetList
 import ru.barabo.babloz.gui.category.CategoryList

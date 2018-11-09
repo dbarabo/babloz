@@ -10,14 +10,13 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 
-
 object Archive {
 
     //private val logger = LoggerFactory.getLogger(Archive::class.java)
 
     fun tempFolder() :File = Cmd.tempFolder("a")
 
-    fun packToZip(zipFilePath: String, vararg files: File) :File {
+    fun packToZip(zipFilePath: String, vararg files: File): File {
         File(zipFilePath).let { if (it.exists()) it.delete() }
 
         val zipFile = Files.createFile(Paths.get(zipFilePath))
@@ -56,7 +55,7 @@ object Archive {
 
     fun unpackFromZipToString(zipFilePath: File): String {
 
-        var text: String = ""
+        var text = ""
 
         ZipFile(zipFilePath).use { zip ->
             zip.entries().asSequence().forEach { entry ->

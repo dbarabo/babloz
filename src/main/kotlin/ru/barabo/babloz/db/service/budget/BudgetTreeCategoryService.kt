@@ -46,7 +46,7 @@ object BudgetTreeCategoryService: StoreService<Category, GroupCategory>(BablozOr
 
     override fun processInsert(item: Category) {
 
-        GroupCategory.addCategory(item, rootBudgetCategory!!, lastParent, {lastParent = it})
+        GroupCategory.addCategory(item, rootBudgetCategory!!, lastParent) {lastParent = it}
     }
 
     private fun advancedSelect(): String? =

@@ -62,8 +62,8 @@ object CssImporter : Importer {
         val sessionSetting = PayService.startLongTransation()
 
         try {
-            lines.forEach {
-                val fields = parseCsvQuote(it)
+            lines.forEach { line ->
+                val fields = parseCsvQuote(line)
 
                 val pay = createPay(fields, header)
 
@@ -142,7 +142,7 @@ object CssImporter : Importer {
 
     private fun parseAccountTo(accountToName: String?): Account? {
 
-        val accountName = if(!accountToName.isNullOrEmpty() ) accountToName!!.withoutBracket() else return null
+        val accountName = if(!accountToName.isNullOrEmpty() ) accountToName.withoutBracket() else return null
 
         return parseAccount(accountName)
     }
@@ -151,7 +151,7 @@ object CssImporter : Importer {
 
     private fun parseCategory(categoryName: String?) :Category? {
 
-        val category = if(!categoryName.isNullOrEmpty() ) categoryName!! else return CategoryService.findByName("Хз-куда")
+        val category = if(!categoryName.isNullOrEmpty() ) categoryName else return CategoryService.findByName("Хз-куда")
 
         if(category.first() == '[' && category.last() == ']') return Category.TRANSFER_CATEGORY
 

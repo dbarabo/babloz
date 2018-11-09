@@ -23,8 +23,6 @@ open class TemplateQuery (private val query :Query) {
 
         private const val ERROR_NULL_VALUE_TYPE = "Value and Type value is null"
 
-        private fun deleteTemplate(table :String) = "delete from $table where id = ?"
-
         private fun errorSequenceReturnNull(sequence :String) = "Sequence expression return NULL $sequence"
     }
 
@@ -116,16 +114,6 @@ open class TemplateQuery (private val query :Query) {
     }
 
     @Throws(SessionException::class)
-    fun deleteById(item :Any, sessionSetting: SessionSetting = SessionSetting(false) ) {
-
-        val tableName = getTableName(item)
-
-        val idField = getFieldData(item, ID_COLUMN)
-
-        query.execute(deleteTemplate(tableName), Array(1) {idField.second}, sessionSetting)
-    }
-
-    @Throws(SessionException::class)
     private fun getSelect(row :Class<*>) :String = row.kotlin.findAnnotation<SelectQuery>()?.name
             ?: throw SessionException(errorNotFoundAnnotationSelectQuery(row.simpleName))
 
@@ -190,7 +178,6 @@ open class TemplateQuery (private val query :Query) {
     private fun calcValueById(selectCalc: String, idParam: Any, sessionSetting : SessionSetting): Any? =
         query.selectValue(selectCalc, arrayOf(idParam), sessionSetting)
 
-
     @Throws(SessionException::class)
     private fun getNextSequenceValue(sequenceExpression: String, sessionSetting : SessionSetting = SessionSetting(false)) :Any {
         return query.selectValue(sequenceExpression, null, sessionSetting)
@@ -203,7 +190,7 @@ open class TemplateQuery (private val query :Query) {
 
         val columnNames = fields.joinToString(", ") {it.first}
 
-        val questions = fields.joinToString(", ") { _ -> "?" }
+        val questions = fields.joinToString(", ") { "?" }
 
         return "insert into $table ( $columnNames ) values ( $questions )"
     }

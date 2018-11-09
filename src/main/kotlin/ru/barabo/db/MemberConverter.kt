@@ -1,6 +1,5 @@
 package ru.barabo.db
 
-import org.slf4j.LoggerFactory
 import ru.barabo.db.annotation.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
@@ -10,7 +9,7 @@ import kotlin.reflect.full.instanceParameter
 import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.jvm.javaType
 
-private val logger = LoggerFactory.getLogger(MemberConverter::class.java)
+//private val logger = LoggerFactory.getLogger(MemberConverter::class.java)
 
 internal data class MemberConverter(private val member: KMutableProperty<*>,
                                     private val converter: ConverterValue?,
@@ -167,16 +166,6 @@ internal fun isNullIdItem(entityItem: Any): Boolean {
     return getValue == null
 }
 
-
-fun getIdPair(entityItem: Any): Pair<String, Any?>? {
-
-    val member = getIdMember(entityItem::class.java) ?: return null
-
-    val columnAnnotation= member.getColumnAnnotation() ?: return null
-
-    return mapMemberToSqlValue(entityItem, columnAnnotation)
-}
-
 private fun mapMemberToSqlValue(entityItem: Any, memberColumn: Pair<String, MemberConverter>): Pair<String, Any?> {
 
     val value = memberColumn.second.getSqlValueFromJavaObject(entityItem)
@@ -222,6 +211,7 @@ fun <T: Any> T.copyByReflection(): T {
 
     val instanceParams = copyMethod.instanceParameter!!
 
+    @Suppress("UNCHECKED_CAST")
     return copyMethod.callBy(mapOf(instanceParams to this)) as T
 }
 

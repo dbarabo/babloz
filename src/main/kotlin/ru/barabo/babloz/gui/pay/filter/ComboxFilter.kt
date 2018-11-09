@@ -14,7 +14,7 @@ class ComboxFilter<T>(items: ObservableList<T>?, mainItem: T, filtered: (List<T>
 
         checkModel.check(0)
 
-        addEventHandler(ComboBox.ON_HIDDEN, {
+        addEventHandler(ComboBox.ON_HIDDEN) {
 
             val checkedItems = checkModel.checkedItems
 
@@ -23,16 +23,16 @@ class ComboxFilter<T>(items: ObservableList<T>?, mainItem: T, filtered: (List<T>
             } else {
                 filtered(checkedItems)
             }
-        })
+        }
 
-        checkModel.checkedItems.addListener(ListChangeListener {
-            while (it.next()) {
-                if(mainItem in it.addedSubList) {
+        checkModel.checkedItems.addListener( ListChangeListener {change ->
+            while (change.next()) {
+                if(mainItem in change.addedSubList) {
                     allList().forEach { checkModel.check(it) }
                     return@ListChangeListener
                 }
 
-                if(mainItem in it.removed) {
+                if(mainItem in change.removed) {
                     allList().forEach { checkModel.clearCheck(it) }
                     return@ListChangeListener
                 }

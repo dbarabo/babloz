@@ -71,24 +71,23 @@ object ProjectList : Tab("Проекты", VBox()), StoreListener<GroupProject> 
     override fun refreshAll(elemRoot: GroupProject, refreshType: EditType) {
 
         treeTable?.let {
-            Platform.runLater({ run {it.refresh()} })
+            Platform.runLater { run {it.refresh()} }
             return
         }
 
-        Platform.runLater({
+        Platform.runLater {
             run {
                 synchronized(elemRoot) {
                     treeTable = treeTable(elemRoot)
                 }
 
-                treeTable?.selectionModel?.selectedItemProperty()?.addListener(
-                        { _, _, newSelection ->
+                treeTable?.selectionModel?.selectedItemProperty()?.addListener { _, _, newSelection ->
                             ProjectSaver.changeSelectEditValue(newSelection?.value?.project)
-                        })
+                        }
 
                 splitPane?.addElemByLeft(treeTable!!, 0.45)
             }
-        })
+        }
     }
 
     private fun treeTable(rootGroup: GroupProject): TreeTableView<GroupProject> {

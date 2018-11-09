@@ -1,8 +1,6 @@
 package ru.barabo.babloz.sync.imap
 
-import org.slf4j.LoggerFactory
 import ru.barabo.archive.Archive
-import ru.barabo.babloz.sync.SyncZip
 import java.io.File
 import javax.mail.*
 import javax.mail.internet.MimeBodyPart
@@ -78,17 +76,9 @@ interface GetMailDb {
         return use {
             val messages = it.search(searchTerm) ?: return ResponseFile.equalUidSuccess(lastUidSaved)
 
-            messages.forEach { LoggerFactory.getLogger(GetMailDb::class.java).error( it.receivedDate?.time?.toString() ) }
-
             val lastMessage = messages.getLastMessage()?: return ResponseFile.equalUidSuccess(lastUidSaved)
 
-            LoggerFactory.getLogger(GetMailDb::class.java).error("lastMessage=${lastMessage.receivedDate?.time}")
-
             val uid =  (it as? UIDFolder)?.getUID(lastMessage)
-
-            LoggerFactory.getLogger(GetMailDb::class.java).error("uid=$uid")
-
-            LoggerFactory.getLogger(GetMailDb::class.java).error("lastUidSaved=$lastUidSaved")
 
             if(uid == lastUidSaved) return ResponseFile.equalUidSuccess(lastUidSaved)
 

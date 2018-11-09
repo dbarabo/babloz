@@ -31,7 +31,7 @@ internal object BudgetRowTable : StoreListener<List<BudgetRow>> {
 
     override fun refreshAll(elemRoot: List<BudgetRow>, refreshType: EditType) {
 
-        Platform.runLater({
+        Platform.runLater {
             run {
                 tableRowBudget?.apply {
 
@@ -42,7 +42,7 @@ internal object BudgetRowTable : StoreListener<List<BudgetRow>> {
 
                 BudgetRow.budgetRowSelected = if (elemRoot.isEmpty()) null else tableRowBudget?.selectionModel?.selectedItem
             }
-        })
+        }
     }
 
     private fun createPanelRowBudget(elemRoot: List<BudgetRow>) {
@@ -74,10 +74,9 @@ internal object BudgetRowTable : StoreListener<List<BudgetRow>> {
 
             columns.add(progressColumn() )
 
-            selectionModel?.selectedItemProperty()?.addListener(
-                    { _, _, newSelection ->
+            selectionModel?.selectedItemProperty()?.addListener { _, _, newSelection ->
                         BudgetRow.budgetRowSelected = newSelection
-                    })
+                    }
 
             changeResizeColumns(rootGroup)
         }

@@ -38,10 +38,10 @@ object ModalDateSelect : Dialog<Pair<LocalDate, LocalDate>>() {
         dialogPane.buttonTypes.setAll(ButtonType("Задать", ButtonBar.ButtonData.OK_DONE),
                 ButtonType("Отменить", ButtonBar.ButtonData.CANCEL_CLOSE))
 
-        this.setResultConverter({
+        this.setResultConverter{
             if (it.buttonData.isCancelButton) return@setResultConverter null
 
             return@setResultConverter Pair(start.value, end.value)
-        })
+        }
     }
 }

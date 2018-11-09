@@ -27,13 +27,13 @@ enum class Type(val clazz: Class<*>, val sqlType: Int,
 
     DATETIME(java.time.LocalDateTime::class.javaObjectType, java.sql.Types.TIMESTAMP,
             { x -> (x as java.util.Date).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime()},
-            { it.toLongOrNull()?.let{ java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()).toLocalDateTime() } },
+            { x -> x.toLongOrNull()?.let{ java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()).toLocalDateTime() } },
             {},
             {java.sql.Date(Date.from((it as LocalDateTime).atZone(ZoneId.systemDefault()).toInstant()).time) }),
 
     DATE(java.time.LocalDate::class.javaObjectType, java.sql.Types.DATE,
             { x -> (x as java.util.Date).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()},
-            { it.toLongOrNull()?.let{ java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()).toLocalDate() } },
+            { x -> x.toLongOrNull()?.let{ java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()).toLocalDate() } },
             {},
             {java.sql.Date(Date.from((it as LocalDate).atStartOfDay(ZoneId.systemDefault()).toInstant()).time) }),
 
@@ -75,16 +75,7 @@ enum class Type(val clazz: Class<*>, val sqlType: Int,
 
         private val HASH_CLASS_STRING_CONVERTER = Type.values().map { it -> Pair(it.clazz, it.converterToJavaFromString) }.toMap()
 
-        fun convertStringValueToJavaByClass(value: String, clazz: Class<*>) :Any? {
-
-           // logger.error("clazz=$clazz")
-
-            val fun_ = HASH_CLASS_STRING_CONVERTER[clazz]
-
-          //  logger.error("fun_=$fun_")
-
-            return fun_?.invoke(value)
-        }
+        fun convertStringValueToJavaByClass(value: String, clazz: Class<*>) :Any? = HASH_CLASS_STRING_CONVERTER[clazz]?.invoke(value)
 
         fun isConverterExists(clazz :Class<*>) :Boolean {
             return HASH_CLASS_CONVERTER[clazz] != null

@@ -33,7 +33,7 @@ object PersonService : StoreService<Person, GroupPerson>(BablozOrm, Person::clas
 
     fun findPersonById(id :Int?) : Person {
 
-        val groupPerson = id?.let{ GroupPerson.root.child.firstOrNull { it.person.id == id } }
+        val groupPerson = id?.let{idIt -> GroupPerson.root.child.firstOrNull { it.person.id == idIt } }
 
         return groupPerson?.person ?: NULL_PERSON
     }

@@ -43,7 +43,7 @@ object SyncZip : GetMailDb, SendMailDb {
 
         if(login.isNullOrEmpty() || password.isNullOrEmpty() ) return ResponseImap.RESPONSE_IMAP_CANCEL
 
-        mailProp = MailProperties(user = login!!, password = password!!)
+        mailProp = MailProperties(user = login, password = password)
 
         val store = getImapConnect(mailProp!!)
 
@@ -148,7 +148,7 @@ object SyncZip : GetMailDb, SendMailDb {
         return try {
             val attachment = sendDb(mailProp!!)
 
-            //attachment.delete()
+            attachment.delete()
 
             getLastUIDSent(mailProp!!) ?: oldUID
         } catch (e: Exception) {

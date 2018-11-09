@@ -35,7 +35,7 @@ object ProjectService : StoreService<Project, GroupProject>(BablozOrm, Project::
 
     fun findProjectById(id :Int?) : Project {
 
-        val groupProject = id?.let{ GroupProject.root.child.firstOrNull { it.project.id == id } }
+        val groupProject = id?.let {idIt -> GroupProject.root.child.firstOrNull { it.project.id == idIt } }
 
         return groupProject?.project ?: NULL_PROJECT
     }

@@ -67,10 +67,7 @@ data class MailProperties(
         put("mail.smtp.host", hostSmtp)
         put("mail.smtp.auth", tlsSmtpEnable.toString())
         put("mail.smtp.starttls.enable", tlsSmtpEnable.toString())
-        put("mail.smtp.port", portSmtp.toString());
+        put("mail.smtp.port", portSmtp.toString())
         put("mail.smtp.from", user)
-
-        //put("mail.smtp.user", smtpProperties.user)
-        //put("mail.smtp.password", smtpProperties.password)
     }
 }

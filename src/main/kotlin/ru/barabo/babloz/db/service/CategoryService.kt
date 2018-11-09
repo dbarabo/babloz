@@ -37,7 +37,7 @@ object CategoryService: StoreService<Category, GroupCategory>(BablozOrm, Categor
 
     fun findCategoryById(id :Int?): Category {
 
-        val groupCategory = id?.let{ GroupCategory.root.child.firstOrNull { it.category.id == id } }
+        val groupCategory = id?.let {idIt -> GroupCategory.root.child.firstOrNull { it.category.id == idIt } }
 
         return groupCategory?.category ?: CATEGORY_NONE
     }

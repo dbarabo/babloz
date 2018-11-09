@@ -71,24 +71,23 @@ object PersonList : Tab("Субъекты", VBox()), StoreListener<GroupPerson> 
     override fun refreshAll(elemRoot: GroupPerson, refreshType: EditType) {
 
         treeTable?.let {
-            Platform.runLater({ run {it.refresh()} })
+            Platform.runLater { run {it.refresh()} }
             return
         }
 
-        Platform.runLater({
+        Platform.runLater {
             run {
                 synchronized(elemRoot) {
                     treeTable = treeTable(elemRoot)
                 }
 
-                treeTable?.selectionModel?.selectedItemProperty()?.addListener(
-                        { _, _, newSelection ->
+                treeTable?.selectionModel?.selectedItemProperty()?.addListener { _, _, newSelection ->
                             PersonSaver.changeSelectEditValue(newSelection?.value?.person)
-                        })
+                        }
 
                 splitPane?.addElemByLeft(treeTable!!, 0.45)
             }
-        })
+        }
     }
 
     private fun treeTable(rootGroup: GroupPerson): TreeTableView<GroupPerson> {

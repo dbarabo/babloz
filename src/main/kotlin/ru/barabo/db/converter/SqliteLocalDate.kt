@@ -8,7 +8,6 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
 
-
 object SqliteLocalDate : ConverterValue {
 
     override fun convertFromStringToJava(value: String, javaType: Class<*>): Any? {
@@ -36,6 +35,6 @@ object SqliteLocalDate : ConverterValue {
     }
 
     override fun convertToBase(value :Any) :Any = if(value is LocalDate)
-        Type.Companion.localDateToSqlDate(value) else
-        Type.Companion.localDateToSqlDate(value as LocalDateTime)
+        Type.localDateToSqlDate(value) else
+        Type.localDateToSqlDate(value as LocalDateTime)
 }
