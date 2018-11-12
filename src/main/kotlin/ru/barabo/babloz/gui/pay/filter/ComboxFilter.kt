@@ -7,6 +7,8 @@ import org.controlsfx.control.CheckComboBox
 
 class ComboxFilter<T>(items: ObservableList<T>?, mainItem: T, filtered: (List<T>)-> Unit, allList: ()->List<T>) : CheckComboBox<T>(items) {
 
+    @Volatile private var isUncheckedMainItem = 0
+
     init {
         maxWidth = 100.0
 
@@ -25,17 +27,36 @@ class ComboxFilter<T>(items: ObservableList<T>?, mainItem: T, filtered: (List<T>
             }
         }
 
-        checkModel.checkedItems.addListener( ListChangeListener {change ->
+        checkModel.checkedItems.addListener( ListChangeListener { change ->
+
             while (change.next()) {
+
                 if(mainItem in change.addedSubList) {
                     allList().forEach { checkModel.check(it) }
-                    return@ListChangeListener
+                    break
                 }
 
                 if(mainItem in change.removed) {
-                    allList().forEach { checkModel.clearCheck(it) }
-                    return@ListChangeListener
+                    if(isUncheckedMainItem > 0) {
+                        isUncheckedMainItem--
+                    } else {
+                        allList().forEach { if(it in checkModel.checkedItems) checkModel.clearCheck(it) }
+                    }
+                    break
                 }
+
+                if(change.removed.size > 0) {
+                    val checkedItems = checkModel.checkedItems ?: return@ListChangeListener
+
+                    if(mainItem in checkedItems && mainItem !in change.removed) {
+                        isUncheckedMainItem = 2
+                        break
+                    }
+                }
+            }
+
+            if(isUncheckedMainItem == 2) {
+                checkModel.clearCheck(mainItem)
             }
         })
     }
