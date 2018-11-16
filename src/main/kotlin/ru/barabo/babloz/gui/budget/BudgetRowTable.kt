@@ -68,7 +68,7 @@ internal object BudgetRowTable : StoreListener<List<BudgetRow>> {
         return TableView<BudgetRow>(rootGroup as ObservableList).apply {
             column("Строка бюджета", BudgetRow::name)
 
-            column("Выделено", BudgetRow::amountFormat)
+            column("Выделено", BudgetRow::amountFormat )
 
             column("Освоено", BudgetRow::amountRealFormat)
 

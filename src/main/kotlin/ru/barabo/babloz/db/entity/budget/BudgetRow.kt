@@ -40,9 +40,11 @@ data class BudgetRow(
 )
     : ParamsSelect {
 
-    val amountFormat: String get() = amount?.let { DecimalFormat("0").format(it) }?:""
+    var amountFormat: String = ""
+    get() = amount?.let { DecimalFormat("0").format(it) }?:""
 
-    val amountRealFormat: String get() = amountReal?.let { DecimalFormat("0").format(it) }?:""
+    var amountRealFormat: String = ""
+        get() = amountReal?.let { DecimalFormat("0").format(it) }?:""
 
     val percentAll: Double?
     get() {

@@ -178,6 +178,15 @@ class MainView: View() {
                 prefWidth = WIDTH_RIGHT_PANEL
             }
 
+            togglebutton("Отчеты", toggleGroup).apply {
+
+                graphic = ResourcesManager.icon("report.png")
+
+                setOnAction { ServiceTab.selectTab() }
+
+                prefWidth = WIDTH_RIGHT_PANEL
+            }
+
             togglebutton("Настройки", toggleGroup).apply {
 
                 graphic = ResourcesManager.icon("service.png")

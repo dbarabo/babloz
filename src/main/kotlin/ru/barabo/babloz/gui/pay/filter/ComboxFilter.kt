@@ -14,7 +14,7 @@ class ComboxFilter<T>(items: ObservableList<T>?, mainItem: T, filtered: (List<T>
 
         prefWidth = maxWidth
 
-        checkModel.check(0)
+        //checkModel.check(0)
 
         addEventHandler(ComboBox.ON_HIDDEN) {
 

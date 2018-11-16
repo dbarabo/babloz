@@ -75,20 +75,26 @@ data class Pay(
 
         ) {
 
-        val createPay: String get() = created?.let { DateTimeFormatter.ofPattern("yy.MM.dd HH:mm").format(it) } ?: ""
+        var createPay: String = ""
+                get() = created?.let { DateTimeFormatter.ofPattern("yy.MM.dd HH:mm").format(it) } ?: ""
 
-        val fromAccountPay: String get() = account?.name ?: ""
+        var fromAccountPay: String = ""
+                get() = account?.name ?: ""
 
-        val namePay: String get() = category?.id?.let { category?.name }
-                ?: "${Category.TRANSFER_CATEGORY.name} ${accountToExists()}"
+        var namePay: String = ""
+                get() =  category?.id?.let { category?.name } ?: "${Category.TRANSFER_CATEGORY.name} ${accountToExists()}"
 
-        val sumPay: String get() = amount?.let { DecimalFormat("0.00").format(it) }?:""
+        var sumPay: String = ""
+                get() = amount?.let { DecimalFormat("0.00").format(it) }?:""
 
-        val descriptionPay: String get() = description?.let { it } ?:""
+        var descriptionPay: String = ""
+                get() = description?.let { it } ?:""
 
-        val projectPay: String get() = project?.name?:""
+        var projectPay: String = ""
+                get() =  project?.name?:""
 
-        val personPay: String get() = person?.name?:""
+        var personPay: String = ""
+                get() = person?.name?:""
 
         private fun fromToAmount(): String = if(amount?.toDouble()?:0.0 > 0.0) "с " else "на "
 
