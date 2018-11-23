@@ -93,10 +93,10 @@ data class BudgetMain (
             }
     }
 
-    var amountBudgetFormat: String set(@Suppress("UNUSED_PARAMETER") value){}
+    var amountBudgetFormat: String = ""
         get() = amountBudget?.let { DecimalFormat("0").format(it) }?:""
 
-    var amountRealFormat: String set(@Suppress("UNUSED_PARAMETER") value){}
+    var amountRealFormat: String = ""
         get() = amountReal?.let { DecimalFormat("0").format(it) }?:""
 
     val percentAll: Double?

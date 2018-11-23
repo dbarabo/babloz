@@ -23,7 +23,6 @@ compileJava.options.encoding = 'UTF-8'
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    //compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
@@ -54,8 +53,6 @@ jar {
     manifest {
         attributes 'Main-Class': 'ru.barabo.babloz.main.BablozKt'
     }
-
-    //from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 
     from configurations.compile.collect {
         it.isDirectory() ? it : zipTree(it).matching{exclude{
