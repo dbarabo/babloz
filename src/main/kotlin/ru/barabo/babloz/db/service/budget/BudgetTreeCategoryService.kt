@@ -1,5 +1,6 @@
 package ru.barabo.babloz.db.service.budget
 
+import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.BablozOrm
 import ru.barabo.babloz.db.entity.Category
 import ru.barabo.babloz.db.entity.budget.BudgetCategory
@@ -100,36 +101,6 @@ object BudgetTreeCategoryService: StoreService<Category, GroupCategory>(BablozOr
                   and bc.CATEGORY = cm.id
                   and cAll.id in (cm.id, cm.parent) )
                 order by coalesce(100000*c.parent + c.id, 100000*c.id)"""
-/*
-            """select 0 IS_SELECTED, c.*
-                from CATEGORY c
-                where c.type = 0
-                  and c.id not in
-                     (select cm.id
-                        from BUDGET_CATEGORY bc,
-                             BUDGET_ROW br,
-                             CATEGORY cm
-                        where br.main = ?
-                          and bc.BUDGET_ROW = br.ID
-                          and bc.CATEGORY = cm.id
-                          and (cm.parent is not null
-
-                          or not exists (select chi.*
-                                            from CATEGORY chi
-                                           where chi.parent = cm.id
-                                           and not exists (
-                                                select 1
-                                                   from BUDGET_CATEGORY Cbc,
-                                                         BUDGET_ROW Cbr
-                                                  where Cbr.main = br.main
-                                                    and Cbc.BUDGET_ROW = Cbr.id
-                                                    and Cbc.CATEGORY = chi.id
-                                                           )
-                                        )
-                               )
-                     )
-                order by coalesce(100000*c.parent + c.id, 100000*c.id)"""
-*/
 
     fun addCategory(groupCategory: GroupCategory) {
 
@@ -188,6 +159,7 @@ object BudgetTreeCategoryService: StoreService<Category, GroupCategory>(BablozOr
                              BUDGET_CATEGORY bc2
                        where cc.id = bc2.category
                          and cc.parent is null
+                         and COALESCE(bc2.SYNC, 0) != 2
                          and bc2.BUDGET_ROW = bc.BUDGET_ROW))
                order by case when c.parent is null then 10000*c.id else 100000*c.parent + c.id end"""
 }

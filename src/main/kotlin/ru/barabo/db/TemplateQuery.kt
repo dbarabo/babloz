@@ -86,7 +86,7 @@ open class TemplateQuery (private val query :Query) {
     }
 
     @Throws(SessionException::class)
-    fun save(item :Any, sessionSetting: SessionSetting = SessionSetting(false)) :EditType {
+    fun save(item :Any, sessionSetting: SessionSetting = SessionSetting(false)): EditType {
 
         val idField = getFieldData(item, ID_COLUMN)
 
@@ -106,6 +106,17 @@ open class TemplateQuery (private val query :Query) {
             EditType.EDIT
         }
     }
+
+    @Throws(SessionException::class)
+    fun deleteById(item: Any, sessionSetting: SessionSetting = SessionSetting(false)) {
+        val idField = getFieldData(item, ID_COLUMN)
+
+        val tableName = getTableName(item)
+
+        executeQuery(templateDelete(tableName, idField.first), arrayOf(idField.second) )
+    }
+
+    private fun templateDelete(table: String, idColumn: String) = "delete from $table where $idColumn = ?"
 
     @Throws(SessionException::class)
     fun executeQuery(executeQuery: String, params: Array<Any?>?, sessionSetting: SessionSetting = SessionSetting(false)) {

@@ -25,8 +25,8 @@ object ResourcesManager {
     private fun textFileInJar(fullPath :String) =
             InputStreamReader(javaClass.getResourceAsStream(fullPath), "UTF-8").buffered().readText()
 
-    fun dbStructureText() :String = textFileInJar(DB_STRUCTURE)
+    fun dbStructureText(): String = textFileInJar(DB_STRUCTURE)
 
-    fun dbDataText() :String = textFileInJar(DB_DATA)
+    fun dbDataText(): String = textFileInJar(DB_DATA)
 
 }

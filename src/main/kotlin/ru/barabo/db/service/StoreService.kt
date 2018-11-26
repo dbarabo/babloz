@@ -65,9 +65,11 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
 
         dataList.remove(item)
 
-        setDeleteSyncValue(item)
-        orm.save(item, sessionSetting)
-        //orm.deleteById(item, sessionSetting)
+        if(setDeleteSyncValue(item)) {
+            orm.save(item, sessionSetting)
+        } else {
+            orm.deleteById(item, sessionSetting)
+        }
 
         processDelete(item)
 
@@ -83,7 +85,6 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
     open fun save(item: T, sessionSetting: SessionSetting = SessionSetting(false)): T {
 
         setSaveSyncValue(item)
-
 //        logger.error("save item=$item")
 
         val type = orm.save(item, sessionSetting)
@@ -105,9 +106,7 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
         return item
     }
 
-    private fun setDeleteSyncValue(item: T) {
-        setSyncValue(item, SyncEditTypes.DELETE.ordinal)
-    }
+    private fun setDeleteSyncValue(item: T) = setSyncValue(item, SyncEditTypes.DELETE.ordinal)
 
     private fun setSaveSyncValue(item: T) {
 

@@ -252,17 +252,19 @@ private fun getColumnsAnnotationByFilter(row: Class<*>,
     return columnsAnnotation
 }
 
-internal fun setSyncValue(entityItem: Any, syncValue: Any?) {
+internal fun setSyncValue(entityItem: Any, syncValue: Any?): Boolean {
     val member = entityItem::class.java.kotlin.declaredMemberProperties.filterIsInstance<KMutableProperty<*>>().firstOrNull {
         it.findAnnotation<Transient>() != null &&
         it.findAnnotation<ReadOnly>() == null &&
         it.findAnnotation<ColumnName>() != null &&
         it.findAnnotation<ColumnType>()?.type == java.sql.Types.INTEGER
-    } ?: return
+    } ?: return false
 
     if(member.getter.call(entityItem) == null) {
         member.setter.call(entityItem, syncValue)
     }
+
+    return true
 }
 
 fun getBackupColumnsTable(row: Class<*>) = getColumnsByFilter(row) {
