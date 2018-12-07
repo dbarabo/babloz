@@ -12,7 +12,7 @@ object BudgetRowSaver : AbstractSaver<BudgetRow, BudgetRowBind>(BudgetRowBind::c
 
     override fun serviceSave(value: BudgetRow) {
 
-        logger.error("serviceSave value=$value")
+       // logger.error("serviceSave value=$value")
 
         BudgetRowService.save(value)
     }

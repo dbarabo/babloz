@@ -73,18 +73,20 @@ interface GetMailDb {
     private fun Folder.getResponseFileLastMessage(searchTerm: SearchTerm, lastUidSaved: Long): ResponseFile {
         open(Folder.READ_WRITE)
 
-        return use {
-            val messages = it.search(searchTerm) ?: return ResponseFile.equalUidSuccess(lastUidSaved)
+        return use { folder ->
+            val messages = folder.search(searchTerm) ?: return ResponseFile.equalUidSuccess(lastUidSaved)
 
             val lastMessage = messages.getLastMessage()?: return ResponseFile.equalUidSuccess(lastUidSaved)
 
-            val uid =  (it as? UIDFolder)?.getUID(lastMessage)
+            val uid =  (folder as? UIDFolder)?.getUID(lastMessage)
 
             if(uid == lastUidSaved) return ResponseFile.equalUidSuccess(lastUidSaved)
 
             messages.dropMessagesWithout(lastMessage)
 
-            lastMessage.getAttachUID(it)
+            lastMessage.getAttachUID(folder).apply {
+                folder.expunge()
+            }
         }
     }
 
@@ -103,13 +105,19 @@ interface GetMailDb {
         open(Folder.READ_WRITE)
 
         use {
-            search(searchTerm)?.forEach { msg -> msg.setFlag(Flags.Flag.DELETED, true) }
+            search(searchTerm)?.forEach { msg ->
+                msg.setFlag(Flags.Flag.DELETED, true)
+                //msg.saveChanges()
+            }
+
+            expunge()
         }
     }
 
     private fun Array<out Message>.dropMessagesWithout(without: Message?) {
         asSequence().filter { it != without }.forEach {
             it.setFlag(Flags.Flag.DELETED, true)
+           // it.saveChanges()
         }
     }
 
