@@ -17,6 +17,7 @@ import ru.barabo.babloz.gui.dialog.LoginDb
 import ru.barabo.babloz.gui.pay.PayList
 import ru.barabo.babloz.gui.person.PersonList
 import ru.barabo.babloz.gui.project.ProjectList
+import ru.barabo.babloz.gui.report.ReportTab
 import ru.barabo.babloz.gui.service.ServiceTab
 import ru.barabo.babloz.main.ResourcesManager
 import ru.barabo.babloz.sync.SyncZip
@@ -182,7 +183,7 @@ class MainView: View() {
 
                 graphic = ResourcesManager.icon("report.png")
 
-                setOnAction { ServiceTab.selectTab() }
+                setOnAction { ReportTab.selectTab() }
 
                 prefWidth = WIDTH_RIGHT_PANEL
             }
