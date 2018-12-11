@@ -1,46 +1,37 @@
 package ru.barabo.babloz.gui.report
 
-import javafx.scene.chart.CategoryAxis
-import javafx.scene.chart.LineChart
-import javafx.scene.chart.NumberAxis
-import javafx.scene.chart.XYChart
+import javafx.geometry.Orientation
+import javafx.scene.control.SplitPane
 import javafx.scene.control.Tab
+import javafx.scene.control.TabPane
+import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
-import ru.barabo.babloz.db.service.report.ReportService
-import tornadofx.addChildIfPossible
+import javafx.stage.Screen
+import org.slf4j.LoggerFactory
+import ru.barabo.babloz.gui.MainView
 import tornadofx.form
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-
+import tornadofx.splitpane
 
 object ReportTab : Tab("Отчеты", VBox()) {
 
+    private val customTabPane: TabPane = TabPane()
+
+    private lateinit var splitPane: SplitPane
+
+    private val logger = LoggerFactory.getLogger(ReportTab::class.java)!!
+
     init {
 
-        val categoryTurnLineChart = LineChart<String, Number>(CategoryAxis(), NumberAxis())
-
-        val months = ReportService.getPeriods()
-
-        for (category in ReportService.getCategoryTurnList()) {
-
-            val line = XYChart.Series<String, Number>()
-
-            line.name = category.name
-
-            val turnMonths = ReportService.getTurnsByCategory(category, months)
-
-            for((index, month) in months.withIndex()) {
-                line.data.add(XYChart.Data(month.formatMonth(), turnMonths[index]) )
-            }
-
-            categoryTurnLineChart.data.add(line)
-        }
-
         form {
-            addChildIfPossible(categoryTurnLineChart)
+            splitpane(Orientation.HORIZONTAL, customTabPane, FactoryChart).apply { splitPane = this }
         }
 
+        customTabPane.tabs.add(ReportCustomCategoryTurn)
+
+        VBox.setVgrow(splitPane, Priority.ALWAYS)
+
+        val minDiv = 3.5 * MainView.payButton.width / Screen.getPrimary().visualBounds.width
+
+        splitPane.setDividerPosition(0, minDiv)
     }
 }
-
-fun LocalDate.formatMonth() = DateTimeFormatter.ofPattern("yy.MM").format(this)

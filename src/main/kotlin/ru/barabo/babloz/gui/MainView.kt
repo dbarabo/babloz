@@ -81,7 +81,7 @@ class MainView: View() {
 
         private lateinit var currentMainTab: TabPane
 
-        private lateinit var payButton: ToggleButton
+        lateinit var payButton: ToggleButton
 
         private fun Tab.selectTab() {
             if(!currentMainTab.tabs.contains(this)) {
