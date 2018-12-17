@@ -28,6 +28,8 @@ object ReportTab : Tab("Отчеты", VBox()) {
 
         customTabPane.tabs.add(ReportCustomCategoryTurn)
 
+        customTabPane.tabs.add(ReportCustomCostsIncomeTurn)
+
         VBox.setVgrow(splitPane, Priority.ALWAYS)
 
         val minDiv = 3.5 * MainView.payButton.width / Screen.getPrimary().visualBounds.width

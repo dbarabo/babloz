@@ -9,8 +9,9 @@ import javafx.scene.layout.VBox
 import org.controlsfx.control.CheckTreeView
 import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.babloz.db.service.CategoryService
-import ru.barabo.babloz.db.service.report.CategoryView
-import ru.barabo.babloz.db.service.report.ReportServiceCategoryTurn
+import ru.barabo.babloz.db.service.report.ChangeCategory
+import ru.barabo.babloz.db.service.report.categoryturn.CategoryView
+import ru.barabo.babloz.db.service.report.categoryturn.ReportServiceCategoryTurn
 import ru.barabo.babloz.gui.pay.PayEdit.rowHeight
 import ru.barabo.babloz.gui.pay.comboBoxDates
 import ru.barabo.babloz.gui.pay.defaultRowCount
@@ -22,7 +23,7 @@ object ReportCustomCategoryTurn : Tab("Динамика расходов по к
         form {
 
             fieldset("Категории отчета") {
-                addChildIfPossible(checkTreeCategory())
+                addChildIfPossible(checkTreeCategory(ReportServiceCategoryTurn))
             }
 
             fieldset("Период отчета") {
@@ -49,28 +50,28 @@ fun EventTarget.comboBoxCustomCategory(processCategoryView: (CategoryView)->Unit
     }
 }
 
-private fun checkTreeCategory(): CheckTreeView<GroupCategory> =
-        CheckTreeView<GroupCategory>(CheckBoxTreeItem<GroupCategory>(CategoryService.categoryRoot()) ).apply {
+internal fun checkTreeCategory(changeCategory: ChangeCategory) =
+    CheckTreeView<GroupCategory>(CheckBoxTreeItem<GroupCategory>(CategoryService.categoryRoot()) ).apply {
 
-            this.populate (itemFactory = {
-                CheckBoxTreeItem(it, null, it.category.isSelected ?:0 != 0).apply {
+        this.populate (itemFactory = {
+            CheckBoxTreeItem(it, null, it.category.isSelected ?:0 != 0).apply {
 
-                    selectedProperty().addListener { _, _, newValue ->
+                selectedProperty().addListener { _, _, newValue ->
 
-                        if(newValue == true) {
-                            ReportServiceCategoryTurn.addCategory(this.value.category)
-                        } else {
-                            ReportServiceCategoryTurn.removeCategory(this.value.category)
-                        }
+                    if(newValue == true) {
+                        changeCategory.addCategory(this.value.category)
+                    } else {
+                        changeCategory.removeCategory(this.value.category)
                     }
                 }
-            },
+            }
+        },
 
-            childFactory = { it.value.child })
+        childFactory = { it.value.child })
 
-            this.isShowRoot = false
+        this.isShowRoot = false
 
-            this.root.isExpanded = true
+        this.root.isExpanded = true
 
-            prefHeight = rowHeight() * defaultRowCount(GroupCategory.countRoot()) * 2
-        }
+        prefHeight = rowHeight() * defaultRowCount(GroupCategory.countRoot()) * 2
+    }

@@ -1,4 +1,4 @@
-package ru.barabo.babloz.db.service.report
+package ru.barabo.babloz.db.service.report.categoryturn
 
 enum class CategoryView(val label: String) {
 
