@@ -30,6 +30,12 @@ object ReportTab : Tab("Отчеты", VBox()) {
 
         customTabPane.tabs.add(ReportCustomCostsIncomeTurn)
 
+        customTabPane.tabs.add(ReportCustomAccountRest)
+
+        customTabPane.selectionModel.selectedItemProperty().addListener {_, _, newTab->
+             if (newTab is ChangeTabSelected) newTab.processSelect()
+        }
+
         VBox.setVgrow(splitPane, Priority.ALWAYS)
 
         val minDiv = 3.5 * MainView.payButton.width / Screen.getPrimary().visualBounds.width

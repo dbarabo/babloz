@@ -2,14 +2,16 @@ package ru.barabo.babloz.gui.report
 
 import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventTarget
+import javafx.scene.chart.XYChart
 import javafx.scene.control.CheckBoxTreeItem
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Tab
 import javafx.scene.layout.VBox
 import org.controlsfx.control.CheckTreeView
+import ru.barabo.babloz.db.entity.Category
 import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.babloz.db.service.CategoryService
-import ru.barabo.babloz.db.service.report.ChangeCategory
+import ru.barabo.babloz.db.service.report.ChangeEntity
 import ru.barabo.babloz.db.service.report.categoryturn.CategoryView
 import ru.barabo.babloz.db.service.report.categoryturn.ReportServiceCategoryTurn
 import ru.barabo.babloz.gui.pay.PayEdit.rowHeight
@@ -17,8 +19,7 @@ import ru.barabo.babloz.gui.pay.comboBoxDates
 import ru.barabo.babloz.gui.pay.defaultRowCount
 import tornadofx.*
 
-object ReportCustomCategoryTurn : Tab("Динамика расходов по категориям", VBox()) {
-
+object ReportCustomCategoryTurn : Tab("Динамика расходов по категориям", VBox()), ChangeTabSelected {
     init {
         form {
 
@@ -35,6 +36,24 @@ object ReportCustomCategoryTurn : Tab("Динамика расходов по к
             }
         }
     }
+
+    override fun processSelect() {
+        ReportServiceCategoryTurn.updateInfoListeners()
+    }
+}
+
+object ReportCategoryTurnDrawChart {
+
+    fun drawChart(chartMap: Map<DiagramViewType, XYChart<String, Number>>): XYChart<String, Number> {
+
+        val chart = chartMap[DiagramViewType.LINE_CHART]!!
+
+        val dates = ReportServiceCategoryTurn.datePeriods
+
+        val categoryTurn = ReportServiceCategoryTurn.infoMap()
+
+        return chart.drawChart(dates, categoryTurn, { it.name }, ReportServiceCategoryTurn.periodType)
+    }
 }
 
 fun EventTarget.comboBoxCustomCategory(processCategoryView: (CategoryView)->Unit): ComboBox<CategoryView> {
@@ -50,7 +69,7 @@ fun EventTarget.comboBoxCustomCategory(processCategoryView: (CategoryView)->Unit
     }
 }
 
-internal fun checkTreeCategory(changeCategory: ChangeCategory) =
+internal fun checkTreeCategory(changeEntity: ChangeEntity<Category>) =
     CheckTreeView<GroupCategory>(CheckBoxTreeItem<GroupCategory>(CategoryService.categoryRoot()) ).apply {
 
         this.populate (itemFactory = {
@@ -59,9 +78,9 @@ internal fun checkTreeCategory(changeCategory: ChangeCategory) =
                 selectedProperty().addListener { _, _, newValue ->
 
                     if(newValue == true) {
-                        changeCategory.addCategory(this.value.category)
+                        changeEntity.addEntity(this.value.category)
                     } else {
-                        changeCategory.removeCategory(this.value.category)
+                        changeEntity.removeEntity(this.value.category)
                     }
                 }
             }

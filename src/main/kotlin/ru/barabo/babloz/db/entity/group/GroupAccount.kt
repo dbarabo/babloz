@@ -61,6 +61,8 @@ data class GroupAccount(var account: Account = Account(),
 
             return GroupAccount.root.findByAccountName(accountName)
         }
+
+        fun countRoot() = root.child.size
     }
 
     private fun findByAccountName(accountName: String): GroupAccount? {
@@ -73,10 +75,13 @@ data class GroupAccount(var account: Account = Account(),
                 return find
             }
         }
+
         return null
     }
 
     val name: String get() = account.name?.let { it } ?: ""
 
     val rest: String get() = account.rest?.let { DecimalFormat("0.00").format(it) + " ${account.currency?.ext}" }?:""
+
+    override fun toString(): String = account.name?.let { it } ?: ""
 }

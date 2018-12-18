@@ -1,6 +1,6 @@
 package ru.barabo.babloz.db.entity
 
-enum class AccountType(val label :String) {
+enum class AccountType(val label: String) {
 
     CURRENT("Текущие (оборотные) счета"),
     CREDIT("Расходные счета (кредиты)"),

@@ -43,6 +43,8 @@ data class Account (
     @ReadOnly
     var rest :BigDecimal? = null,
 
+    var isSelected : Int? = null,
+
     @ColumnName("SYNC")
     @ColumnType(java.sql.Types.INTEGER)
     @Transient

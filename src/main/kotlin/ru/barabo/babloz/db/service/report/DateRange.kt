@@ -36,5 +36,8 @@ data class DateRange(val startInclusive: LocalDate = LocalDate.now().minusYears(
 
             return DateRange(periodType.convertDate(startDate), periodType.convertDate(endDate))
         }
+
+        fun minMaxDateList(periodType: PeriodType) =
+                updateDateRange(start = MIN_DATE_PAY, end = LocalDate.now(), periodType = periodType).getPeriods(periodType)
     }
 }

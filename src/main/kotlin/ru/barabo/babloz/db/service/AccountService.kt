@@ -16,6 +16,8 @@ object AccountService :StoreService<Account, GroupAccount>(BablozOrm, Account::c
 
     override fun elemRoot(): GroupAccount = GroupAccount.root
 
+    fun accountRoot() = elemRoot()
+
     override fun beforeRead() {
         GroupAccount.rootClear()
     }
