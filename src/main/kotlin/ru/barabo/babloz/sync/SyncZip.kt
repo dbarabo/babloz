@@ -43,16 +43,16 @@ object SyncZip : GetMailDb, SendMailDb {
 
         if(login.isNullOrEmpty() || password.isNullOrEmpty() ) return ResponseImap.RESPONSE_IMAP_CANCEL
 
-        mailProp = MailProperties(user = login, password = password)
+        mailProp = MailProperties.tryDefineProperties(login, password)
 
-        val store = getImapConnect(mailProp!!)
+        val store = getImapConnect(mailProp)
 
         return ResponseImap(isSuccess = store != null, imapConnect = store, lastUidSaved = lastUid)
     }
 
-    private fun getImapConnect(mailProp: MailProperties): Store? {
+    private fun getImapConnect(mailProp: MailProperties?): Store? {
         return try {
-            getConnectImap(mailProp)
+            getConnectImap(mailProp!!)
         } catch (e: Exception) {
 
             logger.error("getImapConnect", e)

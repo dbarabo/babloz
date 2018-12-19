@@ -29,21 +29,25 @@ interface GetMailDb {
 
         return imapConnect.use {
 
-            val searchTerm = getSearchTerm(imapConnect.urlName.username)
+            val searchTerm = getSearchTerm(it.urlName.username)
 
-            val folderSent = imapConnect.getFolder(MailProperties.SENT)
+            val folderSent = it.getSentFolder()
 
             val result = folderSent.getResponseFileLastMessage(searchTerm, lastUidSaved)
 
             if(result.isSuccess && (lastUidSaved != result.uidMessage) && (result.uidMessage != 0L)) {
-                val folderInbox = imapConnect.getFolder(MailProperties.INBOX)
+                val folderInbox = it.getFolder(MailProperties.INBOX)
 
-                folderInbox.dropAllBackup(searchTerm)
+                if(folderSent.fullName != folderInbox.fullName) {
+                    folderInbox.dropAllBackup(searchTerm)
+                }
             }
 
             result
         }
     }
+
+    private fun Store.getSentFolder(): Folder = getFolder(MailProperties.sentFolderNameByServer(urlName.username))
 
     fun getLastUIDSent(mailProp: MailProperties): Long? {
 
@@ -52,7 +56,7 @@ interface GetMailDb {
         return store.use {
             val searchTerm = getSearchTerm(it.urlName.username)
 
-            val folderSent = it.getFolder(MailProperties.SENT)
+            val folderSent = it.getSentFolder()
 
             folderSent.getLastMessage(searchTerm)
         }

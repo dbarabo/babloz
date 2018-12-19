@@ -7,11 +7,11 @@ import javax.mail.Session
 import javax.mail.Store
 
 data class MailProperties(
-        val hostImap: String = "imap.gmail.com",
-        val portImap: Int = 993,
-        val hostSmtp: String = "smtp.gmail.com",
-        val portSmtp: Int = 587,
-        val tlsSmtpEnable: Boolean = true,
+        var hostImap: String,
+        var portImap: Int,
+        var hostSmtp: String,
+        var portSmtp: Int,
+        var tlsSmtpEnable: Boolean,
         var user: String,
         var password: String) {
 
@@ -22,7 +22,59 @@ data class MailProperties(
 
         const val INBOX = "INBOX"
 
-        const val SENT = "[Gmail]/Отправленные"
+        private const val SENT_GMAIL = "[Gmail]/Отправленные"
+
+        private const val SENT_IMAP = "SENT"
+
+        fun sentFolderNameByServer(login: String): String {
+            val server = login.substringAfterLast('@').trim().toLowerCase()
+
+            return when  {
+                isGmail(server) -> SENT_GMAIL
+                isCockLi(server) -> INBOX
+                else -> SENT_IMAP
+            }
+        }
+
+        fun tryDefineProperties(login: String, password: String): MailProperties? {
+            val server = login.substringAfterLast('@').trim().toLowerCase()
+
+            return when  {
+            isGmail(server) -> gmailProperties(login, password)
+            isCockLi(server) -> cockLiProperties(login, password)
+                else -> null
+            }
+        }
+
+        private fun isGmail(serverName: String) = ("gmail.com" == serverName)
+
+        private fun isCockLi(serverName: String) = arrayOf("cock.li","airmail.cc","8chan.co","redchan.it",
+                "420blaze.it","aaathats3as.com","cumallover.me","dicksinhisan.us",
+                "loves.dicksinhisan.us","wants.dicksinhisan.us","dicksinmyan.us",
+                "loves.dicksinmyan.us","wants.dicksinmyan.us","goat.si","horsefucker.org",
+                "national.shitposting.agency","nigge.rs","tfwno.gf","cock.lu","cock.email",
+                "firemail.cc","getbackinthe.kitchen","memeware.net","cocaine.ninja","waifu.club",
+                "rape.lol","nuke.africa").contains(serverName)
+
+        private fun gmailProperties(user: String, password: String) =
+                MailProperties(
+                        hostImap = "imap.gmail.com",
+                        portImap = 993,
+                        hostSmtp = "smtp.gmail.com",
+                        portSmtp = 587,
+                        tlsSmtpEnable = true,
+                        user = user,
+                        password = password)
+
+        private fun cockLiProperties(user: String, password: String) =
+                MailProperties(
+                        hostImap = "mail.cock.li",
+                        portImap = 993,
+                        hostSmtp = "mail.cock.li",
+                        portSmtp = 587,
+                        tlsSmtpEnable = true,
+                        user = user,
+                        password = password)
     }
 
     private fun imapProperties(): Properties = Properties().apply {
