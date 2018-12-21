@@ -15,6 +15,7 @@ interface ConverterValue {
         return when (value) {
             is Enum<*>  -> value.ordinal
             is LocalDateTime -> Date.from(value.atZone(ZoneId.systemDefault()).toInstant())
+            is Boolean -> if(value) 1 else 0
             else -> value.javaClass.canonicalName
         }
     }

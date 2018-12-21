@@ -67,7 +67,7 @@ internal class PayBind : BindProperties<Pay> {
 
         setSelectItemPerson(value?.person)
 
-        amountProperty.value =  toCurrencyFormat(value?.amount)
+        amountProperty.value =  value?.amount.toCurrencyFormat()
 
         descriptionProperty.value = value?.description
     }
@@ -86,7 +86,7 @@ internal class PayBind : BindProperties<Pay> {
 
         value.person = personProperty.value?.person
 
-        value.amount = fromFormatToCurrency(amountProperty.value)
+        value.amount = amountProperty.value.fromFormatToCurrency()
 
         value.description = descriptionProperty.value
     }

@@ -15,6 +15,8 @@ import ru.barabo.babloz.db.service.CategoryService
 import ru.barabo.babloz.db.service.PersonService
 import ru.barabo.babloz.db.service.ProjectService
 import ru.barabo.babloz.gui.formatter.currencyTextFormatter
+import ru.barabo.db.EditType
+import ru.barabo.db.service.StoreListener
 import tornadofx.*
 import kotlin.math.min
 
@@ -50,11 +52,10 @@ internal object PayEdit: VBox() {
                      combobox<Account>(property = PaySaver.editBind.accountTransferProperty,
                              values = AccountService.accountNullList()).apply {
 
-                         selectionModel?.selectedItemProperty()?.addListener(
-                                 { _, _, newSelection ->
+                         selectionModel?.selectedItemProperty()?.addListener { _, _, newSelection ->
 
-                                     newSelection?.id?.apply { PaySaver.editBind.setSelectCategoryFromAccountTransfer() }
-                                 })
+                             newSelection?.id?.apply { PaySaver.editBind.setSelectCategoryFromAccountTransfer() }
+                         }
                      }
                  }
 
@@ -101,12 +102,11 @@ internal object PayEdit: VBox() {
 
             this.isShowRoot = false
 
-            prefHeight = rowHeight() * calcHeight() //CATEGORY_ROW_COUNT
+            prefHeight = rowHeight() * calcHeight()
 
-            selectionModel?.selectedItemProperty()?.addListener(
-                    { _, _, newSelection ->
-                        PaySaver.editBind.setSelectCategoryFromTreeView(newSelection?.value)
-                    })
+            selectionModel?.selectedItemProperty()?.addListener { _, _, newSelection ->
+                PaySaver.editBind.setSelectCategoryFromTreeView(newSelection?.value)
+            }
         }
     }
 
@@ -123,10 +123,9 @@ internal object PayEdit: VBox() {
 
             prefHeight = rowHeight() * projectRowCount()
 
-            selectionModel?.selectedItemProperty()?.addListener(
-                    { _, _, newSelection ->
-                        PaySaver.editBind.setSelectProjectFromTreeView(newSelection?.value)
-                    })
+            selectionModel?.selectedItemProperty()?.addListener { _, _, newSelection ->
+                PaySaver.editBind.setSelectProjectFromTreeView(newSelection?.value)
+            }
         }
     }
 
@@ -143,10 +142,15 @@ internal object PayEdit: VBox() {
 
             prefHeight = rowHeight() * personRowCount()
 
-            selectionModel?.selectedItemProperty()?.addListener(
-                    { _, _, newSelection ->
-                        PaySaver.editBind.setSelectPersonFromTreeView(newSelection?.value)
-                    })
+            selectionModel?.selectedItemProperty()?.addListener { _, _, newSelection ->
+                PaySaver.editBind.setSelectPersonFromTreeView(newSelection?.value)
+            }
+
+            PersonService.addListener(object : StoreListener<GroupPerson> {
+                override fun refreshAll(elemRoot: GroupPerson, refreshType: EditType) {
+                    this@apply.refresh()
+                }
+            })
         }
     }
 

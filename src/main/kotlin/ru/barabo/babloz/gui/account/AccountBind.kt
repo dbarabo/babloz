@@ -2,6 +2,7 @@ package ru.barabo.babloz.gui.account
 
 import javafx.beans.binding.Bindings
 import javafx.beans.binding.BooleanBinding
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import ru.barabo.babloz.db.entity.Account
@@ -21,6 +22,8 @@ internal class AccountBind : BindProperties<Account> {
 
     val descriptionProperty = SimpleStringProperty()
 
+    val isUseDebtSubject = SimpleBooleanProperty()
+
     override fun fromValue(value: Account?) {
 
         nameProperty.value = value?.name
@@ -30,6 +33,8 @@ internal class AccountBind : BindProperties<Account> {
         accountTypeProperty.value = value?.type
 
         descriptionProperty.value = value?.description
+
+        isUseDebtSubject.value = value?.isUseDebt
     }
 
     override fun toValue(value: Account) {
@@ -41,6 +46,8 @@ internal class AccountBind : BindProperties<Account> {
         value.type = accountTypeProperty.value
 
         value.description = descriptionProperty.value
+
+        value.isUseDebt = isUseDebtSubject.value
     }
 
     override fun copyToProperties(destination: BindProperties<Account>) {
@@ -54,6 +61,8 @@ internal class AccountBind : BindProperties<Account> {
         destinationAccount.accountTypeProperty.value = this.accountTypeProperty.value
 
         destinationAccount.descriptionProperty.value = this.descriptionProperty.value
+
+        destinationAccount.isUseDebtSubject.value = this.isUseDebtSubject.value
     }
 
     override fun isEqualsProperties(compare: BindProperties<Account>): BooleanBinding {
@@ -64,6 +73,7 @@ internal class AccountBind : BindProperties<Account> {
             nameProperty.isEqualTo(compareAccount.nameProperty),
             currencyProperty.isEqualTo(compareAccount.currencyProperty)
                     .and(accountTypeProperty.isEqualTo(compareAccount.accountTypeProperty))
-                    .and(descriptionProperty.isEqualTo(compareAccount.descriptionProperty)) )
+                    .and(descriptionProperty.isEqualTo(compareAccount.descriptionProperty))
+                    .and(isUseDebtSubject.isEqualTo(compareAccount.isUseDebtSubject)) )
     }
 }

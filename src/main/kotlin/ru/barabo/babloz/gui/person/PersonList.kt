@@ -96,6 +96,10 @@ object PersonList : Tab("Субъекты", VBox()), StoreListener<GroupPerson> 
 
             column("Описание", GroupPerson::description)
 
+            column("Взято в долг", GroupPerson::debt)
+
+            column("Отдано в долг", GroupPerson::credit)
+
             root = TreeItem(rootGroup)
 
             populate { it.value.child }

@@ -20,6 +20,9 @@ internal object AccountEdit : VBox() {
                 field("Валюта") {
                     combobox<Currency>(property = AccountSaver.editBind.currencyProperty, values = CurrencyService.currencyList())
                 }
+                field("Расчеты с субъектом") {
+                    checkbox(property = AccountSaver.editBind.isUseDebtSubject)
+                }
                 field("Начальный баланс") {
                     textfield()
                 }

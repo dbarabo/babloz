@@ -16,7 +16,7 @@ class BudgetRowBind : BindProperties<BudgetRow> {
     val nameProperty = SimpleStringProperty()
 
     override fun fromValue(value: BudgetRow?) {
-        amountProperty.value = toCurrencyFormat(value?.amount)
+        amountProperty.value = value?.amount.toCurrencyFormat()
 
         nameProperty.value = value?.name
     }
@@ -24,7 +24,7 @@ class BudgetRowBind : BindProperties<BudgetRow> {
     override fun toValue(value: BudgetRow) {
         value.name = nameProperty.value
 
-        value.amount = fromFormatToCurrency(amountProperty.value)
+        value.amount = amountProperty.value.fromFormatToCurrency()
     }
 
     override fun copyToProperties(destination: BindProperties<BudgetRow>) {
