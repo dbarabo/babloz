@@ -40,7 +40,9 @@ open class TemplateQuery (private val query :Query) {
     fun select(select: String, params: Array<in Any?>? = null): List<Array<Any?>> = query.select(select, params)
 
     @Throws(SessionException::class)
-    fun selectValue(select: String, params: Array<in Any?>? = null): Any? = query.selectValue(select, params)
+    fun selectValue(select: String, params: Array<in Any?>? = null,
+                    sessionSetting : SessionSetting = SessionSetting(false)): Any? =
+            query.selectValue(select, params, sessionSetting)
 
     @Throws(SessionException::class)
     fun <T> select(select: String, params: Array<Any?>?, row: Class<T>, callBack: (row :T)->Unit) {

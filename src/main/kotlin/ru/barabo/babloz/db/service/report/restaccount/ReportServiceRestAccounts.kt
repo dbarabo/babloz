@@ -1,11 +1,13 @@
 package ru.barabo.babloz.db.service.report.restaccount
 
 import org.slf4j.LoggerFactory
+import ru.barabo.babloz.db.AsyncProcess
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.selectValueType
 import ru.barabo.babloz.db.service.report.DateRange
 import ru.barabo.babloz.db.service.report.PeriodType
 import ru.barabo.babloz.db.service.report.categoryturn.processByDates
+import ru.barabo.db.SESSION_SETTING_KILL
 import java.sql.Date
 import java.time.LocalDate
 import java.util.ArrayList
@@ -20,7 +22,7 @@ object ReportServiceRestAccounts : ReportRestAccounts {
     set(value) {
         field = value
 
-        updateRestAccounts()
+        asyncProcess.asyncProcess()
     }
 
     override val entitySet: MutableSet<Account> = LinkedHashSet()
@@ -29,27 +31,36 @@ object ReportServiceRestAccounts : ReportRestAccounts {
 
     override val datePeriods: MutableList<LocalDate> = DateRange.minMaxDateList(periodType)
 
-    override val listeners: MutableList<(List<LocalDate>, Map<Account, IntArray>) -> Unit> = ArrayList()
+    override val listeners: MutableList<()->Unit> = ArrayList()
 
-    private val mapRestAccountTurn = HashMap<Account, IntArray>()
+    private var mapRestAccountTurn: Map<Account, IntArray> = HashMap()
 
-    override fun dateListenerList(): List<LocalDate> = datePeriods
+    override fun dateListenerList(): List<LocalDate> = synchronized(datePeriods) { ArrayList(datePeriods) }
 
-    override fun updateEntityInfo(entity: Account) = updateRestAccounts()
+    override fun updateEntityInfo(entity: Account) = asyncProcess.asyncProcess()
 
-    override fun updateDateRangeInfo() = updateRestAccounts()
+    override fun updateDateRangeInfo() = asyncProcess.asyncProcess()
 
-    override fun infoMap(): Map<Account, IntArray> = mapRestAccountTurn
+    override fun infoMap(): Map<Account, IntArray> = synchronized(mapRestAccountTurn) { HashMap(mapRestAccountTurn) }
 
-    private fun updateRestAccounts() {
-        mapRestAccountTurn.clear()
+    private val asyncProcess = AsyncProcess(::updateInfoRestAccounts)
+
+    private fun updateInfoRestAccounts() {
+        synchronized(mapRestAccountTurn) { mapRestAccountTurn = getInfoRestAccounts() }
+
+        updateInfoListeners()
+    }
+
+    private fun getInfoRestAccounts(): Map<Account, IntArray> {
+
+        val map = HashMap<Account, IntArray>()
 
         accountViewType.filteredList(entitySet.toList()).forEach {
 
-            mapRestAccountTurn[it] = it.getRestByDates(datePeriods, periodType)
+            map[it] = it.getRestByDates(datePeriods, periodType)
         }
 
-        updateInfoListeners()
+        return map
     }
 }
 
@@ -86,14 +97,14 @@ private fun Account.getRestByDates(dates: List<LocalDate>, periodType: PeriodTyp
 
     when {
       id != null ->  processByDates(dates, periodType) { start: Date, _: Date ->
-          selectValueType<Number>(SELECT_ACCOUNT_REST_DATE, arrayOf(id, start) )
+          selectValueType<Number>(SELECT_ACCOUNT_REST_DATE, arrayOf(id, start), SESSION_SETTING_KILL )
       }
 
       type != null -> processByDates(dates, periodType) { start: Date, _: Date ->
-          selectValueType<Number>(SELECT_ACCOUNT_TYPE_REST_DATE, arrayOf(type!!.ordinal, start) )
+          selectValueType<Number>(SELECT_ACCOUNT_TYPE_REST_DATE, arrayOf(type!!.ordinal, start), SESSION_SETTING_KILL )
       }
 
       else -> processByDates(dates, periodType) { start: Date, _: Date ->
-            selectValueType<Number>(SELECT_ACCOUNT_ALL_REST_DATE, arrayOf(start) )
+            selectValueType<Number>(SELECT_ACCOUNT_ALL_REST_DATE, arrayOf(start), SESSION_SETTING_KILL )
         }
     }

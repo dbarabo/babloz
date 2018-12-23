@@ -19,7 +19,7 @@ object ReportServiceCostsIncomeTurn : ReportCostsIncomeTurn {
 
     private val mapCategoryTypeTurn = HashMap<CategoryType, IntArray>()
 
-    override val listeners: MutableList<(List<LocalDate>, Map<CategoryType, IntArray>) -> Unit> = ArrayList()
+    override val listeners: MutableList<()->Unit> = ArrayList()
 
     override fun dateListenerList(): List<LocalDate> = datePeriods
 

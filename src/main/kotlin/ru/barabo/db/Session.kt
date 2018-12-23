@@ -6,7 +6,8 @@ import java.sql.SQLException
 
 data class Session (var session : Connection,
                     var isFree :Boolean = true,
-                    var idSession :Long? = null) {
+                    var idSession :Long? = null,
+                    val thread: Thread = Thread.currentThread()) {
 
     companion object {
         private val logger = LoggerFactory.getLogger(Session::class.java)
@@ -40,11 +41,13 @@ data class Session (var session : Connection,
         session.commit()
     }
 
-    fun killSession() {
+    internal fun killSession() {
         idSession = null
         isFree = false
 
         try { session.close() } catch (e: Exception){ logger.error("killSession", e) }
+
+        logger.error("KILL SESSION")
     }
 
 }

@@ -25,7 +25,7 @@ object ReportServiceCategoryTurn : ReportCategoryTurn {
 
     private var categoryView: CategoryView = CategoryView.ALL
 
-    override val listeners: MutableList<(List<LocalDate>, Map<Category, IntArray>) -> Unit> = ArrayList()
+    override val listeners: MutableList<()->Unit> = ArrayList()
 
     override fun dateListenerList(): List<LocalDate> = datePeriods
 

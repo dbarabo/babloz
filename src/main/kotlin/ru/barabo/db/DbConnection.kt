@@ -27,22 +27,21 @@ open class DbConnection(private val dbSetting: DbSetting) {
         return getTrySession(0, sessionSetting.isReadTransact, sessionSetting.transactType, sessionSetting.idSession)
     }
 
-    private fun closeSession(connect :Session) {
-        synchronized(pool){ pool.remove(connect) }
+    fun closeSession(session: Session) {
+        synchronized(pool) { pool.remove(session) }
 
         try {
-            connect.session.close()
+            session.session.close()
         } catch (e :SQLException) {
             logger.error("closeDeathConnect", e)
         }
     }
 
-
     @Synchronized
     fun closeAllSessions() {
         pool.forEach { it.killSession() }
 
-        pool.clear()
+        synchronized(pool) { pool.clear() }
     }
 
     private fun closeDeathSessions() {
@@ -173,7 +172,14 @@ open class DbConnection(private val dbSetting: DbSetting) {
     private fun getFreeSession(isReadTransact :Boolean) :Session? {
 
         synchronized(pool) {
-            return pool.firstOrNull {it.isFree && it.idSession == null && it.session.isReadOnly == isReadTransact}
+            val thread = Thread.currentThread()
+
+            return pool.firstOrNull {
+                it.isFree &&
+                it.idSession == null &&
+                it.session.isReadOnly == isReadTransact &&
+                it.thread == thread
+            }
         }
     }
 
@@ -181,7 +187,9 @@ open class DbConnection(private val dbSetting: DbSetting) {
     private fun getSessionById(idSessionFind: Long, isReadTransact :Boolean) :Session? {
 
         synchronized(pool) {
-            val session = pool.firstOrNull {it.idSession == idSessionFind}
+            val thread = Thread.currentThread()
+
+            val session = pool.firstOrNull {it.idSession == idSessionFind && it.thread == thread}
 
             return session?.let { it } ?:
                     getFreeSession(isReadTransact)?.apply { synchronized(this) {this.idSession = idSessionFind} }

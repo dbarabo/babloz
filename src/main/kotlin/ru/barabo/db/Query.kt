@@ -241,7 +241,8 @@ open class Query (private val dbConnection :DbConnection) {
 
             processCommit(session, transactType)
 
-            if(transactType == TransactType.ROLLBACK || transactType == TransactType.COMMIT) {
+            if(transactType == TransactType.ROLLBACK ||
+                    transactType == TransactType.COMMIT) {
                 session.idSession = null
             }
 
@@ -253,15 +254,21 @@ open class Query (private val dbConnection :DbConnection) {
     }
 
     @Throws(SQLException::class)
-    private fun processCommit(session :Session, transactType :TransactType) {
+    private fun processCommit(session: Session, transactType :TransactType) {
         when (transactType) {
             TransactType.ROLLBACK -> session.session.rollback()
 
-            TransactType.COMMIT -> {
-                session.session.commit()
-            }
+            TransactType.COMMIT -> session.session.commit()
+
+            TransactType.COMMIT_KILL -> processKillCommit(session)
             else -> {}
         }
+    }
+
+    private fun processKillCommit(session: Session) {
+        session.session.commit()
+
+        dbConnection.closeSession(session)
     }
 }
 

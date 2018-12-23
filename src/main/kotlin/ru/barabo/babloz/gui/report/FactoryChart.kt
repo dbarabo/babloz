@@ -1,5 +1,6 @@
 package ru.barabo.babloz.gui.report
 
+import javafx.application.Platform
 import javafx.scene.chart.*
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
@@ -19,25 +20,24 @@ object FactoryChart : VBox()  {
     )
 
     init {
-        ReportServiceCategoryTurn.addListener { _, _ ->
-            processInfo(ReportCategoryTurnDrawChart::drawChart)
-        }
+        ReportServiceCategoryTurn.addListener{ processInfo(ReportCategoryTurnDrawChart::drawChart) }
 
-        ReportServiceCostsIncomeTurn.addListener { _, _ ->
-            processInfo(ReportCostsIncomeDrawChart::drawChart)
-        }
+        ReportServiceCostsIncomeTurn.addListener { processInfo(ReportCostsIncomeDrawChart::drawChart) }
 
-        ReportServiceRestAccounts.addListener {_, _ ->
-            processInfo(ReportAccountRestDrawChart::drawChart)
-        }
+        ReportServiceRestAccounts.addListener { processInfo(ReportAccountRestDrawChart::drawChart) }
     }
 
     private fun processInfo(processDrawChart: (Map<DiagramViewType, XYChart<String, Number>>)->XYChart<String, Number>) {
-        mapDiagramViewType.values.forEach { it.data.removeAll(it.data) }
 
-        val chart = processDrawChart(mapDiagramViewType)
+        Platform.runLater {
+            run {
+                mapDiagramViewType.values.forEach { it.data.removeAll(it.data) }
 
-        addChart(chart)
+                val chart = processDrawChart(mapDiagramViewType)
+
+                addChart(chart)
+            }
+        }
     }
 
     private fun addChart(chart: Chart) {

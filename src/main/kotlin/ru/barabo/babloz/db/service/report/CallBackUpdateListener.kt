@@ -4,17 +4,17 @@ import java.time.LocalDate
 
 interface CallBackUpdateListener<T> {
 
-    val listeners: MutableList<(List<LocalDate>, Map<T,IntArray>)->Unit>
+    val listeners: MutableList<()->Unit>
 
-    fun addListener(listener: (List<LocalDate>, Map<T, IntArray>)->Unit) {
+    fun addListener(listener: ()->Unit) {
         listeners += listener
     }
 
     fun updateInfoListeners() {
-        listeners.forEach{ it(dateListenerList(), infoMap()) }
+        listeners.forEach{ it() }
     }
 
     fun dateListenerList():  List<LocalDate>
 
-    fun infoMap(): Map<T,IntArray>
+    fun infoMap(): Map<T, IntArray>
 }

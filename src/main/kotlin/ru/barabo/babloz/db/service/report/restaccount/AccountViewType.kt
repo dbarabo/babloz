@@ -17,7 +17,7 @@ enum class AccountViewType(val label: String, val filteredList: (List<Account>) 
     TYPE_ONLY("Только типы счетов", { list->
         list.distinctBy { it.type }.map { Account(type = it.type, name = it.type?.label) } }),
 
-    ACCOUNT_ONLY("Только счета", { it } );
+    ACCOUNT_ONLY("Только счета", { it.filter { it.id != null  } } );
 
     override fun toString(): String = label
 }
