@@ -31,7 +31,7 @@ object ReportCustomAccountRest : Tab("Остатки на счетах", VBox())
                 addChildIfPossible(checkTreeAccount(ReportServiceRestAccounts))
             }
 
-            fieldset("Период отчета") {
+            fieldset("Даты начала-конца отчета") {
                 comboBoxDates(ReportServiceRestAccounts::setDateRange)
             }
 
@@ -41,6 +41,10 @@ object ReportCustomAccountRest : Tab("Остатки на счетах", VBox())
 
             fieldset("Вид диаграммы") {
                 comboBoxDiagramViewType(ReportAccountRestDrawChart::diagramViewType)
+            }
+
+            fieldset("Период дат") {
+                comboBoxPeriodTypes(ReportServiceRestAccounts::periodType)
             }
         }
     }
@@ -63,7 +67,7 @@ object ReportAccountRestDrawChart {
 
         val chart = chartMap[diagramViewType]!!
 
-        val dates = ReportServiceRestAccounts.datePeriods
+        val dates = ReportServiceRestAccounts.dateRangeByList()
 
         val accountRests = ReportServiceRestAccounts.infoMap()
 
@@ -88,8 +92,21 @@ internal fun <T> XYChart<String, Number>.drawChart(dates: List<LocalDate>, mapDa
     return this
 }
 
+fun EventTarget.comboBoxPeriodTypes(propertyPeriodType: KMutableProperty0<PeriodType>): ComboBox<PeriodType> {
+
+    val periodTypeProperty = SimpleObjectProperty<PeriodType>(propertyPeriodType.get())
+
+    return combobox<PeriodType>(property = periodTypeProperty, values = PeriodType.values().toList()).apply {
+
+        selectionModel?.selectedItemProperty()?.addListener { _, _, newSelection ->
+
+            propertyPeriodType.setter(newSelection)
+        }
+    }
+}
+
 fun EventTarget.comboBoxDiagramViewType(propertyDiagramTypeView: KMutableProperty0<DiagramViewType>): ComboBox<DiagramViewType> {
-    val selectProperty = SimpleObjectProperty<DiagramViewType>(DiagramViewType.LINE_CHART)
+    val selectProperty = SimpleObjectProperty<DiagramViewType>(propertyDiagramTypeView.get())
 
     return combobox<DiagramViewType>(property = selectProperty, values = DiagramViewType.values().toList()).apply {
 

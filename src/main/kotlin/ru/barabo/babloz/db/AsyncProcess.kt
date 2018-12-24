@@ -16,6 +16,7 @@ class AsyncProcess(private val process: ()->Unit, private val waitTime: Long = 1
             return
         }
 
+        isBusy = true
         GlobalScope.launch {
             suspendProcess()
         }
@@ -23,13 +24,14 @@ class AsyncProcess(private val process: ()->Unit, private val waitTime: Long = 1
 
     private suspend fun suspendProcess() {
 
-        process()
-        delay(waitTime)
+        do {
+            delay(waitTime)
 
-        if(isNeedUpdate) {
             isNeedUpdate = false
-            suspendProcess()
-        }
+
+            process()
+        } while(isNeedUpdate)
+
         isBusy = false
     }
 }

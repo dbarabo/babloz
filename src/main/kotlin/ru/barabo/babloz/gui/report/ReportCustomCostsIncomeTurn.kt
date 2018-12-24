@@ -3,8 +3,8 @@ package ru.barabo.babloz.gui.report
 import javafx.scene.chart.XYChart
 import javafx.scene.control.Tab
 import javafx.scene.layout.VBox
+import ru.barabo.babloz.db.service.report.categoryturn.ReportServiceCategoryTurn
 import ru.barabo.babloz.db.service.report.costincome.ReportServiceCostsIncomeTurn
-import ru.barabo.babloz.db.service.report.restaccount.ReportServiceRestAccounts
 import ru.barabo.babloz.gui.pay.comboBoxDates
 import tornadofx.addChildIfPossible
 import tornadofx.fieldset
@@ -19,8 +19,12 @@ object ReportCustomCostsIncomeTurn: Tab("Доходы и расходы", VBox()
                 addChildIfPossible(checkTreeCategory(ReportServiceCostsIncomeTurn))
             }
 
-            fieldset("Период отчета") {
+            fieldset("Даты начала-конца отчета") {
                 comboBoxDates(ReportServiceCostsIncomeTurn::setDateRange)
+            }
+
+            fieldset("Период дат") {
+                comboBoxPeriodTypes(ReportServiceCostsIncomeTurn::periodType)
             }
         }
     }
@@ -36,7 +40,7 @@ object ReportCostsIncomeDrawChart {
 
         val chart = chartMap[DiagramViewType.BAR_CHART]!!
 
-        val dates = ReportServiceCostsIncomeTurn.datePeriods
+        val dates = ReportServiceCostsIncomeTurn.dateRangeByList()
 
         val costsIncomeTurn = ReportServiceCostsIncomeTurn.infoMap()
 

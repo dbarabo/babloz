@@ -2,14 +2,15 @@ package ru.barabo.babloz.db.service.report.categoryturn
 
 import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.entity.Category
+import ru.barabo.babloz.db.processLongTransactionsKill
 import ru.barabo.babloz.db.selectValueType
 import ru.barabo.babloz.db.service.report.DateRange
 import ru.barabo.babloz.db.service.report.PeriodType
-import ru.barabo.babloz.db.service.report.costincome.ReportServiceCostsIncomeTurn
+import ru.barabo.db.SessionSetting
+import java.lang.Math.abs
 import java.sql.Date
 import java.time.LocalDate
 import java.time.ZoneId
-import kotlin.math.abs
 
 val logger = LoggerFactory.getLogger(ReportServiceCategoryTurn::class.java)!!
 
@@ -17,17 +18,19 @@ object ReportServiceCategoryTurn : ReportCategoryTurn {
 
     override val entitySet: MutableSet<Category> = LinkedHashSet()
 
-    override val periodType = PeriodType.MONTH
+    override var periodType = PeriodType.MONTH
+    set(value) {
+        field = value
+        setPeriod(value)
+    }
 
-    override val datePeriods: MutableList<LocalDate> = DateRange.minMaxDateList(ReportServiceCostsIncomeTurn.periodType)
+    override var dateRange: DateRange = DateRange.minMaxDateList(periodType)
 
     private val mapCategoryTurn = HashMap<Category, IntArray>()
 
     private var categoryView: CategoryView = CategoryView.ALL
 
     override val listeners: MutableList<()->Unit> = ArrayList()
-
-    override fun dateListenerList(): List<LocalDate> = datePeriods
 
     override fun infoMap(): Map<Category, IntArray> = mapCategoryTurn
 
@@ -72,6 +75,8 @@ object ReportServiceCategoryTurn : ReportCategoryTurn {
 
         mapCategoryTurn.clear()
 
+        val datePeriods = dateRangeByList()
+
         categoryListByView().forEach {
             mapCategoryTurn[it] = it.getTurnsByDates(datePeriods, periodType)
         }
@@ -86,20 +91,27 @@ private const val SELECT_TURN_MONTH =
 from category c where COALESCE(c.SYNC, 0) != 2 and c.ID = ?"""
 
 private fun Category.getTurnsByDates(months: List<LocalDate>, periodType: PeriodType): IntArray =
-        processByDates(months, periodType) {start: Date, end: Date ->
-            selectValueType<Number>(SELECT_TURN_MONTH, arrayOf(start, end, id))
+        processByDates(months, periodType) {session, start, end ->
+            selectValueType<Number>(SELECT_TURN_MONTH, arrayOf(start, end, id), session)
         }
 
-internal fun processByDates(dates: List<LocalDate>, periodType: PeriodType, process: (start: Date, end: Date)->Number?): IntArray {
+fun LocalDate.toSqlDate() = java.sql.Date(atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli())
+
+internal fun processByDates(dates: List<LocalDate>, periodType: PeriodType, process: (session: SessionSetting, start: Date, end: Date)->Number?): IntArray {
     val values = IntArray(dates.size)
 
-    for ((index, month) in dates.withIndex()) {
+    processLongTransactionsKill { session->
+        for ((index, month) in dates.withIndex()) {
 
-        val turn = process(month.toSqlDate(), periodType.nextDate(month).toSqlDate())
+            val turn = process(session, month.toSqlDate(), periodType.nextDate(month).toSqlDate())
 
-        values[index] = abs(turn?.toInt() ?: 0)
+            values[index] = abs(turn?.toInt() ?: 0)
+        }
     }
     return values
 }
 
-fun LocalDate.toSqlDate() = java.sql.Date(atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli())
+
+
+
+

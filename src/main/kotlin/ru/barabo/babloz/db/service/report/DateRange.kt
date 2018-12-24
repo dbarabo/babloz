@@ -4,6 +4,7 @@ import ru.barabo.babloz.db.selectValueType
 import java.sql.Date
 import java.time.LocalDate
 
+
 data class DateRange(val startInclusive: LocalDate = LocalDate.now().minusYears(100),
                      val endExclusive: LocalDate = LocalDate.now()) {
 
@@ -16,7 +17,9 @@ data class DateRange(val startInclusive: LocalDate = LocalDate.now().minusYears(
         do {
             list += date
             date = periodType.nextDate(date)
-        } while (date < endExclusive)
+        } while (date <= endExclusive)
+
+        list += date
 
         return list
     }
@@ -38,6 +41,6 @@ data class DateRange(val startInclusive: LocalDate = LocalDate.now().minusYears(
         }
 
         fun minMaxDateList(periodType: PeriodType) =
-                updateDateRange(start = MIN_DATE_PAY, end = LocalDate.now(), periodType = periodType).getPeriods(periodType)
+                updateDateRange(start = MIN_DATE_PAY, end = LocalDate.now(), periodType = periodType)
     }
 }

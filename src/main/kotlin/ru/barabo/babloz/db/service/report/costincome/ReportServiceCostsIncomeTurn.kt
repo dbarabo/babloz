@@ -6,22 +6,23 @@ import ru.barabo.babloz.db.selectValueType
 import ru.barabo.babloz.db.service.report.DateRange
 import ru.barabo.babloz.db.service.report.PeriodType
 import ru.barabo.babloz.db.service.report.categoryturn.processByDates
-import java.sql.Date
 import java.time.LocalDate
 
 object ReportServiceCostsIncomeTurn : ReportCostsIncomeTurn {
 
     override val entitySet: MutableSet<Category> = LinkedHashSet()
 
-    override val periodType = PeriodType.MONTH
+    override var periodType = PeriodType.MONTH
+    set(value) {
+        field = value
+        setPeriod(value)
+    }
 
-    override val datePeriods: MutableList<LocalDate> = DateRange.minMaxDateList(periodType)
+    override var dateRange: DateRange = DateRange.minMaxDateList(periodType)
 
     private val mapCategoryTypeTurn = HashMap<CategoryType, IntArray>()
 
     override val listeners: MutableList<()->Unit> = ArrayList()
-
-    override fun dateListenerList(): List<LocalDate> = datePeriods
 
     override fun infoMap(): Map<CategoryType, IntArray> = mapCategoryTypeTurn
 
@@ -32,6 +33,8 @@ object ReportServiceCostsIncomeTurn : ReportCostsIncomeTurn {
     private fun updateCostsIncomeTurn() {
 
         mapCategoryTypeTurn.clear()
+
+        val datePeriods = dateRangeByList()
 
         mapCategoryTypeTurn[CategoryType.COST] = entitySet.getTurnsByDates(datePeriods, CategoryType.COST, periodType)
 
@@ -58,6 +61,6 @@ private fun MutableSet<Category>.addCategories(): String = " and p.CATEGORY in (
 private fun MutableSet<Category>.categoriesList() = joinToString(", ") { it.id.toString() }
 
 private fun MutableSet<Category>.getTurnsByDates(months: List<LocalDate>, categoryType: CategoryType, periodType: PeriodType): IntArray =
-    processByDates(months, periodType) { start: Date, end: Date ->
-            selectValueType<Number>(plusCategories(), arrayOf(start, end, categoryType.ordinal))
+    processByDates(months, periodType) { session, start, end ->
+            selectValueType<Number>(plusCategories(), arrayOf(start, end, categoryType.ordinal), session)
     }

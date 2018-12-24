@@ -68,19 +68,21 @@ open class Query (private val dbConnection :DbConnection) {
         closeQueryData(session, sessionSetting.transactType, statement, resultSet)
     }
 
-
-    fun commitFree(sessionSetting : SessionSetting = SessionSetting(false)) {
+    fun commitFree(sessionSetting: SessionSetting = SessionSetting(false), isKillSession: Boolean = false) {
 
         val session = dbConnection.getSession(sessionSetting)
 
-        closeQueryData(session, TransactType.COMMIT)
+        val transactType = if(isKillSession) TransactType.COMMIT_KILL else TransactType.COMMIT
+        closeQueryData(session, transactType)
     }
 
-    fun rollbackFree(sessionSetting : SessionSetting = SessionSetting(false)) {
+    fun rollbackFree(sessionSetting : SessionSetting = SessionSetting(false), isKillSession: Boolean = false) {
 
         val session = dbConnection.getSession(sessionSetting)
 
-        closeQueryData(session, TransactType.ROLLBACK)
+        val transactType = if(isKillSession) TransactType.ROLLBACK_KILL else TransactType.ROLLBACK
+
+        closeQueryData(session, transactType)
     }
 
     private fun prepareExecute(session :Session, query :String, params :Array<Any?>?,
@@ -261,8 +263,16 @@ open class Query (private val dbConnection :DbConnection) {
             TransactType.COMMIT -> session.session.commit()
 
             TransactType.COMMIT_KILL -> processKillCommit(session)
+
+            TransactType.ROLLBACK_KILL -> processKillRollback(session)
             else -> {}
         }
+    }
+
+    private fun processKillRollback(session: Session) {
+        session.session.rollback()
+
+        dbConnection.closeSession(session)
     }
 
     private fun processKillCommit(session: Session) {

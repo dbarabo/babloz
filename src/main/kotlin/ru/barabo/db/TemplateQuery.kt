@@ -26,14 +26,14 @@ open class TemplateQuery (private val query :Query) {
         private fun errorSequenceReturnNull(sequence :String) = "Sequence expression return NULL $sequence"
     }
 
-    fun startLongTransation(): SessionSetting = query.uniqueSession()
+    fun startLongTransaction(): SessionSetting = query.uniqueSession()
 
-    fun commitLongTransaction(sessionSetting: SessionSetting) {
-        query.commitFree(sessionSetting)
+    fun commitLongTransaction(sessionSetting: SessionSetting, isKillSession: Boolean = false) {
+        query.commitFree(sessionSetting, isKillSession)
     }
 
-    fun rollbackLongTransaction(sessionSetting: SessionSetting) {
-        query.rollbackFree(sessionSetting)
+    fun rollbackLongTransaction(sessionSetting: SessionSetting, isKillSession: Boolean = false) {
+        query.rollbackFree(sessionSetting, isKillSession)
     }
 
     @Throws(SessionException::class)
@@ -115,7 +115,7 @@ open class TemplateQuery (private val query :Query) {
 
         val tableName = getTableName(item)
 
-        executeQuery(templateDelete(tableName, idField.first), arrayOf(idField.second) )
+        executeQuery(templateDelete(tableName, idField.first), arrayOf(idField.second), sessionSetting )
     }
 
     private fun templateDelete(table: String, idColumn: String) = "delete from $table where $idColumn = ?"

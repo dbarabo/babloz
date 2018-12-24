@@ -18,3 +18,19 @@ inline fun <reified T> selectValueType(select: String, params: Array<in Any?>? =
 
     return Type.convertValueToJavaTypeByClass(result, T::class.java) as? T
 }
+
+fun processLongTransactionsKill(process: (sessionSetting: SessionSetting)->Unit) {
+    val sessionSetting = BablozOrm.startLongTransaction()
+
+    try {
+        process(sessionSetting)
+
+        BablozOrm.commitLongTransaction(sessionSetting, isKillSession = true)
+    } catch (e: Exception) {
+        logger.error("processLongTansactionsKill", e)
+        BablozOrm.rollbackLongTransaction(sessionSetting, isKillSession = true)
+
+        throw Exception(e)
+    }
+}
+

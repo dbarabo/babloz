@@ -7,8 +7,6 @@ import ru.barabo.babloz.db.selectValueType
 import ru.barabo.babloz.db.service.report.DateRange
 import ru.barabo.babloz.db.service.report.PeriodType
 import ru.barabo.babloz.db.service.report.categoryturn.processByDates
-import ru.barabo.db.SESSION_SETTING_KILL
-import java.sql.Date
 import java.time.LocalDate
 import java.util.ArrayList
 import kotlin.collections.HashMap
@@ -27,15 +25,17 @@ object ReportServiceRestAccounts : ReportRestAccounts {
 
     override val entitySet: MutableSet<Account> = LinkedHashSet()
 
-    override val periodType: PeriodType = PeriodType.MONTH
+    override var periodType: PeriodType = PeriodType.MONTH
+    set(value) {
+        field = value
+        setPeriod(value)
+    }
 
-    override val datePeriods: MutableList<LocalDate> = DateRange.minMaxDateList(periodType)
+    override var dateRange: DateRange = DateRange.minMaxDateList(periodType)
 
     override val listeners: MutableList<()->Unit> = ArrayList()
 
     private var mapRestAccountTurn: Map<Account, IntArray> = HashMap()
-
-    override fun dateListenerList(): List<LocalDate> = synchronized(datePeriods) { ArrayList(datePeriods) }
 
     override fun updateEntityInfo(entity: Account) = asyncProcess.asyncProcess()
 
@@ -54,6 +54,8 @@ object ReportServiceRestAccounts : ReportRestAccounts {
     private fun getInfoRestAccounts(): Map<Account, IntArray> {
 
         val map = HashMap<Account, IntArray>()
+
+        val datePeriods =  dateRangeByList()
 
         accountViewType.filteredList(entitySet.toList()).forEach {
 
@@ -96,15 +98,15 @@ select COALESCE(sum(case when a.ID = p.ACCOUNT then p.AMOUNT else COALESCE(p.amo
 private fun Account.getRestByDates(dates: List<LocalDate>, periodType: PeriodType): IntArray =
 
     when {
-      id != null ->  processByDates(dates, periodType) { start: Date, _: Date ->
-          selectValueType<Number>(SELECT_ACCOUNT_REST_DATE, arrayOf(id, start), SESSION_SETTING_KILL )
+      id != null ->  processByDates(dates, periodType) { session, start, _ ->
+          selectValueType<Number>(SELECT_ACCOUNT_REST_DATE, arrayOf(id, start), session )
       }
 
-      type != null -> processByDates(dates, periodType) { start: Date, _: Date ->
-          selectValueType<Number>(SELECT_ACCOUNT_TYPE_REST_DATE, arrayOf(type!!.ordinal, start), SESSION_SETTING_KILL )
+      type != null -> processByDates(dates, periodType) { session, start, _ ->
+          selectValueType<Number>(SELECT_ACCOUNT_TYPE_REST_DATE, arrayOf(type!!.ordinal, start), session )
       }
 
-      else -> processByDates(dates, periodType) { start: Date, _: Date ->
-            selectValueType<Number>(SELECT_ACCOUNT_ALL_REST_DATE, arrayOf(start), SESSION_SETTING_KILL )
+      else -> processByDates(dates, periodType) { session, start, _ ->
+            selectValueType<Number>(SELECT_ACCOUNT_ALL_REST_DATE, arrayOf(start), session )
         }
     }

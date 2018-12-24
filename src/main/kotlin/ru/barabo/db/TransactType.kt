@@ -7,5 +7,6 @@ enum class TransactType {
     SET_SAVEPOINT_BEFORE,
     ROLLBACK_SAVEPOINT,
     MICRO_ROLLBACK,
-    COMMIT_KILL
+    COMMIT_KILL,
+    ROLLBACK_KILL
 }

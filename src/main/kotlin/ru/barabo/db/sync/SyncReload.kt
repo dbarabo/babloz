@@ -130,7 +130,7 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
 
         val insertSql = getInsertSql(memberColumns.keys)
 
-        val session = orm.startLongTransation()
+        val session = orm.startLongTransaction()
 
         try {
             saveData(insertSql, memberColumns.values, backupData, session)

@@ -14,6 +14,7 @@ import ru.barabo.babloz.db.service.CategoryService
 import ru.barabo.babloz.db.service.report.ChangeEntity
 import ru.barabo.babloz.db.service.report.categoryturn.CategoryView
 import ru.barabo.babloz.db.service.report.categoryturn.ReportServiceCategoryTurn
+import ru.barabo.babloz.db.service.report.restaccount.ReportServiceRestAccounts
 import ru.barabo.babloz.gui.pay.PayEdit.rowHeight
 import ru.barabo.babloz.gui.pay.comboBoxDates
 import ru.barabo.babloz.gui.pay.defaultRowCount
@@ -27,12 +28,16 @@ object ReportCustomCategoryTurn : Tab("Динамика расходов по к
                 addChildIfPossible(checkTreeCategory(ReportServiceCategoryTurn))
             }
 
-            fieldset("Период отчета") {
+            fieldset("Даты начала-конца отчета") {
                 comboBoxDates(ReportServiceCategoryTurn::setDateRange)
             }
 
             fieldset("Рисовать категории") {
                 comboBoxCustomCategory(ReportServiceCategoryTurn::setCategoryView)
+            }
+
+            fieldset("Период дат") {
+                comboBoxPeriodTypes(ReportServiceCategoryTurn::periodType)
             }
         }
     }
@@ -48,7 +53,7 @@ object ReportCategoryTurnDrawChart {
 
         val chart = chartMap[DiagramViewType.LINE_CHART]!!
 
-        val dates = ReportServiceCategoryTurn.datePeriods
+        val dates = ReportServiceCategoryTurn.dateRangeByList()
 
         val categoryTurn = ReportServiceCategoryTurn.infoMap()
 

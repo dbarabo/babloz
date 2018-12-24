@@ -4,18 +4,24 @@ import java.time.LocalDate
 
 interface ChangeDateRange {
 
-    val periodType: PeriodType
+    var dateRange: DateRange
 
-    val datePeriods: MutableList<LocalDate>
+    var periodType: PeriodType
+
+    fun setPeriod(periodType: PeriodType) {
+
+        setDateRange(dateRange.startInclusive, dateRange.endExclusive)
+    }
 
     fun setDateRange(start: LocalDate, end: LocalDate) {
-        val dateRange = DateRange.updateDateRange(start, end, periodType)
-
-        datePeriods.clear()
-        datePeriods.addAll(dateRange.getPeriods(periodType))
+        dateRange = DateRange.updateDateRange(start, end, periodType)
 
         updateDateRangeInfo()
     }
 
     fun updateDateRangeInfo()
+
+    fun dateRangeByList(): List<LocalDate> = synchronized(dateRange) {
+        synchronized(periodType) { dateRange.getPeriods(periodType) }
+    }
 }

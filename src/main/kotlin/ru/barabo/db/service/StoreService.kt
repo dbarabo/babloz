@@ -129,7 +129,7 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
     fun startLongTransation(): SessionSetting {
         startedLongTransaction = LongTransactState.LONG_TRANSACT_STARTED
 
-        return orm.startLongTransation()
+        return orm.startLongTransaction()
     }
 
     fun commitLongTransaction(sessionSetting: SessionSetting) {
