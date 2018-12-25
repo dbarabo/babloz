@@ -36,7 +36,11 @@ object ReportCustomCategoryTurn : Tab("Динамика расходов по к
                 comboBoxCustomCategory(ReportServiceCategoryTurn::setCategoryView)
             }
 
-            fieldset("Период дат") {
+            fieldset("Вид диаграммы") {
+                comboBoxDiagramViewType(ReportCategoryTurnDrawChart::diagramViewType)
+            }
+
+                fieldset("Период дат") {
                 comboBoxPeriodTypes(ReportServiceCategoryTurn::periodType)
             }
         }
@@ -49,9 +53,16 @@ object ReportCustomCategoryTurn : Tab("Динамика расходов по к
 
 object ReportCategoryTurnDrawChart {
 
+    var diagramViewType: DiagramViewType = DiagramViewType.LINE_CHART
+        set(value) {
+            field = value
+
+            ReportServiceCategoryTurn.updateInfoListeners()
+        }
+
     fun drawChart(chartMap: Map<DiagramViewType, XYChart<String, Number>>): XYChart<String, Number> {
 
-        val chart = chartMap[DiagramViewType.LINE_CHART]!!
+        val chart = chartMap[diagramViewType]!!
 
         val dates = ReportServiceCategoryTurn.dateRangeByList()
 

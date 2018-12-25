@@ -71,7 +71,7 @@ object ReportAccountRestDrawChart {
 
         val accountRests = ReportServiceRestAccounts.infoMap()
 
-        return chart.drawChart(dates, accountRests, { it.name}, ReportServiceRestAccounts.periodType)
+        return chart.drawChart(dates, accountRests, { it.name }, ReportServiceRestAccounts.periodType)
     }
 }
 

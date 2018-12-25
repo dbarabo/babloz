@@ -30,7 +30,6 @@ data class DateRange(val startInclusive: LocalDate = LocalDate.now().minusYears(
         private val MIN_DATE_PAY =
                 (selectValueType<Number>(SELECT_MIN_PAY_DATE)?.let { Date(it.toLong()).toLocalDate() } ?: LocalDate.now())!!
 
-
         fun updateDateRange(start: LocalDate = MIN_DATE_PAY, end: LocalDate, periodType: PeriodType): DateRange {
 
             val startDate = if(start.toEpochDay() < MIN_DATE_PAY.toEpochDay() ) MIN_DATE_PAY else start

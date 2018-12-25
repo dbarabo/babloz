@@ -23,6 +23,10 @@ object ReportCustomCostsIncomeTurn: Tab("Доходы и расходы", VBox()
                 comboBoxDates(ReportServiceCostsIncomeTurn::setDateRange)
             }
 
+            fieldset("Вид диаграммы") {
+                comboBoxDiagramViewType(ReportCostsIncomeDrawChart::diagramViewType)
+            }
+
             fieldset("Период дат") {
                 comboBoxPeriodTypes(ReportServiceCostsIncomeTurn::periodType)
             }
@@ -36,9 +40,16 @@ object ReportCustomCostsIncomeTurn: Tab("Доходы и расходы", VBox()
 
 object ReportCostsIncomeDrawChart {
 
+    var diagramViewType: DiagramViewType = DiagramViewType.LINE_CHART
+        set(value) {
+            field = value
+
+            ReportServiceCostsIncomeTurn.updateInfoListeners()
+        }
+
     fun drawChart(chartMap: Map<DiagramViewType, XYChart<String, Number>>): XYChart<String, Number> {
 
-        val chart = chartMap[DiagramViewType.BAR_CHART]!!
+        val chart = chartMap[diagramViewType]!!
 
         val dates = ReportServiceCostsIncomeTurn.dateRangeByList()
 
