@@ -8,8 +8,8 @@ import ru.barabo.db.annotation.*
 data class BudgetCategory(
         @ColumnName("ID")
         @SequenceName("SELECT COALESCE(MAX(ID), 0) + 1  from BUDGET_CATEGORY")
-        @ColumnType(java.sql.Types.INTEGER)
-        var id :Int? = null,
+        @ColumnType(java.sql.Types.BIGINT)
+        var id :Long? = null,
 
         @ColumnName("BUDGET_ROW")
         @ColumnType(java.sql.Types.INTEGER)

@@ -1,5 +1,6 @@
 package ru.barabo.db
 
+import org.slf4j.LoggerFactory
 import ru.barabo.db.annotation.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
@@ -9,7 +10,7 @@ import kotlin.reflect.full.instanceParameter
 import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.jvm.javaType
 
-//private val logger = LoggerFactory.getLogger(MemberConverter::class.java)
+private val logger = LoggerFactory.getLogger(MemberConverter::class.java)
 
 internal data class MemberConverter(private val member: KMutableProperty<*>,
                                     private val converter: ConverterValue?,
@@ -461,8 +462,12 @@ internal fun getSqlParamsFromEntity(entity: Any, memberColumns: Collection<Membe
 
     val params: Array<Any?> = arrayOfNulls(memberColumns.size)
 
+    //logger.error("entity=$entity")
+    //logger.error("memberColumns.size=${memberColumns.size}")
+
     for ((index, member) in memberColumns.withIndex()) {
         params[index] = member.getSqlValueFromJavaObject(entity)
+        //logger.error("params[$index]=${params[index]}")
     }
 
     return params

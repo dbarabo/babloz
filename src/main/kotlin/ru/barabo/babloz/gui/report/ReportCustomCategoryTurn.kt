@@ -40,7 +40,7 @@ object ReportCustomCategoryTurn : Tab("Динамика расходов по к
                 comboBoxDiagramViewType(ReportCategoryTurnDrawChart::diagramViewType)
             }
 
-                fieldset("Период дат") {
+            fieldset("Период дат") {
                 comboBoxPeriodTypes(ReportServiceCategoryTurn::periodType)
             }
         }
