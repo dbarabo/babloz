@@ -5,7 +5,7 @@ import ru.barabo.db.SessionSetting
 import ru.barabo.db.TemplateQuery
 import ru.barabo.db.Type
 
-object BablozOrm :TemplateQuery(BablozQuery)
+object BablozOrm : TemplateQuery(BablozQuery)
 
 val logger = LoggerFactory.getLogger(BablozOrm::class.java)
 
