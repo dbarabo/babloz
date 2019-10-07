@@ -10,7 +10,7 @@ SYNC INT
 /* 2.  Счета */
 create table ACCOUNT (
 ID INT NOT NULL PRIMARY KEY,
-NAME varchar(100) NOT NULL,
+NAME varchar(100) NOT NULL UNIQUE,
 DESCRIPTION varchar(1024),
 CURRENCY INT NOT NULL REFERENCES CURRENCY(ID),
 TYPE INT NOT NULL DEFAULT 0, /* 0-текущие счета, 1-Кредиты, 2-Депозиты */
