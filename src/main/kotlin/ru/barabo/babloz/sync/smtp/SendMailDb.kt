@@ -31,18 +31,19 @@ interface SendMailDb {
 
     private fun charsetSubject() = "UTF-8"
 
-    @Synchronized
     private fun Session.createMessage(fromToUserMail: String): MimeMessage {
 
         val message = MimeMessage(this)
 
-        message.setSubject(subjectCriteria(), charsetSubject() )
+        return synchronized(message) {
+            message.setSubject(subjectCriteria(), charsetSubject() )
 
-        message.setFrom(InternetAddress(fromToUserMail))
+            message.setFrom(InternetAddress(fromToUserMail))
 
-        message.addRecipient(Message.RecipientType.TO, InternetAddress(fromToUserMail))
+            message.addRecipient(Message.RecipientType.TO, InternetAddress(fromToUserMail))
 
-        return message
+            message
+        }
     }
 
     private fun Session.messageSend(message: MimeMessage, mailProp: MailProperties) {
