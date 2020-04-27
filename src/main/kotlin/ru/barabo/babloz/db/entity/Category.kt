@@ -72,9 +72,7 @@ data class Category (
 
     val isSelect get() = isSelected?.let { it != 0 } ?: false
 
-    override fun toString(): String {
-        return name?:""
-    }
+    override fun toString(): String = "${if(parent == null)"" else "  ↳"}$name"
 
     override fun selectParams(): Array<Any?>? = arrayOf(dateStart.toSqlDate(), dateEnd.toSqlDate())
 

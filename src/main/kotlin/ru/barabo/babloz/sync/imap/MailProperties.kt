@@ -1,5 +1,6 @@
 package ru.barabo.babloz.sync.imap
 
+import org.slf4j.LoggerFactory
 import java.util.*
 import javax.mail.Authenticator
 import javax.mail.PasswordAuthentication
@@ -107,7 +108,12 @@ data class MailProperties(
         return store
     }
 
-    fun connectImapStore(): Store = connectStore(getImapStore() )
+    // private val logger = LoggerFactory.getLogger(MailProperties::class.java)
+
+    fun connectImapStore(): Store {
+
+        return connectStore(getImapStore() )
+    }
 
 
     @Synchronized
