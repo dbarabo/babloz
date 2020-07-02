@@ -1,13 +1,17 @@
 package ru.barabo.babloz.db.service.budget
 
+import org.slf4j.LoggerFactory
 import ru.barabo.babloz.db.BablozOrm
 import ru.barabo.babloz.db.entity.budget.BudgetMain
 import ru.barabo.babloz.db.entity.budget.BudgetRow
 import ru.barabo.db.EditType
+import ru.barabo.db.Query
 import ru.barabo.db.service.StoreService
 import java.time.LocalDate
 
 object BudgetMainService: StoreService<BudgetMain, List<BudgetMain>>(BablozOrm, BudgetMain::class.java) {
+
+    private val logger = LoggerFactory.getLogger(BudgetMainService::class.java)
 
     override fun elemRoot(): List<BudgetMain> = dataList
 
@@ -62,11 +66,15 @@ object BudgetMainService: StoreService<BudgetMain, List<BudgetMain>>(BablozOrm, 
 
         val executeQuery = insertCopyCategories(destinationBudgetRowId)
 
+        logger.error("sourceBudgetRowId=$sourceBudgetRowId")
+        logger.error("destinationBudgetRowId=$destinationBudgetRowId")
+        logger.error("query=$executeQuery")
+
         orm.executeQuery(executeQuery, arrayOf(sourceBudgetRowId))
     }
 
     private fun insertCopyCategories(destBudgetRow: Int)=
             """insert into BUDGET_CATEGORY (ID, BUDGET_ROW, CATEGORY)
-                select (SELECT COALESCE(MAX(ID), 0) + 1  from BUDGET_CATEGORY) + ID,
+                select (SELECT COALESCE(MAX(ID), 0) + 1  from BUDGET_CATEGORY) + CATEGORY,
                 $destBudgetRow, CATEGORY from BUDGET_CATEGORY where BUDGET_ROW = ?"""
 }
