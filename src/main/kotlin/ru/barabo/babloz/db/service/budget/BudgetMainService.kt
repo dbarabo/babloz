@@ -11,8 +11,6 @@ import java.time.LocalDate
 
 object BudgetMainService: StoreService<BudgetMain, List<BudgetMain>>(BablozOrm, BudgetMain::class.java) {
 
-    private val logger = LoggerFactory.getLogger(BudgetMainService::class.java)
-
     override fun elemRoot(): List<BudgetMain> = dataList
 
     fun reCalcSelectedRow() {
@@ -65,10 +63,6 @@ object BudgetMainService: StoreService<BudgetMain, List<BudgetMain>>(BablozOrm, 
     private fun copyBudgetCategories(sourceBudgetRowId: Int, destinationBudgetRowId: Int) {
 
         val executeQuery = insertCopyCategories(destinationBudgetRowId)
-
-        logger.error("sourceBudgetRowId=$sourceBudgetRowId")
-        logger.error("destinationBudgetRowId=$destinationBudgetRowId")
-        logger.error("query=$executeQuery")
 
         orm.executeQuery(executeQuery, arrayOf(sourceBudgetRowId))
     }
