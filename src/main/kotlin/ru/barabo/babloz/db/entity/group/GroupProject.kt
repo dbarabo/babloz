@@ -55,7 +55,6 @@ data class GroupProject(var project: Project = Project(),
 
           "${period.years.ifNotZero("г")} ${period.months.ifNotZero("м")} ${period.days.ifNotZero("д")}".trim()
     }
-
         override fun toString(): String = name
 
     private fun findByProject(findProject: Project): GroupProject? {
