@@ -1,7 +1,11 @@
 package ru.barabo.babloz.db.entity.group
 
 import ru.barabo.babloz.db.entity.Project
+import ru.barabo.babloz.gui.formatter.toCurrencyFormat
 import tornadofx.observable
+import java.time.LocalDate
+import java.time.Period
+import java.time.format.DateTimeFormatter
 
 data class GroupProject(var project: Project = Project(),
                         private var parent : GroupProject? = null,
@@ -28,18 +32,31 @@ data class GroupProject(var project: Project = Project(),
 
         fun findByProject(project: Project): GroupProject? {
 
-            return GroupProject.root.findByProject(project)
+            return root.findByProject(project)
         }
 
         fun findByDescription(projectDesc: String): GroupProject? =
-                GroupProject.root.findByDescription(projectDesc)
+                root.findByDescription(projectDesc)
     }
 
-    val name: String get() = project.name?.let { it } ?: ""
+    val name: String get() = project.name ?: ""
 
-    val description: String get() = project.description?.let{ it } ?: ""
+    val description: String get() = project.description ?: ""
 
-    override fun toString(): String = name
+    val turn: String get() = project.turn?.toCurrencyFormat() ?: ""
+
+    val start: String get() = project.startProject?.toFormat() ?: ""
+
+    val end: String get() = project.endProject?.toFormat() ?: ""
+
+    val duration: String get() = if(project.startProject == null || project.endProject == null) ""
+        else {
+            val period = Period.between(project.startProject, project.endProject)
+
+          "${period.years.ifNotZero("г")} ${period.months.ifNotZero("м")} ${period.days.ifNotZero("д")}".trim()
+    }
+
+        override fun toString(): String = name
 
     private fun findByProject(findProject: Project): GroupProject? {
         if(findProject.id == project.id) return this
@@ -67,3 +84,9 @@ data class GroupProject(var project: Project = Project(),
         return null
     }
 }
+
+private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+
+private fun LocalDate.toFormat(): String = dateFormatter.format(this)
+
+private fun Int.ifNotZero(postfix: String): String = if(this == 0)"" else "${this}${postfix}";

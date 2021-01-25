@@ -96,6 +96,14 @@ object ProjectList : Tab("Проекты", VBox()), StoreListener<GroupProject> 
 
             column("Описание", GroupProject::description)
 
+            column("Затрачено", GroupProject::turn)
+
+            column("Начат", GroupProject::start)
+
+            column("Завершен", GroupProject::end)
+
+            column("Длительность", GroupProject::duration)
+
             root = TreeItem(rootGroup)
 
             populate { it.value.child }
