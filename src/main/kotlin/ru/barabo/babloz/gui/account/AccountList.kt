@@ -41,6 +41,11 @@ object AccountList : Tab("Счета", VBox()), StoreListener<GroupAccount> {
 
                     disableProperty().bind(AccountSaver.isDisableEdit())
                 }
+                button ("Закрыть счет").apply {
+                    setOnAction { AccountService.closeAccount() }
+
+                    disableProperty().bind(AccountSaver.isDisableEdit())
+                }
             }
             splitpane(Orientation.HORIZONTAL, AccountEdit).apply {splitPane = this}
         }

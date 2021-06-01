@@ -170,7 +170,7 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
     private fun updateNewId() {
         if(insertData.isEmpty()) return
 
-        val maxItem = backupData.maxWith( compareBy { idMember!!.getter.call(it) as? Comparable<*> } ) ?: return
+        val maxItem = backupData.maxWithOrNull( compareBy { idMember!!.getter.call(it) as? Comparable<*> } ) ?: return
 
         val maxId = idMember!!.getter.call(maxItem) ?: return
 

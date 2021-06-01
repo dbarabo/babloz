@@ -4,11 +4,14 @@ import ru.barabo.babloz.db.BablozOrm
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.Pay
 import ru.barabo.babloz.db.entity.group.GroupAccount
+import ru.barabo.babloz.gui.account.AccountSaver
+import ru.barabo.babloz.gui.binding.AbstractSaver
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
 import ru.barabo.db.service.StoreService
+import java.time.LocalDate
 
-object AccountService :StoreService<Account, GroupAccount>(BablozOrm, Account::class.java), StoreListener<List<Pay>> {
+object AccountService : StoreService<Account, GroupAccount>(BablozOrm, Account::class.java), StoreListener<List<Pay>> {
 
     init {
         PayService.addListener(this)
@@ -59,6 +62,17 @@ object AccountService :StoreService<Account, GroupAccount>(BablozOrm, Account::c
         if(refreshType.isEditable()) {
             initData()
         }
+    }
+
+    fun closeAccount() {
+
+        val editValue = AccountSaver.editBind.editValue ?: return
+
+        editValue.closed = LocalDate.now()
+
+        save(editValue)
+
+        initData()
     }
 }
 

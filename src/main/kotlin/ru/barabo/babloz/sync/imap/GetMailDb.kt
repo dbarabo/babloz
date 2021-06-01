@@ -126,7 +126,7 @@ interface GetMailDb {
     }
 
     private fun Array<out Message>.getLastMessage(): Message? =
-            asSequence().maxWith( compareBy { it.receivedDate?.time ?: Long.MIN_VALUE } )
+            asSequence().maxWithOrNull( compareBy { it.receivedDate?.time ?: Long.MIN_VALUE } )
 
      private fun getSearchTerm(userName: String): SearchTerm =
             AndTerm(arrayOf(FromStringTerm(userName),

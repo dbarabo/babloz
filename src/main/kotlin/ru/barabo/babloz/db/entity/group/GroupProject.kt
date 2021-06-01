@@ -88,4 +88,4 @@ private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
 private fun LocalDate.toFormat(): String = dateFormatter.format(this)
 
-private fun Int.ifNotZero(postfix: String): String = if(this == 0)"" else "${this}${postfix}";
+private fun Int.ifNotZero(postfix: String): String = if(this == 0)"" else "${this}${postfix}"
