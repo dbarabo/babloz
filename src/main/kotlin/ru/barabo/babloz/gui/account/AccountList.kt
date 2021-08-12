@@ -41,7 +41,7 @@ object AccountList : Tab("Счета", VBox()), StoreListener<GroupAccount> {
 
                     disableProperty().bind(AccountSaver.isDisableEdit())
                 }
-                button ("Закрыть счет").apply {
+                button ("Закрыть счет", ResourcesManager.icon("grave32.png") ).apply {
                     setOnAction { AccountService.closeAccount() }
 
                     disableProperty().bind(AccountSaver.isDisableEdit())
