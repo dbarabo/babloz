@@ -11,6 +11,7 @@ import ru.barabo.babloz.db.entity.group.GroupCategory
 import ru.barabo.babloz.db.entity.group.GroupPerson
 import ru.barabo.babloz.db.entity.group.GroupProject
 import ru.barabo.babloz.db.service.AccountService
+import ru.barabo.babloz.db.service.PayService
 import ru.barabo.babloz.gui.binding.BindProperties
 import ru.barabo.babloz.gui.formatter.fromFormatToCurrency
 import ru.barabo.babloz.gui.formatter.toCurrencyFormat
@@ -32,6 +33,8 @@ internal class PayBind : BindProperties<Pay> {
     val dateProperty = SimpleObjectProperty<LocalDate>()
 
     val amountProperty = SimpleStringProperty()
+
+    val sumTable = SimpleStringProperty()
 
     val descriptionProperty = SimpleStringProperty()
 
@@ -69,6 +72,8 @@ internal class PayBind : BindProperties<Pay> {
 
         amountProperty.value =  value?.amount.toCurrencyFormat()
 
+        sumTable.value =  PayService.sumTable.toCurrencyFormat()
+
         descriptionProperty.value = value?.description
     }
 
@@ -94,6 +99,8 @@ internal class PayBind : BindProperties<Pay> {
     override fun copyToProperties(destination: BindProperties<Pay>) {
 
         val destPayBind = destination as PayBind
+
+        destPayBind.sumTable.value = this.sumTable.value
 
         destPayBind.newPayProperty.value = this.newPayProperty.value
 

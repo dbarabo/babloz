@@ -35,10 +35,10 @@ internal object BudgetRowEdit : VBox() {
 private const val ERROR_CHANGE_OTHER_ROW = "Нельзя менять список у строки <Все остальные категории>"
 
 private fun checkTreeBudgetCategory(): CheckTreeView<GroupCategory> =
-        CheckTreeView<GroupCategory>(CheckBoxTreeItem<GroupCategory>(BudgetTreeCategoryService.elemRoot()) ).apply {
+        CheckTreeView(CheckBoxTreeItem(BudgetTreeCategoryService.elemRoot()) ).apply {
 
             this.populate (itemFactory = {
-                CheckBoxTreeItem(it, null, it.category.isSelected ?:0 != 0).apply {
+                CheckBoxTreeItem(it, null, (it.category.isSelected ?: 0) != 0).apply {
 
                     selectedProperty().addListener { _, _, newValue ->
 

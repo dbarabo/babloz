@@ -28,6 +28,9 @@ object PayService : StoreService<Pay, List<Pay>>(BablozOrm, Pay::class.java), Fi
 
     override var filterCriteria: MutableList<FilterCriteria> = ArrayList()
 
+    var sumTable: Double = 0.0
+    private set
+
     override fun getDataListStore(): MutableList<Pay> = dataList
 
     override val indexFieldToFilter: Map<KCallable<*>, KClass<*>> = mapOf(
@@ -35,6 +38,11 @@ object PayService : StoreService<Pay, List<Pay>>(BablozOrm, Pay::class.java), Fi
             Pay::description to String::class,
             Pay::amount to Number::class
     )
+
+    override fun sentRefreshAllListener(refreshType: EditType) {
+        sumTable = recalcSum()
+        super.sentRefreshAllListener(refreshType)
+    }
 
     override fun afterFilterAction() {
         sentRefreshAllListener(EditType.FILTER)
@@ -53,6 +61,8 @@ object PayService : StoreService<Pay, List<Pay>>(BablozOrm, Pay::class.java), Fi
     override fun processInsert(item :Pay) {
         allData!!.add(item)
     }
+
+    private fun recalcSum(): Double = dataList.sumByDouble { it.amount?.toDouble() ?: 0.0 }
 
     fun firstByCriteria(criteria: (Pay)->Boolean): Pay? = allData?.firstOrNull { criteria(it) }
 }

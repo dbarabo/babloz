@@ -5,7 +5,6 @@ import ru.barabo.babloz.gui.startLaunch
 object Babloz {
 
     fun runApplication(args:Array<String>) {
-
         startLaunch(args)
     }
 }

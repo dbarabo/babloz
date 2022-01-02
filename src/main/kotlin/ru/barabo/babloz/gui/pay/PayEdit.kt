@@ -35,6 +35,15 @@ internal object PayEdit: VBox() {
 
                 text(property = PaySaver.editBind.newPayProperty).apply { infoNewField = this }
 
+                field("ВСЕГО В ТАБЛИЦЕ") {
+                    textfield().apply {
+                        bind(PaySaver.editBind.sumTable)
+
+                        textFormatter = currencyTextFormatter()
+
+                    }
+                }
+
                 field("Счет") {
                     combobox<Account>(property = PaySaver.editBind.accountProperty, values = AccountService.accountList())
                  }

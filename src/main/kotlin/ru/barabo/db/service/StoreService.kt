@@ -46,7 +46,7 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
         listener.refreshAll(elemRoot(), EditType.INIT)
     }
 
-    protected fun sentRefreshAllListener(refreshType: EditType) {
+    protected open fun sentRefreshAllListener(refreshType: EditType) {
         listenerList.forEach { it.refreshAll(elemRoot(), refreshType) }
     }
 

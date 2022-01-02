@@ -71,7 +71,7 @@ data class Pay(
         @ColumnName("SYNC")
         @ColumnType(java.sql.Types.INTEGER)
         @Transient
-        var sync :Int? = null
+        var sync :Int? = null,
 
         ) {
 
@@ -88,7 +88,7 @@ data class Pay(
                 get() = amount?.let { DecimalFormat("0.00").format(it) }?:""
 
         var descriptionPay: String = ""
-                get() = description?.let { it } ?:""
+                get() = description ?:""
 
         var projectPay: String = ""
                 get() =  project?.name?:""
@@ -96,7 +96,7 @@ data class Pay(
         var personPay: String = ""
                 get() = person?.name?:""
 
-        private fun fromToAmount(): String = if(amount?.toDouble()?:0.0 > 0.0) "с " else "на "
+        private fun fromToAmount(): String = if((amount?.toDouble() ?: 0.0) > 0.0) "с " else "на "
 
         private fun accountToExists() :String = accountTo?.let { "${fromToAmount()}${it.name}" }?:""
 }
