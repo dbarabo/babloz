@@ -78,7 +78,7 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
     }
 
     private fun showNewBudgetMain() {
-        val result = CreateBudgetMain.showAndWait().orElseGet { null  }?.let { it } ?: return
+        val result = CreateBudgetMain.showAndWait().orElseGet { null  } ?: return
 
         BudgetMainService.createNewBudget(result)
     }
@@ -118,12 +118,14 @@ object BudgetList : Tab("Бюджет", VBox()), StoreListener<List<BudgetMain>>
 
     private fun table(rootGroup: List<BudgetMain>): TableView<BudgetMain> {
 
-        return TableView<BudgetMain>(rootGroup as ObservableList).apply {
+        return TableView(rootGroup as ObservableList).apply {
             column("Название", BudgetMain::name)
 
             column("Выделено", BudgetMain::amountBudgetFormat)
 
             column("Освоено", BudgetMain::amountRealFormat)
+
+            column("Доход", BudgetMain::amountProfitFormat)
 
             columns.add(progressColumn() )
 
@@ -143,7 +145,7 @@ private fun progressColumn(): TableColumn<BudgetMain, Double?> {
 
 fun EventTarget.comboBoxBudgetTypes(processBudjectTypePeriod: (BudgetTypePeriod)->Unit): ComboBox<BudgetTypePeriod> {
 
-    val budgetTypePeriodProperty = SimpleObjectProperty<BudgetTypePeriod>(BudgetMain.budgetTypePeriod)
+    val budgetTypePeriodProperty = SimpleObjectProperty(BudgetMain.budgetTypePeriod)
 
     return combobox<BudgetTypePeriod>(property = budgetTypePeriodProperty, values = BudgetTypePeriod.values().toList()).apply {
 

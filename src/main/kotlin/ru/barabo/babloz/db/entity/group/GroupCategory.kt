@@ -1,12 +1,13 @@
 package ru.barabo.babloz.db.entity.group
 
 import ru.barabo.babloz.db.entity.Category
-import tornadofx.observable
+import tornadofx.asObservable
 import java.text.DecimalFormat
 
 data class GroupCategory(var category: Category = Category(),
                          private var parent: GroupCategory? = null,
-                         val child: MutableList<GroupCategory> = ArrayList<GroupCategory>().observable() ) {
+                         val child: MutableList<GroupCategory> = ArrayList<GroupCategory>().asObservable()
+) {
 
     companion object {
         val root = GroupCategory()
@@ -19,7 +20,7 @@ data class GroupCategory(var category: Category = Category(),
             synchronized(root.child) {
                 root.child.clear()
 
-                TRANSFER_CATEGORY = TRANSFER_CATEGORY?.let { it }?:GroupCategory(Category.TRANSFER_CATEGORY, root)
+                TRANSFER_CATEGORY = TRANSFER_CATEGORY ?:GroupCategory(Category.TRANSFER_CATEGORY, root)
 
                 root.child.add(TRANSFER_CATEGORY!!)
             }
@@ -74,7 +75,7 @@ data class GroupCategory(var category: Category = Category(),
         return fillList
     }
 
-    val name: String get() = category.name?.let { it } ?: ""
+    val name: String get() = category.name ?: ""
 
     val type: String get() = category.type.label
 

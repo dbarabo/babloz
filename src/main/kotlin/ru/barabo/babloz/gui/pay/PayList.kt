@@ -123,13 +123,13 @@ object PayList : Tab("Платежи", VBox()), StoreListener<List<Pay>> {
     }
 
     private fun checkComboProjectList(): CheckComboBox<Project> = ComboxFilter(
-            projectAllList().observable(), ALL_PROJECT, PayService::setProjectFilter, ProjectService::projectList)
+        projectAllList().asObservable(), ALL_PROJECT, PayService::setProjectFilter, ProjectService::projectList)
 
     private fun checkComboCategoryList(): CheckComboBox<Category> = ComboxFilter(
-           categoryAllList().observable(), ALL_CATEGORY, PayService::setCategoryFilter, CategoryService::categoryList)
+        categoryAllList().asObservable(), ALL_CATEGORY, PayService::setCategoryFilter, CategoryService::categoryList)
 
     private fun checkComboAccountList(): CheckComboBox<Account> =  ComboxFilter(
-            accountAllList().observable(), ALL_ACCOUNT, PayService::setAccountFilter, AccountService::accountList)
+        accountAllList().asObservable(), ALL_ACCOUNT, PayService::setAccountFilter, AccountService::accountList)
 
     private fun findPay() {
 

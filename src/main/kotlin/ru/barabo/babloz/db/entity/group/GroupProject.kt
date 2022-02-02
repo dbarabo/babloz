@@ -2,14 +2,15 @@ package ru.barabo.babloz.db.entity.group
 
 import ru.barabo.babloz.db.entity.Project
 import ru.barabo.babloz.gui.formatter.toCurrencyFormat
-import tornadofx.observable
+import tornadofx.asObservable
 import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
 
 data class GroupProject(var project: Project = Project(),
                         private var parent : GroupProject? = null,
-                        val child: MutableList<GroupProject> = ArrayList<GroupProject>().observable() ) {
+                        val child: MutableList<GroupProject> = ArrayList<GroupProject>().asObservable()
+) {
     companion object {
         val root = GroupProject()
 

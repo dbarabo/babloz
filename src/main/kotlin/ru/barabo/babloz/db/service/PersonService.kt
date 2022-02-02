@@ -38,17 +38,6 @@ object PersonService : StoreService<Person, GroupPerson>(BablozOrm, Person::clas
     }
 
     fun parentList() :List<Person> = GroupPerson.root.child.map { it.person }
-//
-//    {
-//
-//        val list = ArrayList<Person>()
-//
-//        list.add(NULL_PERSON)
-//
-//        list.addAll( GroupPerson.root.child.map { it.person } )
-//
-//        return list
-//    }
 
     fun findPersonById(id :Int?) : Person {
 

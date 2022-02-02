@@ -1,6 +1,7 @@
 package ru.barabo.db.service
 
 import ru.barabo.babloz.gui.formatter.parseToMoney
+import java.util.*
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
@@ -24,7 +25,7 @@ interface FilterStore<E: Any> {
 
         val words = criteria.split("[\\p{Punct}\\s]+")
                 .filter { it.trim().length > 2 || it.toNumber() != null }
-                .map { it.trim().toUpperCase() }
+                .map { it.trim().uppercase(Locale.getDefault()) }
 
         val numbers = words.filter { it.toNumber() != null }.map{it.toNumber()!!}
 

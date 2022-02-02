@@ -9,6 +9,7 @@ import ru.barabo.db.service.StoreService
 import ru.barabo.db.sync.PREFIX_TABLE
 import ru.barabo.db.sync.splitLines
 import java.io.File
+import java.util.*
 
 object SyncLoader {
 
@@ -86,7 +87,7 @@ object SyncLoader {
 
         posSelected++
 
-        val service = getService(line.substringAfter(PREFIX_TABLE).trim().toUpperCase())
+        val service = getService(line.substringAfter(PREFIX_TABLE).trim().uppercase(Locale.getDefault()))
                 ?: return null
 
         return Pair(service, posSelected)
@@ -95,15 +96,15 @@ object SyncLoader {
     private fun getService(serviceName: String): StoreService<*, *>? = serviceHashByTableName[serviceName]
 
     internal val serviceHashByTableName = mapOf<String, StoreService<*, *>>(
-            CurrencyService.tableName.toUpperCase() to CurrencyService,
-            AccountService.tableName.toUpperCase() to  AccountService,
-            CategoryService.tableName.toUpperCase() to  CategoryService,
-            PersonService.tableName.toUpperCase() to  PersonService,
-            ProjectService.tableName.toUpperCase() to  ProjectService,
-            PayService.tableName.toUpperCase() to  PayService,
-            BudgetRowService.tableName.toUpperCase() to  BudgetRowService,
-            BudgetCategoryService.tableName.toUpperCase() to  BudgetCategoryService,
-            BudgetMainService.tableName.toUpperCase() to  BudgetMainService
+        CurrencyService.tableName.uppercase(Locale.getDefault()) to CurrencyService,
+        AccountService.tableName.uppercase(Locale.getDefault()) to AccountService,
+        CategoryService.tableName.uppercase(Locale.getDefault()) to CategoryService,
+        PersonService.tableName.uppercase(Locale.getDefault()) to PersonService,
+        ProjectService.tableName.uppercase(Locale.getDefault()) to ProjectService,
+        PayService.tableName.uppercase(Locale.getDefault()) to PayService,
+        BudgetRowService.tableName.uppercase(Locale.getDefault()) to BudgetRowService,
+        BudgetCategoryService.tableName.uppercase(Locale.getDefault()) to BudgetCategoryService,
+        BudgetMainService.tableName.uppercase(Locale.getDefault()) to BudgetMainService
     )
 }
 

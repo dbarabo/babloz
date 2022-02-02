@@ -2,11 +2,12 @@ package ru.barabo.babloz.db.entity.group
 
 import ru.barabo.babloz.db.entity.Person
 import ru.barabo.babloz.gui.formatter.toCurrencyFormat
-import tornadofx.observable
+import tornadofx.asObservable
 
 class GroupPerson(var person: Person = Person(),
                   private var parent : GroupPerson? = null,
-                  val child: MutableList<GroupPerson> = ArrayList<GroupPerson>().observable() ) {
+                  val child: MutableList<GroupPerson> = ArrayList<GroupPerson>().asObservable()
+) {
 
     companion object {
         //private val logger = LoggerFactory.getLogger(GroupPerson::class.java)!!
@@ -40,13 +41,13 @@ class GroupPerson(var person: Person = Person(),
 
         fun findByPerson(person: Person): GroupPerson? {
 
-            return GroupPerson.root.findByPerson(person)
+            return root.findByPerson(person)
         }
     }
 
-    val name: String get() = person.name?.let { it } ?: ""
+    val name: String get() = person.name ?: ""
 
-    val description: String get() = person.description?.let{ it } ?: ""
+    val description: String get() = person.description ?: ""
 
     val debt: String get() = person.debt.toCurrencyFormat()
 

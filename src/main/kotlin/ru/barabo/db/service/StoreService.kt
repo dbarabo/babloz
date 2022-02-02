@@ -5,6 +5,7 @@ import ru.barabo.db.*
 import ru.barabo.db.sync.Sync
 import ru.barabo.db.sync.SyncReload
 import ru.barabo.db.sync.SyncEditTypes
+import tornadofx.asObservable
 import tornadofx.observable
 
 abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val clazz: Class<T>)
@@ -14,7 +15,7 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
 
     private val logger = LoggerFactory.getLogger(StoreService::class.java)
 
-    protected val dataList = ArrayList<T>().observable()
+    protected val dataList = ArrayList<T>().asObservable()
 
     @Volatile
     private var startedLongTransaction: LongTransactState = LongTransactState.NONE_LONG_TRANSACT

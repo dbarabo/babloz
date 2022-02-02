@@ -3,12 +3,12 @@ package ru.barabo.babloz.db.entity.group
 import ru.barabo.babloz.db.entity.Account
 import ru.barabo.babloz.db.entity.AccountType
 import ru.barabo.babloz.db.service.AccountService
-import tornadofx.observable
+import tornadofx.asObservable
 import java.text.DecimalFormat
 
 data class GroupAccount(var account: Account = Account(),
                         var parent : GroupAccount? = null,
-                        val child: MutableList<GroupAccount> = ArrayList<GroupAccount>().observable()
+                        val child: MutableList<GroupAccount> = ArrayList<GroupAccount>().asObservable()
                         ) {
 
     companion object {
@@ -59,7 +59,7 @@ data class GroupAccount(var account: Account = Account(),
                 AccountService.NULL_ACCOUNT
             }
 
-            return GroupAccount.root.findByAccountName(accountName)
+            return root.findByAccountName(accountName)
         }
 
         fun countRoot() = root.child.size
@@ -79,9 +79,9 @@ data class GroupAccount(var account: Account = Account(),
         return null
     }
 
-    val name: String get() = account.name?.let { it } ?: ""
+    val name: String get() = account.name ?: ""
 
     val rest: String get() = account.rest?.let { DecimalFormat("0.00").format(it) + " ${account.currency?.ext}" }?:""
 
-    override fun toString(): String = account.name?.let { it } ?: ""
+    override fun toString(): String = account.name ?: ""
 }

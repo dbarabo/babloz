@@ -1,68 +1,113 @@
 buildscript {
-    ext.kotlin_version = '1.4.21'
-    ext.tornadofx_version = "1.7.17"
-    ext.coroutin_version = "1.0.1"
+    ext {
+        kotlin_version = "1.6.10"
+
+        tornadofx_version = "1.7.20"
+
+        coroutin_version = "1.6.0"
+    }
 
     repositories {
         mavenCentral()
     }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
+}
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
 }
 
 group 'ru.barabo'
 
-apply plugin: 'java'
-apply plugin: 'kotlin'
+tasks.withType(JavaExec) {
+    jvmArgs = ['-Xmx2g']
+}
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
-compileJava.options.encoding = 'UTF-8'
-
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
-    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutin_version"
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: "$kotlin_version"
 
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1"
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: "$kotlin_version"
 
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutin_version"
 
-    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.+'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
 
-    compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.21.0'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.11'
 
-    compile "no.tornado:tornadofx:$tornadofx_version"
+    implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.21.0'
 
-    compile group: 'org.controlsfx', name: 'controlsfx', version: '8.40.14'
+    implementation group: 'org.controlsfx', name: 'controlsfx', version: '8.40.14'
 
-    compile group: 'com.sun.mail', name: 'javax.mail', version: '1.6.+'
+    implementation group: 'com.sun.mail', name: 'javax.mail', version: '1.6.+'
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    implementation group: "no.tornado", name: "tornadofx",  version: "$tornadofx_version"
+
 }
 
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
+
+    kotlinOptions {
+        languageVersion = "1.6"
+
+        freeCompilerArgs += "-opt-in=org.mylibrary.OptInAnnotation"
+    }
 }
 
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+}
+
 jar {
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
     manifest {
         attributes 'Main-Class': 'ru.barabo.babloz.main.BablozKt'
     }
 
-    from configurations.compile.collect {
-        it.isDirectory() ? it : zipTree(it).matching{exclude{
-            it.name.contains('.DSA') || it.name.contains('.SF') || it.name.contains('.RSA') ||
-                    it.name.contains('.jnilib') /*|| it.name.contains('.so')*/ }}
+    from configurations.runtimeClasspath.collect  {
+        it.isDirectory() ? it : zipTree(it).matching {
+            exclude {
+                it.name.contains('.DSA') ||
+                it.name.contains('.jnilib') ||
+                it.name.contains('.RSA') ||
+                it.name.contains('controlsfx_no_NO.properties') ||
+                it.name.contains('controlsfx_nl_BE.properties') ||
+                it.name.contains('controlsfx_pt_BR.properties') ||
+                it.name.contains('controlsfx_nl_NL.properties') ||
+                it.name.contains('controlsfx_it_IT.properties') ||
+                it.name.contains('controlsfx_sv_SE.properties') ||
+                it.name.contains('controlsfx_pt_PT.properties') ||
+                it.name.contains('controlsfx_sl.properties') ||
+                it.name.contains('controlsfx_de_DE.properties') ||
+                it.name.contains('controlsfx_ca.properties') ||
+                it.name.contains('controlsfx_fr_FR.properties') ||
+                it.name.contains('controlsfx_es_MX.properties') ||
+                it.name.contains('controlsfx_hu_HU.properties') ||
+                it.name.contains('controlsfx_es_ES.properties') ||
+                it.name.contains('controlsfx_pl_PL.properties') ||
+                it.name.contains('controlsfx_tr_TR.properties') ||
+                        it.name.contains('controlsfx_sk_SK.properties') ||
+                        it.name.contains('controlsfx_lt_LT.properties') ||
+                        it.name.contains('controlsfx_zh_CN.properties') ||
+                        it.name.contains('controlsfx_ko_KR.properties') ||
+                        it.name.contains('controlsfx_ja_JP.properties') ||
+                        it.name.contains('controlsfx_fa.properties') ||
+                        it.name.contains('controlsfx_ar.properties') ||
+                        it.name.contains('controlsfx_fa.properties') ||
+                        it.name.contains('controlsfx_uk.properties')
+
+            }
+        }
     }
 }

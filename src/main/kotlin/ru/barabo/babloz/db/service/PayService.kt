@@ -62,7 +62,7 @@ object PayService : StoreService<Pay, List<Pay>>(BablozOrm, Pay::class.java), Fi
         allData!!.add(item)
     }
 
-    private fun recalcSum(): Double = dataList.sumByDouble { it.amount?.toDouble() ?: 0.0 }
+    private fun recalcSum(): Double = dataList.sumOf { it.amount?.toDouble() ?: 0.0 }
 
     fun firstByCriteria(criteria: (Pay)->Boolean): Pay? = allData?.firstOrNull { criteria(it) }
 }

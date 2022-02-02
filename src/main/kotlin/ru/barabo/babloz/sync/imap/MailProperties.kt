@@ -1,6 +1,5 @@
 package ru.barabo.babloz.sync.imap
 
-import org.slf4j.LoggerFactory
 import java.util.*
 import javax.mail.Authenticator
 import javax.mail.PasswordAuthentication
@@ -28,7 +27,7 @@ data class MailProperties(
         private const val SENT_IMAP = "SENT"
 
         fun sentFolderNameByServer(login: String): String {
-            val server = login.substringAfterLast('@').trim().toLowerCase()
+            val server = login.substringAfterLast('@').trim().lowercase(Locale.getDefault())
 
             return when  {
                 isGmail(server) -> SENT_GMAIL
@@ -38,7 +37,7 @@ data class MailProperties(
         }
 
         fun tryDefineProperties(login: String, password: String): MailProperties? {
-            val server = login.substringAfterLast('@').trim().toLowerCase()
+            val server = login.substringAfterLast('@').trim().lowercase(Locale.getDefault())
 
             return when  {
             isGmail(server) -> gmailProperties(login, password)
@@ -88,7 +87,7 @@ data class MailProperties(
         put("mail.imaps.port", portImap.toString())
     }
 
-    private fun authenticator() : Authenticator? {
+    private fun authenticator() : Authenticator {
 
         return object : Authenticator() {
             override fun getPasswordAuthentication() : PasswordAuthentication =

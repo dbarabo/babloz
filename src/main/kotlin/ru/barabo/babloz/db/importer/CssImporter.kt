@@ -17,6 +17,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 import java.util.regex.Pattern
 
 object CssImporter : Importer {
@@ -41,7 +42,7 @@ object CssImporter : Importer {
         val fieldMap = HashMap<String, Int>()
 
         for ( (index, field) in fields.withIndex()) {
-            fieldMap += field.toUpperCase() to index
+            fieldMap += field.uppercase(Locale.getDefault()) to index
         }
 
         return fieldMap
@@ -112,19 +113,19 @@ object CssImporter : Importer {
 
         val mirrorPay = findMirrorPay(pay)
 
-        return mirrorPay?.let{ it } ?: pay
+        return mirrorPay ?: pay
     }
 
     /*
      * берем переводы только с положительнымы - чтобы не задваивались
      */
     private fun isDuplicatePay(pay: Pay): Boolean {
-        if(pay.amount?.toDouble()?:-1.0 >= 0) return false
+        if((pay.amount?.toDouble() ?: -1.0) >= 0) return false
 
         return isEqualCurrencyPay(pay)
     }
 
-    private fun isEqualCurrencyPay(pay: Pay)= pay.account?.currency?.id ?:-1 == pay.accountTo?.currency?.id?:-1
+    private fun isEqualCurrencyPay(pay: Pay)= (pay.account?.currency?.id ?: -1) == (pay.accountTo?.currency?.id ?: -1)
 
     private fun findMirrorPay(pay: Pay): Pay? {
 

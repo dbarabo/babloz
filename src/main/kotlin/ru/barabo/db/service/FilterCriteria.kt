@@ -1,5 +1,6 @@
 package ru.barabo.db.service
 
+import java.util.*
 import kotlin.reflect.KCallable
 
 data class FilterCriteria(val getter: KCallable<*>, val andValues: List<Any>) {
@@ -12,7 +13,7 @@ data class FilterCriteria(val getter: KCallable<*>, val andValues: List<Any>) {
 
         val isNotAccess = andValues.map {
             when (it) {
-                is String -> valueRow.toString().toUpperCase().indexOf(it) >= 0
+                is String -> valueRow.toString().uppercase(Locale.getDefault()).indexOf(it) >= 0
                 is Number -> (valueRow as Number).toInt() == it.toInt()
                 else -> false
             }
