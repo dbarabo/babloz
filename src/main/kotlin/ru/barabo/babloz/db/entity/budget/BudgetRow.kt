@@ -46,7 +46,7 @@ data class BudgetRow(
     var amountRealFormat: String = ""
         get() = amountReal?.let { DecimalFormat("0").format(it) }?:""
 
-    val percentAll: Double?
+    val percentAll: Double
     get() {
         val amountDouble = amount?.toDouble()?.let { if(it == 0.0) Double.MAX_VALUE else it} ?: Double.MAX_VALUE
 

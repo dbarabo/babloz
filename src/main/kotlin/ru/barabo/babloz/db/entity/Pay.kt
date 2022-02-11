@@ -33,7 +33,7 @@ data class Pay(
 
         @ColumnName("CREATED")
         @ColumnType(java.sql.Types.DATE)
-        @Converter(SqliteLocalDate::class)
+        //@Converter(SqliteLocalDate::class)
         var created : LocalDateTime? = LocalDateTime.now(),
 
         @ColumnName("CATEGORY")

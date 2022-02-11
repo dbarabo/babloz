@@ -1,6 +1,7 @@
 package ru.barabo.babloz.db.service.report
 
 import ru.barabo.babloz.db.selectValueType
+import ru.barabo.db.converterToJavaDate
 import java.sql.Date
 import java.time.LocalDate
 
@@ -27,8 +28,8 @@ data class DateRange(val startInclusive: LocalDate = LocalDate.now().minusYears(
     companion object {
         private const val SELECT_MIN_PAY_DATE = "select MIN(CREATED) from PAY"
 
-        private val MIN_DATE_PAY =
-                (selectValueType<Number>(SELECT_MIN_PAY_DATE)?.let { Date(it.toLong()).toLocalDate() } ?: LocalDate.now())!!
+        private val MIN_DATE_PAY: LocalDate =
+                (selectValueType<String>(SELECT_MIN_PAY_DATE)?.let { converterToJavaDate(it) } ?: LocalDate.now())!!
 
         fun updateDateRange(start: LocalDate = MIN_DATE_PAY, end: LocalDate, periodType: PeriodType): DateRange {
 

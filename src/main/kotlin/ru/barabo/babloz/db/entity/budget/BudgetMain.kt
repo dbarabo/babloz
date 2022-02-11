@@ -5,7 +5,6 @@ import ru.barabo.babloz.db.service.budget.BudgetCategoryService
 import ru.barabo.babloz.db.service.budget.BudgetMainService
 import ru.barabo.babloz.db.service.budget.BudgetRowService
 import ru.barabo.db.annotation.*
-import ru.barabo.db.converter.SqliteLocalDate
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.time.LocalDate
@@ -48,12 +47,12 @@ data class BudgetMain (
 
         @ColumnName("START_PERIOD")
         @ColumnType(java.sql.Types.DATE)
-        @Converter(SqliteLocalDate::class)
+        //@Converter(SqliteLocalDate::class)
         var startPeriod : LocalDate = LocalDate.now(),
 
         @ColumnName("END_PERIOD")
         @ColumnType(java.sql.Types.DATE)
-        @Converter(SqliteLocalDate::class)
+        //@Converter(SqliteLocalDate::class)
         var endPeriod : LocalDate = LocalDate.now(),
 
         @ColumnName("AMOUNT_BUDGET")

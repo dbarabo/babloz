@@ -59,13 +59,13 @@ data class Project (
 
         @ColumnName("START_PROJECT")
         @ColumnType(java.sql.Types.DATE)
-        @Converter(SqliteLocalDate::class)
+        //@Converter(SqliteLocalDate::class)
         @ReadOnly
         var startProject : LocalDate? = null,
 
         @ColumnName("END_PROJECT")
         @ColumnType(java.sql.Types.DATE)
-        @Converter(SqliteLocalDate::class)
+        //@Converter(SqliteLocalDate::class)
         @ReadOnly
         var endProject : LocalDate? = null,
 

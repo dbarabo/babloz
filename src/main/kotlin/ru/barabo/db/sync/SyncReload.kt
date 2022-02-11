@@ -63,7 +63,7 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
 
         val isExists = orm.selectValue(query) as? Number
 
-        return isExists?.toInt() ?: 0 != 0
+        return (isExists?.toInt() ?: 0) != 0
     }
 
     override fun prepareFillNewData(): List<T> {
@@ -109,7 +109,7 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
 
         if(!isExistsNewUpdateData()) return
 
-        val memberEntityFields = getMemberEntityFields(entityClass) ?: return
+        val memberEntityFields = getMemberEntityFields(entityClass)
 
         for (memberEntityField in memberEntityFields) {
             val type = memberEntityField.returnType.javaType as Class<*>
@@ -254,7 +254,9 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
 
             val values = splitLines(lines[posSelected])
 
-            values?.let { backupData += getEntityFromString(entityClass.newInstance(), columnsAnnotation, it, columns) }
+            values?.let {
+                backupData += getEntityFromString(entityClass.newInstance(), columnsAnnotation, it, columns)
+            }
 
             posSelected++
         }
@@ -264,7 +266,7 @@ class SyncReload<T: Any>(private val orm : TemplateQuery, private val entityClas
 
     private fun getSelectNewData(selectRecords: Triple<String, Int, List<String>>, syncType: SyncEditTypes): List<T> {
 
-        val params: Array<Any?>? = Array(selectRecords.second)  { syncType.ordinal }
+        val params: Array<Any?> = Array(selectRecords.second)  { syncType.ordinal }
 
         val data =  orm.select(selectRecords.first, params)
 

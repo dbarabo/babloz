@@ -81,7 +81,13 @@ data class GroupAccount(var account: Account = Account(),
 
     val name: String get() = account.name ?: ""
 
-    val rest: String get() = account.rest?.let { DecimalFormat("0.00").format(it) + " ${account.currency?.ext}" }?:""
+    val rest: String get() = account.rest?.let { DECIMAL_FORMAT.format(it) + " ${account.currency?.ext}" }?:""
+
+    val percentAdd: String get() = account.percentAdd?.let { DECIMAL_FORMAT.format(it) }?:""
+
+    val percentSimple: String get() = account.percentSimple?.let { DECIMAL_FORMAT.format(it) }?:""
 
     override fun toString(): String = account.name ?: ""
 }
+
+private val DECIMAL_FORMAT = DecimalFormat("0.00")

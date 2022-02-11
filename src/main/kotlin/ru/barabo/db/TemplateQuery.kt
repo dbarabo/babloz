@@ -11,7 +11,7 @@ import kotlin.reflect.full.declaredMembers
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.jvm.javaType
 
-open class TemplateQuery (private val query :Query) {
+open class TemplateQuery (private val query: Query) {
 
     companion object {
 

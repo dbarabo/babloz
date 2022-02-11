@@ -107,6 +107,10 @@ object AccountList : Tab("Счета", VBox()), StoreListener<GroupAccount> {
 
             column("Остаток", GroupAccount::rest)
 
+            column("%% Основные", GroupAccount::percentSimple)
+
+            column("%% Добавочные", GroupAccount::percentAdd)
+
             root = TreeItem(rootGroup)
 
             populate { it.value.child }

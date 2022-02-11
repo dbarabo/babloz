@@ -203,10 +203,10 @@ internal class PayBind : BindProperties<Pay> {
         treeViewCategory?.selectedItem(categoryProperty.value)
     }
 
-    private fun LocalDateTime?.toDate() = this?.toLocalDate()?: LocalDate.now()
-
     private fun LocalDate.toDateTime() = if(this == LocalDate.now()) LocalDateTime.now() else this.atStartOfDay()
 }
+
+private fun LocalDateTime?.toDate() = this?.toLocalDate()?: LocalDate.now()
 
 private fun TreeItem<*>.collapseItems() {
 

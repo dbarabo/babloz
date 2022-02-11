@@ -1,6 +1,5 @@
 package ru.barabo.db
 
-import org.slf4j.LoggerFactory
 import ru.barabo.db.annotation.*
 import java.util.*
 import kotlin.reflect.KClass
@@ -11,7 +10,7 @@ import kotlin.reflect.full.instanceParameter
 import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.jvm.javaType
 
-private val logger = LoggerFactory.getLogger(MemberConverter::class.java)
+//private val logger = LoggerFactory.getLogger(MemberConverter::class.java)
 
 internal data class MemberConverter(private val member: KMutableProperty<*>,
                                     private val converter: ConverterValue?,
@@ -159,11 +158,7 @@ internal fun isNullIdItem(entityItem: Any): Boolean {
 
     val member = getIdMember(entityItem::class.java)
 
-//    logger.error("member=$member")
-//    logger.error("entityItem=$entityItem")
-
     val getValue = member?.getter?.call(entityItem)
-//    logger.error("getValue=$getValue")
 
     return getValue == null
 }
