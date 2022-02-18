@@ -12,7 +12,6 @@ import ru.barabo.babloz.gui.binding.BindProperties
 import ru.barabo.babloz.gui.formatter.fromFormatToCurrency
 import ru.barabo.babloz.gui.formatter.toCurrencyFormat
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 internal class AccountBind : BindProperties<Account> {
 
@@ -65,8 +64,8 @@ internal class AccountBind : BindProperties<Account> {
 
         value.isUseDebt = isUseDebtSubject.value
 
-        value.simplePercent = simplePercentProperty.value?.fromFormatToCurrency()
-        value.addPercent = addPercentProperty.value?.fromFormatToCurrency()
+        value.simplePercent = simplePercentProperty.value.fromFormatToCurrency()
+        value.addPercent = addPercentProperty.value.fromFormatToCurrency()
         value.daySimplePercent = simpleDateProperty.value
         value.startAdd = startAddProperty.value
         value.endAdd = endAddProperty.value

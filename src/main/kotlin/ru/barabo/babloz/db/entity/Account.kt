@@ -9,14 +9,14 @@ import java.time.LocalDate
 private const val PERCENT_SIMPLE = """(
 with CUR_RANGE as (
 
-select case when strftime('%d', DAY_SIMPLE_PERCENT) >= strftime('%d', CURRENT_DATE)
-  then date(strftime('%Y', current_date) || '-' ||   strftime('%m', date(current_date, '-1 month') ) || '-' || strftime('%d', DAY_SIMPLE_PERCENT) )
-  else date(strftime('%Y', current_date) || '-' ||   strftime('%m', current_date) || '-' || strftime('%d', DAY_SIMPLE_PERCENT) )
+select case when strftime('%d', DAY_SIMPLE_PERCENT) >= strftime('%d', DATE('NOW', 'LOCALTIME') )
+  then date(strftime('%Y', DATE('NOW', 'LOCALTIME') ) || '-' ||   strftime('%m', date(DATE('NOW', 'LOCALTIME'), '-1 month') ) || '-' || strftime('%d', DAY_SIMPLE_PERCENT) )
+  else date(strftime('%Y', DATE('NOW', 'LOCALTIME')) || '-' ||   strftime('%m', DATE('NOW', 'LOCALTIME')) || '-' || strftime('%d', DAY_SIMPLE_PERCENT) )
   end start_perc,
   
-  case when strftime('%d', DAY_SIMPLE_PERCENT) > strftime('%d', CURRENT_DATE)
-  then date(strftime('%Y', current_date) || '-' ||   strftime('%m', current_date) || '-' || strftime('%d', DAY_SIMPLE_PERCENT) )
-  else date(strftime('%Y', current_date) || '-' ||   strftime('%m', date(current_date, '+1 month') ) || '-' || strftime('%d', DAY_SIMPLE_PERCENT) )
+  case when strftime('%d', DAY_SIMPLE_PERCENT) > strftime('%d', DATE('NOW', 'LOCALTIME') )
+  then date(strftime('%Y', DATE('NOW', 'LOCALTIME') ) || '-' ||   strftime('%m', DATE('NOW', 'LOCALTIME')) || '-' || strftime('%d', DAY_SIMPLE_PERCENT) )
+  else date(strftime('%Y', DATE('NOW', 'LOCALTIME') ) || '-' ||   strftime('%m', date(DATE('NOW', 'LOCALTIME'), '+1 month') ) || '-' || strftime('%d', DAY_SIMPLE_PERCENT) )
   end end_perc,
   
   id account,
@@ -42,7 +42,7 @@ select date(pp.created) created, cr.account account, cr.start_perc, cr.end_perc,
 ),
 
 account_end as (
- select min(cr.end_perc, current_date) created, cr.account account,  cr.start_perc, cr.end_perc, cr.simple_percent
+ select min(cr.end_perc, DATE('NOW', 'LOCALTIME') ) created, cr.account account,  cr.start_perc, cr.end_perc, cr.simple_percent
 
   from CUR_RANGE cr
 ),
@@ -112,9 +112,9 @@ select date(pp.created) created, aa.ID account, aa.start_add, aa.end_add, aa.add
 ),
 
 account_end as (
- select min(date(a.end_add), current_date) created, a.id account, a.start_add, a.end_add, a.add_percent
+ select min(date(a.end_add), DATE('NOW', 'LOCALTIME') ) created, a.id account, a.start_add, a.end_add, a.add_percent
   from account a
-  where date(a.start_add) <= current_date
+  where date(a.start_add) <= DATE('NOW', 'LOCALTIME')
   group by  a.id, a.start_add, a.end_add, a.add_percent
 ),
 

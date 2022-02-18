@@ -25,8 +25,7 @@ fun currencyTextFormatter(): TextFormatter<*> {
 
 fun Number?.toCurrencyFormat() = this?.let{ DecimalFormat(CURRENCY_MASK).format(it) }?:""
 
-fun String?.fromFormatToCurrency() = this?.parseToMoney()?.let { BigDecimal( it.toDouble() ) }
-
+fun String?.fromFormatToCurrency(): BigDecimal = this?.parseToMoney()?.let { BigDecimal( it.toDouble() ) } ?: BigDecimal(0.0)
 
 fun String.parseToMoney() :Number? {
 

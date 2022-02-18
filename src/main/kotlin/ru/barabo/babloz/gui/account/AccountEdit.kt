@@ -4,8 +4,6 @@ import javafx.scene.layout.VBox
 import ru.barabo.babloz.db.entity.AccountType
 import ru.barabo.babloz.db.entity.Currency
 import ru.barabo.babloz.db.service.CurrencyService
-import ru.barabo.babloz.gui.formatter.currencyTextFormatter
-import ru.barabo.babloz.gui.pay.PaySaver
 import tornadofx.*
 
 internal object AccountEdit : VBox() {
@@ -35,7 +33,7 @@ internal object AccountEdit : VBox() {
                 field("%% Ставка основная") {
                     textfield().apply {
                         bind(AccountSaver.editBind.simplePercentProperty)
-                        textFormatter = currencyTextFormatter()
+                        //textFormatter = currencyTextFormatter()
                     }
                 }
                 field("Дата выплаты по основной %% ставке") {
@@ -44,7 +42,7 @@ internal object AccountEdit : VBox() {
                 field("%% Ставка добавочная") {
                     textfield().apply {
                         bind(AccountSaver.editBind.addPercentProperty)
-                        textFormatter = currencyTextFormatter()
+                        //textFormatter = currencyTextFormatter()
                     }
                 }
                 field("Дата начала добавочной %% ставки") {
