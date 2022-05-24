@@ -1,19 +1,15 @@
 package ru.barabo.db.service
 
-import org.slf4j.LoggerFactory
 import ru.barabo.db.*
 import ru.barabo.db.sync.Sync
-import ru.barabo.db.sync.SyncReload
 import ru.barabo.db.sync.SyncEditTypes
+import ru.barabo.db.sync.SyncReload
 import tornadofx.asObservable
-import tornadofx.observable
 
 abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val clazz: Class<T>)
     : Sync<T> by SyncReload<T>(orm, clazz) {
 
     private val listenerList = ArrayList<StoreListener<G>>()
-
-    private val logger = LoggerFactory.getLogger(StoreService::class.java)
 
     protected val dataList = ArrayList<T>().asObservable()
 

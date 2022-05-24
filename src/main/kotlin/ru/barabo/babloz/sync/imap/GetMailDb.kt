@@ -31,12 +31,13 @@ interface GetMailDb {
 
             val searchTerm = getSearchTerm(it.urlName.username)
 
-            val folderSent = it.getSentFolder()
+            var folderSent = it.getSentFolder()
 
             var result = folderSent.getResponseFileLastMessage(searchTerm, lastUidSaved)
 
             if(result.file == null && result.uidMessage == 0L) {
-                result = it.getFolder(MailProperties.INBOX).getResponseFileLastMessage(searchTerm, lastUidSaved)
+                folderSent = it.getFolder(MailProperties.INBOX)
+                result = folderSent.getResponseFileLastMessage(searchTerm, lastUidSaved)
             }
 
             if(result.isSuccess && (lastUidSaved != result.uidMessage) && (result.uidMessage != 0L)) {
