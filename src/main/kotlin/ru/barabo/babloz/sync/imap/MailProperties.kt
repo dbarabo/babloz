@@ -12,6 +12,7 @@ data class MailProperties(
         var hostSmtp: String,
         var portSmtp: Int,
         var tlsSmtpEnable: Boolean,
+        var isSSL: Boolean,
         var user: String,
         var password: String) {
 
@@ -26,12 +27,15 @@ data class MailProperties(
 
         private const val SENT_IMAP = "SENT"
 
+        private const val SENT_YANDEX = "Отправленные"
+
         fun sentFolderNameByServer(login: String): String {
-            val server = login.substringAfterLast('@').trim().lowercase(Locale.getDefault())
+            val server = login.substringAfterLast('@', "!").trim().lowercase(Locale.getDefault())
 
             return when  {
                 isGmail(server) -> SENT_GMAIL
                 isCockLi(server) -> INBOX
+                (server == "!") || isYandex(server) -> SENT_YANDEX
                 else -> SENT_IMAP
             }
         }
@@ -42,11 +46,14 @@ data class MailProperties(
             return when  {
             isGmail(server) -> gmailProperties(login, password)
             isCockLi(server) -> cockLiProperties(login, password)
+            isYandex(server) -> yandexProperties(login, password)
                 else -> null
             }
         }
 
         private fun isGmail(serverName: String) = ("gmail.com" == serverName)
+
+        private fun isYandex(serverName: String) = ("yandex.ru" == serverName)
 
         private fun isCockLi(serverName: String) = arrayOf("cock.li","airmail.cc","8chan.co","redchan.it",
                 "420blaze.it","aaathats3as.com","cumallover.me","dicksinhisan.us",
@@ -63,6 +70,7 @@ data class MailProperties(
                         hostSmtp = "smtp.gmail.com",
                         portSmtp = 587,
                         tlsSmtpEnable = true,
+                        isSSL = false,
                         user = user,
                         password = password)
 
@@ -73,8 +81,21 @@ data class MailProperties(
                         hostSmtp = "mail.cock.li",
                         portSmtp = 587,
                         tlsSmtpEnable = true,
+                        isSSL = false,
                         user = user,
                         password = password)
+
+
+        private fun yandexProperties(user: String, password: String) =
+            MailProperties(
+                hostImap = "imap.yandex.ru",
+                portImap = 993,
+                hostSmtp = "smtp.yandex.ru",
+                portSmtp = 465,
+                tlsSmtpEnable = true,
+                isSSL = true,
+                user = user/*.substringBefore('@')*/,
+                password = password)
     }
 
     private fun imapProperties(): Properties = Properties().apply {
@@ -126,5 +147,9 @@ data class MailProperties(
         put("mail.smtp.starttls.enable", tlsSmtpEnable.toString())
         put("mail.smtp.port", portSmtp.toString())
         put("mail.smtp.from", user)
+
+        if(isSSL) {
+            put("mail.smtp.ssl.enable", "true")
+        }
     }
 }

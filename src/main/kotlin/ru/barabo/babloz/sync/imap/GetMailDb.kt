@@ -33,7 +33,11 @@ interface GetMailDb {
 
             val folderSent = it.getSentFolder()
 
-            val result = folderSent.getResponseFileLastMessage(searchTerm, lastUidSaved)
+            var result = folderSent.getResponseFileLastMessage(searchTerm, lastUidSaved)
+
+            if(result.file == null && result.uidMessage == 0L) {
+                result = it.getFolder(MailProperties.INBOX).getResponseFileLastMessage(searchTerm, lastUidSaved)
+            }
 
             if(result.isSuccess && (lastUidSaved != result.uidMessage) && (result.uidMessage != 0L)) {
                 val folderInbox = it.getFolder(MailProperties.INBOX)
