@@ -1,6 +1,8 @@
 package ru.barabo.db
 
+import ru.barabo.babloz.db.logger
 import ru.barabo.db.annotation.*
+import java.math.BigDecimal
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
@@ -368,7 +370,13 @@ internal fun valueToJava(entity: Any, value: Any, member: KMutableProperty<*>, c
     }
 
     if(Type.isConverterExists(javaType)) {
-        return Type.convertValueToJavaTypeByClass(value, javaType)
+        return Type.convertValueToJavaTypeByClass(value, javaType).apply {
+            if(BigDecimal::class.java.isAssignableFrom(javaType) ) {
+                logger.error("javaType=$javaType")
+                logger.error("value=$value")
+                logger.error("convertValue=$this")
+            }
+        }
     }
 
     val manyToOneClass =member.findAnnotation<ManyToOne>()

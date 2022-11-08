@@ -29,6 +29,8 @@ data class MailProperties(
 
         private const val SENT_YANDEX = "Отправленные"
 
+        private const val SENT_RAMBLER = "SentBox"
+
         fun sentFolderNameByServer(login: String): String {
             val server = login.substringAfterLast('@', "!").trim().lowercase(Locale.getDefault())
 
@@ -36,6 +38,7 @@ data class MailProperties(
                 isGmail(server) -> SENT_GMAIL
                 isCockLi(server) -> INBOX
                 (server == "!") || isYandex(server) -> SENT_YANDEX
+                isRambler(server) -> SENT_RAMBLER
                 else -> SENT_IMAP
             }
         }
@@ -47,6 +50,7 @@ data class MailProperties(
             isGmail(server) -> gmailProperties(login, password)
             isCockLi(server) -> cockLiProperties(login, password)
             isYandex(server) -> yandexProperties(login, password)
+            isRambler(server) ->   ramblerProperties(login, password)
                 else -> null
             }
         }
@@ -54,6 +58,8 @@ data class MailProperties(
         private fun isGmail(serverName: String) = ("gmail.com" == serverName)
 
         private fun isYandex(serverName: String) = ("yandex.ru" == serverName)
+
+        private fun isRambler(serverName: String) = ("rambler.ru" == serverName)
 
         private fun isCockLi(serverName: String) = arrayOf("cock.li","airmail.cc","8chan.co","redchan.it",
                 "420blaze.it","aaathats3as.com","cumallover.me","dicksinhisan.us",
@@ -91,6 +97,17 @@ data class MailProperties(
                 hostImap = "imap.yandex.ru",
                 portImap = 993,
                 hostSmtp = "smtp.yandex.ru",
+                portSmtp = 465,
+                tlsSmtpEnable = true,
+                isSSL = true,
+                user = user/*.substringBefore('@')*/,
+                password = password)
+
+        private fun ramblerProperties(user: String, password: String) =
+            MailProperties(
+                hostImap = "imap.rambler.ru",
+                portImap = 993,
+                hostSmtp = "smtp.rambler.ru",
                 portSmtp = 465,
                 tlsSmtpEnable = true,
                 isSSL = true,

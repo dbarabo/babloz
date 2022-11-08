@@ -74,7 +74,7 @@ data class Category (
 
     override fun toString(): String = "${if(parent == null)"" else "  ↳"}$name"
 
-    override fun selectParams(): Array<Any?>? = arrayOf(dateStart.toSqlDate(), dateEnd.toSqlDate())
+    override fun selectParams(): Array<Any?> = arrayOf(dateStart.toSqlDate(), dateEnd.toSqlDate())
 
     override fun equals(other: Any?): Boolean {
 
@@ -89,7 +89,7 @@ data class Category (
         return false
     }
 
-    override fun hashCode(): Int = (id?:0 * 31 + (name?.hashCode()?:0)) * 31
+    override fun hashCode(): Int = (id ?: (0 * 31 + (name?.hashCode() ?: 0))) * 31
 }
 
 fun LocalDateTime.toSqlDate() = java.sql.Date(this.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())

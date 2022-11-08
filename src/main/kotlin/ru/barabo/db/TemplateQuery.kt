@@ -1,5 +1,7 @@
 package ru.barabo.db
 
+import org.slf4j.LoggerFactory
+import ru.barabo.babloz.db.entity.Category
 import ru.barabo.db.annotation.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -24,6 +26,8 @@ open class TemplateQuery (private val query: Query) {
         private const val ERROR_NULL_VALUE_TYPE = "Value and Type value is null"
 
         private fun errorSequenceReturnNull(sequence :String) = "Sequence expression return NULL $sequence"
+
+        private val logger = LoggerFactory.getLogger(TemplateQuery::class.java)
     }
 
     fun startLongTransaction(): SessionSetting = query.uniqueSession()
@@ -83,6 +87,14 @@ open class TemplateQuery (private val query: Query) {
 
         val params = if(ParamsSelect::class.java.isAssignableFrom(row)) {
             (row.newInstance() as ParamsSelect).selectParams() } else null
+
+        if(Category::class.java.isAssignableFrom(row) ) {
+            logger.error("selectQuery=$selectQuery")
+
+            logger.error("params=$params")
+
+            params?.forEach { logger.error("par=$it") }
+        }
 
         select(selectQuery, params, row, callBack)
     }
