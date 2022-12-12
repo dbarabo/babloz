@@ -17,6 +17,7 @@ import tornadofx.addChildIfPossible
 import tornadofx.column
 import tornadofx.observable
 import tornadofx.resizeColumnsToFitContent
+import kotlin.reflect.KProperty1
 
 
 internal object BudgetRowTable : StoreListener<List<BudgetRow>> {
@@ -74,6 +75,10 @@ internal object BudgetRowTable : StoreListener<List<BudgetRow>> {
 
             columns.add(progressColumn() )
 
+            columns.add(progressColumnPartPan() )
+
+            columns.add(progressColumnPartReal() )
+
             selectionModel?.selectedItemProperty()?.addListener { _, _, newSelection ->
                         BudgetRow.budgetRowSelected = newSelection
                     }
@@ -89,10 +94,24 @@ internal object BudgetRowTable : StoreListener<List<BudgetRow>> {
         }
     }
 
-    private fun progressColumn(): TableColumn<BudgetRow, Double?> {
+    private fun progressColumn(): TableColumn<BudgetRow, Double?> = progressColumnAny("Процент", BudgetRow::percentAll)
+    /*{
         return TableColumn<BudgetRow, Double?>("Процент").apply {
 
             cellValueFactory = Callback { observable(it.value, BudgetRow::percentAll) } //PropertyValueFactory<BudgetRow, Double?>("percentAll")
+
+            cellFactory = tableCellProgressCallback()
+        }
+    }*/
+
+    private fun progressColumnPartPan(): TableColumn<BudgetRow, Double?> = progressColumnAny("Доля плана", BudgetRow::partPlan)
+
+    private fun progressColumnPartReal(): TableColumn<BudgetRow, Double?> = progressColumnAny("Доля реал", BudgetRow::partReal)
+
+    private fun progressColumnAny(labelColumn: String, columnValue: KProperty1<BudgetRow, Double>): TableColumn<BudgetRow, Double?> {
+        return TableColumn<BudgetRow, Double?>(labelColumn).apply {
+
+            cellValueFactory = Callback { observable(it.value, columnValue) }
 
             cellFactory = tableCellProgressCallback()
         }

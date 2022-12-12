@@ -1,6 +1,7 @@
 package ru.barabo.crypto
 
-import sun.misc.BASE64Encoder
+//import sun.misc.BASE64Encoder
+import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.DESKeySpec
@@ -16,5 +17,6 @@ object CheckerHash {
         cipher.init(Cipher.ENCRYPT_MODE, keySpec)
     }
 
-    fun toHashPassword(password: String): String = BASE64Encoder().encode(cipher.doFinal(password.toByteArray()) )
+    fun toHashPassword(password: String): String = Base64.getEncoder().encodeToString(password.toByteArray())
+        // BASE64Encoder().encode(cipher.doFinal(password.toByteArray()) )
 }

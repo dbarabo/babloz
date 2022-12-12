@@ -55,6 +55,12 @@ data class BudgetRow(
         return amountRealDouble / amountDouble
     }
 
+    val partPlan: Double
+    get() = (amount?.toDouble() ?: 0.0) / (BudgetMain.selectedBudget?.amountBudget?.toDouble() ?: Double.MAX_VALUE)
+
+    val partReal: Double
+        get() = (amountReal?.toDouble() ?: 0.0) / (BudgetMain.selectedBudget?.amountReal?.toDouble() ?: Double.MAX_VALUE)
+
     companion object {
 
         internal const val OTHER_NAME = "Все остальные категории"
@@ -94,7 +100,7 @@ data class BudgetRow(
                 BudgetRow(main = budgetMain.id, name = NEW_NAME, amount = BigDecimal(0))
     }
 
-    override fun selectParams(): Array<Any?>? =  arrayOf(BudgetMain.selectedBudget?.id?:Int::class)
+    override fun selectParams(): Array<Any?> =  arrayOf(BudgetMain.selectedBudget?.id?:Int::class)
 
     fun isOther(): Boolean = (name == OTHER_NAME)
 
